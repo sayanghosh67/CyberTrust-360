@@ -44,7 +44,7 @@ export function ThreatSearchHero({ onInvestigate, isScanning, error, requestedUr
       <section className="hero-section shell" id="home">
         <div className="hero-copy">
           <div className="eyebrow">
-            <span className="signal-dot" /> THE NEXT LAYER OF DIGITAL TRUST <span className="version-tag">V.03</span>
+            <span className="signal-dot" /> THE NEXT LAYER OF DIGITAL TRUST <span className="version-tag">PRODUCTION READY</span>
           </div>
           <h1>
             Trust is earned.<br /> <span>Verify everything.</span>

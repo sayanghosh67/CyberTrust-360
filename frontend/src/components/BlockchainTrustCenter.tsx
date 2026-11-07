@@ -150,7 +150,7 @@ export const BlockchainTrustCenter: React.FC<BlockchainTrustCenterProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/40 text-xs font-mono uppercase tracking-wider mb-2">
             <Lock className="w-3.5 h-3.5 text-cyan-400" />
-            <span>PHASE 5 — DECENTRALIZED TRUST & AUDIT</span>
+            <span>IMMUTABLE WEB3 LEDGER</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
             Blockchain Threat Report Integrity
@@ -258,7 +258,7 @@ export const BlockchainTrustCenter: React.FC<BlockchainTrustCenterProps> = ({
             </div>
 
             <p className="text-xs text-slate-400 mb-4 leading-relaxed font-mono">
-              Enter any investigation report ID (from Phase 2 URL Scans or Phase 3 Scam DNA) to verify
+              Enter any investigation report ID (from URL Scans or Scam DNA Intelligence) to verify
               its cryptographic hash against the immutable on-chain registry.
             </p>
 

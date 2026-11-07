@@ -5,6 +5,7 @@ import { InvestigationReport } from '../components/InvestigationReport';
 import { RecentScansList } from '../components/RecentScansList';
 import { ScamDnaAnalyzer } from '../components/ScamDnaAnalyzer';
 import { WhatShouldIDoNow } from '../components/WhatShouldIDoNow';
+import { PlatformDashboardOverview } from '../components/PlatformDashboardOverview';
 import { ThreatRelationshipGraph } from '../components/ThreatRelationshipGraph';
 import { BlockchainTrustCenter } from '../components/BlockchainTrustCenter';
 import { IntelligenceOverview } from '../components/IntelligenceOverview';
@@ -131,6 +132,9 @@ export const LandingPage: React.FC = () => {
             />
           )}
         </div>
+
+        {/* 360° Platform Intelligence Overview & Live Telemetry */}
+        <PlatformDashboardOverview />
 
         {/* Recent Investigations List */}
         <RecentScansList

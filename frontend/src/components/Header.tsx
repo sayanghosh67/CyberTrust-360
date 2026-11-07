@@ -25,6 +25,9 @@ export function Header({ status, latencyMs, onRefresh }: HeaderProps) {
         </a>
 
         <nav className={open ? 'main-nav is-open' : 'main-nav'} aria-label="Main navigation">
+          <a href="#platform-overview" onClick={() => setOpen(false)}>
+            Overview
+          </a>
           <a href="#investigate" onClick={() => setOpen(false)}>
             URL Scanner
           </a>

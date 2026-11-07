@@ -387,7 +387,7 @@ Tactics: ${report.tactics.map((t) => t.name).join(', ') || 'None'}`;
                       className="mt-1 w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-600/50 hover:to-blue-600/50 text-cyan-200 border border-cyan-500/40 text-xs font-medium transition-all group shadow-sm"
                     >
                       <Search className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                      <span>Investigate URL in Phase 2 Scanner</span>
+                      <span>Investigate in Deep URL Scanner</span>
                     </button>
                   )}
                 </div>

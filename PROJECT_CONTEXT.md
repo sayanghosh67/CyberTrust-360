@@ -3,7 +3,7 @@
 > **Team / Developer Branding**: TECHNIX PRO  
 > **Project Title**: CyberTrust 360 — AI-Powered Web Threat Detection & Digital Trust Intelligence Platform  
 > **Hackathon Timeline**: 48-Hour Rapid MVP  
-> **Current Milestone**: Phase 5 — Blockchain Threat Report Integrity & Decentralized Verification (Completed & Verified)  
+> **Current Milestone**: Phase 6 — Final Integration, Security Hardening, Deployment & Hackathon Submission (Completed & Verified)  
 > **Source of Truth**: This document serves as the persistent architectural reference for all future AI and engineering sessions.
 
 ---
@@ -276,41 +276,57 @@ HACKMATRIX/
 
 ---
 
-## 10. Development & Testing Commands
+## 10. Phase 6 Implementation Details (Final Integration, Security Hardening & Readiness)
+
+1. **360° Platform Dashboard Overview (`PlatformDashboardOverview.tsx`, `dashboard.py`)**:
+   - Real database metric cards pulling live counts: Total URL Scans, Scam DNA Analyses, High-Risk Reports, Correlated Indicators, and On-Chain Attestations.
+   - 30-Second Hackathon Navigation Grid with direct entry points to Module 01 (URL Scanner), Module 02 (Scam DNA), Module 03 (Threat Relationship Map), and Module 04 (Blockchain Trust Center).
+   - Real database values verified against PostgreSQL/SQLite ledger.
+
+2. **Security Hardening & Guardrails**:
+   - Confirmed SSRF and DNS rebinding protection blocking loopback (`127.0.0.0/8`, `::1`), private networks (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), cloud metadata (`169.254.169.254`), and per-hop redirect loops.
+   - Prompt injection defense isolation using XML framing delimiters.
+   - Zero-PII EVM attestation storing strictly 32-byte hashes on-chain.
+   - Masked internal error messages in production exception handlers.
+
+3. **One-Command Demonstration Startup (`start_demo.sh`)**:
+   - Fully automated startup script testing node/python prerequisites, launching the Hardhat EVM daemon, deploying `CyberTrustReportRegistry.sol`, launching FastAPI, launching Vite, and validating readiness probes in under 3 seconds.
+
+4. **Hackathon Submission & Presentation Assets**:
+   - `docs/CyberTrust360_PitchDeck.pptx`: 10-slide PowerPoint pitch deck with dark cybersecurity styling.
+   - `docs/PRESENTATION.md`: Slide-by-slide markdown content, 2-minute pitch script, and 5-minute live demonstration script.
+   - `docs/DEMO_VIDEO_STORYBOARD.md`: Minute-by-minute shot list, onscreen actions, voiceover script, and recording checklist.
+   - `docs/ARCHITECTURE.md`: Complete end-to-end data pipeline specification with Mermaid architecture diagrams.
+   - `docs/screenshots/`: Complete set of high-resolution visual evidence artifacts.
+
+---
+
+## 11. Development & Testing Commands
 
 ```bash
-# 1. Activate backend virtual environment
-source backend/.venv/bin/activate
+# 1. One-command demonstration startup
+chmod +x start_demo.sh
+./start_demo.sh
 
-# 2. Run local Hardhat node & run contract tests
-cd blockchain
-CI=true npx hardhat test                # 13/13 passing
-CI=true npx hardhat node                # Starts local EVM on port 8545
+# 2. Run smart contract unit tests (13 tests)
+cd blockchain && CI=true npx hardhat test
 
-# 3. Deploy smart contract to local node
-npx hardhat run scripts/deploy.ts --network localhost
-
-# 4. Run automated backend test suite (44 tests across all phases)
+# 3. Run backend automated test suite (45 tests across all modules)
 PYTHONPATH=. backend/.venv/bin/pytest backend/tests -v
 
-# 5. Total automated tests passing: 57 (44 backend + 13 smart contract)
+# 4. Run frontend production build (0 TypeScript errors)
+npm run build --prefix frontend
 
-# 6. Start backend server (port 8000)
-uvicorn backend.app.main:app --reload --port 8000
-
-# 7. Start frontend server (port 5173)
-cd frontend && npm run dev
-
-# 8. Build frontend production bundle
-cd frontend && npm run build
+# 5. Total Automated Tests Passing: 58 / 58
 ```
 
 ---
 
-## 11. Project Milestones Summary
+## 12. Project Milestones Summary
 
 - **Phase 1**: Project Foundation (Completed & Verified)
 - **Phase 2**: Core URL & Website Investigation Engine (Completed & Verified)
 - **Phase 3**: AI Scam DNA Intelligence & Incident Guidance Protocol (Completed & Verified)
 - **Phase 4**: Threat Relationship Intelligence & Interactive Scam Relationship Map (Completed & Verified)
 - **Phase 5**: Blockchain Threat Report Integrity & Decentralized Verification (Completed & Verified)
+- **Phase 6**: Final Integration, Security Hardening, Deployment & Hackathon Submission (Completed & Verified)
