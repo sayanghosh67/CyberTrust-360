@@ -14,8 +14,14 @@ import {
 } from 'lucide-react';
 import type { GraphNodeData } from '../types/intelligence';
 
+interface ExtendedNodeData extends GraphNodeData {
+  isNeighbor?: boolean;
+  isDimmed?: boolean;
+  isSelected?: boolean;
+}
+
 export const CyberGraphNode: React.FC<NodeProps> = ({ data, selected }) => {
-  const node = data as unknown as GraphNodeData;
+  const node = data as unknown as ExtendedNodeData;
 
   const getNodeTheme = () => {
     switch (node.type) {
@@ -87,13 +93,19 @@ export const CyberGraphNode: React.FC<NodeProps> = ({ data, selected }) => {
   };
 
   const theme = getNodeTheme();
+  const isHighlighted = selected || node.isSelected;
+  const isNeighbor = node.isNeighbor;
 
   return (
     <div
-      className={`relative px-4 py-3 rounded-2xl border-2 transition-all cursor-pointer backdrop-blur-md min-w-[200px] max-w-[280px] shadow-lg ${
+      className={`relative px-4 py-3 rounded-2xl border-2 transition-all duration-300 cursor-pointer backdrop-blur-md min-w-[200px] max-w-[280px] shadow-lg ${
         theme.bg
       } ${theme.border} ${theme.glow} ${
-        selected ? 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-slate-950 scale-105' : 'hover:scale-[1.02]'
+        isHighlighted
+          ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-slate-950 scale-105 shadow-cyan-400/50'
+          : isNeighbor
+          ? 'ring-2 ring-cyan-400/80 ring-offset-1 ring-offset-slate-950 shadow-cyan-500/30'
+          : 'hover:scale-[1.02]'
       }`}
     >
       {/* Handles for connections */}

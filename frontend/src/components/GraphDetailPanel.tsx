@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Info,
   Layers,
+  Sparkles,
 } from 'lucide-react';
 import type { GraphNodeData, GraphEdgeData } from '../types/intelligence';
 
@@ -14,20 +15,36 @@ interface GraphDetailPanelProps {
   selectedNode: GraphNodeData | null;
   selectedEdge: GraphEdgeData | null;
   connectedEdges?: GraphEdgeData[];
+  allNodes?: GraphNodeData[];
   onClose: () => void;
   onInvestigateUrl?: (url: string) => void;
   onSelectEdge?: (edge: GraphEdgeData) => void;
+  onSelectNode?: (node: GraphNodeData) => void;
+  onExpandCluster?: (nodeId: string) => void;
+  isClusterExpandable?: boolean;
 }
 
 export const GraphDetailPanel: React.FC<GraphDetailPanelProps> = ({
   selectedNode,
   selectedEdge,
   connectedEdges = [],
+  allNodes = [],
   onClose,
   onInvestigateUrl,
   onSelectEdge,
+  onSelectNode,
+  onExpandCluster,
+  isClusterExpandable = false,
 }) => {
   if (!selectedNode && !selectedEdge) return null;
+
+  // Resolve human-readable node entities for edge inspection
+  const sourceNode = selectedEdge ? allNodes.find((n) => n.id === selectedEdge.source) : null;
+  const targetNode = selectedEdge ? allNodes.find((n) => n.id === selectedEdge.target) : null;
+  const sourceLabel = sourceNode?.label || (selectedEdge ? selectedEdge.source : '');
+  const targetLabel = targetNode?.label || (selectedEdge ? selectedEdge.target : '');
+  const sourceType = sourceNode?.type ? sourceNode.type.replace('_', ' ') : 'entity';
+  const targetType = targetNode?.type ? targetNode.type.replace('_', ' ') : 'entity';
 
   return (
     <div className="w-full lg:w-96 bg-slate-950/95 border border-slate-800 rounded-3xl p-6 shadow-2xl backdrop-blur-xl flex flex-col max-h-[640px] overflow-y-auto animate-fadeIn text-slate-200">
@@ -41,7 +58,7 @@ export const GraphDetailPanel: React.FC<GraphDetailPanelProps> = ({
         </div>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
           aria-label="Close detail panel"
         >
           <X className="w-4 h-4" />
@@ -51,18 +68,56 @@ export const GraphDetailPanel: React.FC<GraphDetailPanelProps> = ({
       {/* Selected Edge Details */}
       {selectedEdge && (
         <div className="space-y-4">
-          <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block mb-1">
               Connection Topology
             </span>
-            <div className="flex items-center gap-2 text-xs font-mono font-bold text-white">
-              <span className="truncate max-w-[120px] text-cyan-300" title={selectedEdge.source}>
-                {selectedEdge.source}
-              </span>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-              <span className="truncate max-w-[120px] text-emerald-300" title={selectedEdge.target}>
-                {selectedEdge.target}
-              </span>
+            <div className="space-y-2">
+              {/* Source Entity Card */}
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80">
+                <div className="min-w-0 pr-2">
+                  <span className="text-[9px] font-mono uppercase text-cyan-400/90 block font-semibold">{sourceType}</span>
+                  <span className="text-xs font-mono font-bold text-white block truncate" title={sourceLabel}>
+                    {sourceLabel}
+                  </span>
+                </div>
+                {sourceNode && onSelectNode && (
+                  <button
+                    onClick={() => onSelectNode(sourceNode)}
+                    className="shrink-0 px-2.5 py-1 text-[10px] font-mono bg-cyan-950 text-cyan-300 hover:bg-cyan-900 rounded-lg border border-cyan-800 transition-colors cursor-pointer"
+                  >
+                    Inspect
+                  </button>
+                )}
+              </div>
+
+              {/* Relationship Indicator Arrow */}
+              <div className="flex items-center justify-center gap-2 text-slate-500 py-0.5">
+                <div className="h-px bg-slate-800 flex-1" />
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-800 flex items-center gap-1.5">
+                  <span>{selectedEdge.label || selectedEdge.relationship_type}</span>
+                  <ArrowRight className="w-3 h-3 text-cyan-400" />
+                </span>
+                <div className="h-px bg-slate-800 flex-1" />
+              </div>
+
+              {/* Target Entity Card */}
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80">
+                <div className="min-w-0 pr-2">
+                  <span className="text-[9px] font-mono uppercase text-emerald-400/90 block font-semibold">{targetType}</span>
+                  <span className="text-xs font-mono font-bold text-white block truncate" title={targetLabel}>
+                    {targetLabel}
+                  </span>
+                </div>
+                {targetNode && onSelectNode && (
+                  <button
+                    onClick={() => onSelectNode(targetNode)}
+                    className="shrink-0 px-2.5 py-1 text-[10px] font-mono bg-emerald-950 text-emerald-300 hover:bg-emerald-900 rounded-lg border border-emerald-800 transition-colors cursor-pointer"
+                  >
+                    Inspect
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -103,8 +158,16 @@ export const GraphDetailPanel: React.FC<GraphDetailPanelProps> = ({
             <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block mb-1.5">
               Supporting Technical Evidence
             </span>
-            <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs font-mono text-cyan-200 leading-relaxed">
-              &gt; {selectedEdge.evidence}
+            <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+              <div className="text-xs font-mono text-cyan-200 leading-relaxed break-words bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+                &gt; {selectedEdge.evidence}
+              </div>
+              {selectedEdge.source_report_ids && selectedEdge.source_report_ids.length > 0 && (
+                <div className="pt-1 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                  <span>Correlation Provenance:</span>
+                  <span className="text-cyan-400 font-semibold">{selectedEdge.source_report_ids.length} Corroborating Source Report(s)</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -149,6 +212,17 @@ export const GraphDetailPanel: React.FC<GraphDetailPanelProps> = ({
               <p className="text-xs text-slate-400 mt-0.5">{selectedNode.sublabel}</p>
             )}
           </div>
+
+          {/* Expand Cluster Action if available */}
+          {isClusterExpandable && onExpandCluster && (
+            <button
+              onClick={() => onExpandCluster(selectedNode.id)}
+              className="w-full py-2.5 px-3 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-700/60 text-xs font-mono font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+            >
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <span>Expand Hidden Cluster Connections</span>
+            </button>
+          )}
 
           {/* Risk Score Dial if applicable */}
           {selectedNode.risk_score !== undefined && selectedNode.risk_score !== null && (
@@ -221,31 +295,38 @@ export const GraphDetailPanel: React.FC<GraphDetailPanelProps> = ({
                 Connected Relationships ({connectedEdges.length})
               </span>
               <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-                {connectedEdges.map((edge) => (
-                  <button
-                    key={edge.id}
-                    onClick={() => onSelectEdge(edge)}
-                    className="w-full text-left p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 transition-colors flex items-center justify-between gap-2 group cursor-pointer"
-                  >
-                    <div className="min-w-0">
-                      <span className="text-[11px] font-mono font-bold text-slate-200 block truncate group-hover:text-cyan-300">
-                        {edge.label}
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-mono block truncate">
-                        {edge.relationship_type}
-                      </span>
-                    </div>
-                    <span
-                      className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border shrink-0 ${
-                        edge.category === 'VERIFIED_SHARED_INDICATOR'
-                          ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800'
-                          : 'bg-amber-950/80 text-amber-300 border-amber-800'
-                      }`}
+                {connectedEdges.map((edge) => {
+                  const otherNodeId = edge.source === selectedNode.id ? edge.target : edge.source;
+                  const otherNode = allNodes.find((n) => n.id === otherNodeId);
+                  const otherLabel = otherNode?.label || otherNodeId;
+                  const otherType = otherNode?.type ? otherNode.type.replace('_', ' ') : '';
+
+                  return (
+                    <button
+                      key={edge.id}
+                      onClick={() => onSelectEdge(edge)}
+                      className="w-full text-left p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 transition-colors flex items-center justify-between gap-2 group cursor-pointer"
                     >
-                      {edge.category === 'VERIFIED_SHARED_INDICATOR' ? 'Verified' : 'Inferred'}
-                    </span>
-                  </button>
-                ))}
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[11px] font-mono font-bold text-slate-200 block truncate group-hover:text-cyan-300">
+                          {edge.label}: {otherLabel}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-mono block truncate">
+                          {edge.relationship_type} {otherType ? `(${otherType})` : ''}
+                        </span>
+                      </div>
+                      <span
+                        className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border shrink-0 ${
+                          edge.category === 'VERIFIED_SHARED_INDICATOR'
+                            ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800'
+                            : 'bg-amber-950/80 text-amber-300 border-amber-800'
+                        }`}
+                      >
+                        {edge.category === 'VERIFIED_SHARED_INDICATOR' ? 'Verified' : 'Inferred'}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

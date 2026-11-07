@@ -106,3 +106,4 @@ class ReportRelationshipsResponse(BaseModel):
     verified_shared_count: int
     possible_inferred_count: int
     limitations: str
+

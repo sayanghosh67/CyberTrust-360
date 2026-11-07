@@ -3,7 +3,7 @@
 > **Team / Developer Branding**: TECHNIX PRO  
 > **Project Title**: CyberTrust 360 — AI-Powered Web Threat Detection & Digital Trust Intelligence Platform  
 > **Hackathon Timeline**: 48-Hour Rapid MVP  
-> **Current Milestone**: Phase 4 — Threat Relationship Intelligence & Scam Relationship Map (Completed)  
+> **Current Milestone**: Phase 4 — Threat Relationship Intelligence & Scam Relationship Map (Completed & Verified)  
 > **Source of Truth**: This document serves as the persistent architectural reference for all future AI and engineering sessions.
 
 ---
@@ -175,7 +175,8 @@ HACKMATRIX/
 │   ├── tests/
 │   │   ├── test_health.py           # Health check & error handling tests
 │   │   ├── test_investigation.py    # 14 comprehensive unit & forensic tests
-│   │   └── test_scam_analyzer.py    # 13 Scam DNA, Indian fraud & LLM tests
+│   │   ├── test_scam_analyzer.py    # 13 Scam DNA, Indian fraud & LLM tests
+│   │   └── test_intelligence_graph.py # 9 relationship intelligence & correlation tests
 │   └── requirements.txt
 │
 └── frontend/
@@ -183,11 +184,13 @@ HACKMATRIX/
     │   ├── types/
     │   │   ├── health.ts     # Health state types
     │   │   ├── scan.ts       # Full scan & indicator TypeScript types
-    │   │   └── scam.ts       # Scam DNA & safety guidance TypeScript types
+    │   │   ├── scam.ts       # Scam DNA & safety guidance TypeScript types
+    │   │   └── intelligence.ts# Graph nodes, edges & recurring indicators types
     │   ├── services/
     │   │   ├── api.ts        # Base HTTP fetch client
     │   │   ├── scanService.ts# Typed scan investigation client
-    │   │   └── scamService.ts# Typed scam analysis client
+    │   │   ├── scamService.ts# Typed scam analysis client
+    │   │   └── intelligenceService.ts# Typed intelligence graph API client
     │   ├── components/
     │   │   ├── Header.tsx            # Header with live pulse status & phase navigation
     │   │   ├── ThreatSearchHero.tsx  # Active investigation input & progress ticker
@@ -196,6 +199,9 @@ HACKMATRIX/
     │   │   ├── ScamDnaAnalyzer.tsx   # Scam DNA input workbench & presets
     │   │   ├── ScamDnaReport.tsx     # Scam tactics quote box & extracted indicators
     │   │   ├── WhatShouldIDoNow.tsx  # 5-situation interactive incident guidance card
+    │   │   ├── CyberGraphNode.tsx    # Custom React Flow cyber styled node with glow rings
+    │   │   ├── GraphDetailPanel.tsx  # Forensic drawer with readable topology & evidence
+    │   │   ├── ThreatRelationshipGraph.tsx # Anti-overlap clustered canvas with auto-center
     │   │   └── Footer.tsx            # Technix Pro branding
     │   └── pages/
     │       └── LandingPage.tsx       # Core application dashboard view
@@ -204,7 +210,35 @@ HACKMATRIX/
 
 ---
 
-## 8. Development & Testing Commands
+## 8. Phase 4 Readability & Verification Highlights
+
+1. **Anti-Overlap Clustering Layout**:
+   - Computes connected components across threat entities and hub nodes (recurring domains/brands).
+   - Arranges nodes in concentric shells with dynamic radii and packs clusters cleanly across a 2D grid.
+   - Enforces a 15-pass iterative collision relaxation algorithm guaranteeing $dx \ge 280\text{px}$ and $dy \ge 120\text{px}$ so nodes never overlap.
+2. **Manageable Initial View (Focused vs Full Dataset)**:
+   - Initial load defaults to a focused view displaying the top 28 key correlated entities across primary threat clusters.
+   - Displays a dynamic banner: `"Showing 28 key correlated entities across top clusters (N unselected background records hidden for readability)."` with a 1-click toggle to view the entire dataset.
+   - In-drawer cluster expansion: Clicking `"Expand Hidden Cluster Connections"` immediately expands that hub's hidden neighbors in place.
+3. **Dynamic Node & Edge Highlighting / Dimming**:
+   - Selected node: Scaled up (`scale-105`), glowing with cyan halo (`ring-4 ring-cyan-400`), opacity 1.0, zIndex 50.
+   - 1-hop connected neighbors: Glowing cyan ring (`ring-2 ring-cyan-400/80`), opacity 1.0, zIndex 20.
+   - Unrelated nodes: Dimmed to 15% opacity with 80% grayscale filter (`opacity: 0.15, filter: grayscale(80%)`), zIndex 1.
+   - Connected edges: Animated, 3.5px line width, vibrant stroke, zIndex 30.
+   - Unrelated edges: Dimmed to 0.08 opacity, thin 1px slate line, zIndex 0.
+4. **Relationship Forensic Evidence Drawer**:
+   - Displays human-readable source and target names and entity type badges (e.g., `SCAM REPORT: Bank KYC / Account Suspension...` -> `DOMAIN: sbi-kyc-update-portal.xyz`) with 1-click `[Inspect]` jump buttons.
+   - Distinguishes `VERIFIED_SHARED_INDICATOR` (direct technical indicator match) from `POSSIBLE RELATIONSHIP (INFERRED)` (heuristic tactic/brand match).
+   - Shows exact technical evidence quotes with correlation provenance report count.
+   - Prominently displays the non-attribution legal disclaimer: shared indicators indicate infrastructure reuse, not shared criminal identity.
+5. **Live Ingestion & Separation of Demo Mode**:
+   - Synthetic Demo Clusters default to OFF (`includeDemo = false`).
+   - Live URL scans and Scam DNA reports submitted via Phase 2 and Phase 3 immediately appear in the graph in real-time.
+   - Toggling Demo Clusters displays an explicit cyan `[DEMO MODE]` banner with `[DEMO]`-prefixed nodes and edges.
+
+---
+
+## 9. Development & Testing Commands
 
 ```bash
 # 1. Activate backend virtual environment
@@ -225,10 +259,10 @@ cd frontend && npm run build
 
 ---
 
-## 9. Next Planned Milestones
+## 10. Next Planned Milestones
 
 - **Phase 1**: Project Foundation (Completed)
 - **Phase 2**: Core URL & Website Investigation Engine (Completed)
 - **Phase 3**: AI Scam DNA Intelligence & Incident Guidance Protocol (Completed)
-- **Phase 4**: Threat Relationship Intelligence & Interactive Scam Relationship Map (Completed)
+- **Phase 4**: Threat Relationship Intelligence & Interactive Scam Relationship Map (Completed & Verified)
 - **Phase 5**: Immutable On-Chain Trust Attestation & Smart Contracts (EVM / Hardhat / Solidity — Not Started)

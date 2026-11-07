@@ -63,3 +63,4 @@ export async function fetchTopRecurringIndicators(limit: number = 20): Promise<I
     throw new ApiError(err instanceof Error ? err.message : 'Failed to fetch recurring indicators', 0);
   }
 }
+
