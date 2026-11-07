@@ -21,7 +21,7 @@ export const BackendStatusCard: React.FC<BackendStatusCardProps> = ({ healthStat
             </div>
             <div>
               <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                Phase 1 Connectivity &amp; Infrastructure
+                Platform Connectivity &amp; Infrastructure
                 <span className="text-[11px] font-mono font-normal text-slate-400">
                   (Health Check Protocol)
                 </span>

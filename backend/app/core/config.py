@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "CyberTrust 360"
     TEAM_NAME: str = "Technix Pro"
-    VERSION: str = "0.1.0"
+    VERSION: str = "0.3.0"
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
     API_V1_PREFIX: str = "/api"
@@ -47,6 +47,16 @@ class Settings(BaseSettings):
     VIRUSTOTAL_API_KEY: str | None = None
     PHISHTANK_API_KEY: str | None = None
     URLHAUS_ENABLED: bool = True
+
+    # Phase 3: AI Scam DNA LLM Provider Settings (Configurable in .env)
+    LLM_PROVIDER: str = "gemini"  # "gemini" | "openai" | "none"
+    GEMINI_API_KEY: str | None = None
+    OPENAI_API_KEY: str | None = None
+    OPENAI_BASE_URL: str = "https://api.openai.com/v1"
+    LLM_MODEL_NAME: str = "gemini-1.5-flash"
+    LLM_REQUEST_TIMEOUT: float = 12.0
+    SCAM_MESSAGE_MAX_LENGTH: int = 5000
+    SCAM_MESSAGE_MIN_LENGTH: int = 5
 
     @property
     def sync_database_url(self) -> str:

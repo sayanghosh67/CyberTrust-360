@@ -1,21 +1,31 @@
-import React from 'react';
-import { Shield } from 'lucide-react';
+import { ArrowUpRight, Shield } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+const currentYear = new Date().getFullYear();
+
+export function Footer() {
   return (
-    <footer className="border-t border-slate-900 bg-slate-950 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-        <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-cyan-500" />
-          <span className="font-semibold text-slate-400">CyberTrust 360</span>
-          <span>•</span>
-          <span>Engineered by <strong className="text-slate-300">TECHNIX PRO</strong></span>
-        </div>
-        <p className="font-mono text-[11px]">
-          48-Hour Hackathon MVP • Phase 1: Project Foundation Complete
-        </p>
+    <footer className="site-footer shell">
+      <div className="footer-top">
+        <a className="brand" href="#home">
+          <span className="brand-symbol">
+            <Shield size={22} />
+          </span>
+          <span>
+            cybertrust<span className="brand-360">360</span>
+          </span>
+        </a>
+        <p>A clearer view of a complex web.</p>
+        <a href="#investigate" className="text-link">
+          Stay a step ahead <ArrowUpRight size={16} />
+        </a>
+      </div>
+      <div className="footer-bottom">
+        <span>
+          © {currentYear} CyberTrust 360. Engineered by <strong>TECHNIX PRO</strong>.
+        </span>
+        <span>BUILT WITH PURPOSE. DESIGNED FOR TRUST.</span>
+        <a href="#home">Back to top ↑</a>
       </div>
     </footer>
   );
-};
-
+}

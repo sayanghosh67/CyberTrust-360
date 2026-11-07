@@ -3,8 +3,10 @@ import { Header } from '../components/Header';
 import { ThreatSearchHero } from '../components/ThreatSearchHero';
 import { InvestigationReport } from '../components/InvestigationReport';
 import { RecentScansList } from '../components/RecentScansList';
-import { BackendStatusCard } from '../components/BackendStatusCard';
-import { FoundationSpecCard } from '../components/FoundationSpecCard';
+import { ScamDnaAnalyzer } from '../components/ScamDnaAnalyzer';
+import { WhatShouldIDoNow } from '../components/WhatShouldIDoNow';
+import { ThreatRelationshipGraph } from '../components/ThreatRelationshipGraph';
+import { IntelligenceOverview } from '../components/IntelligenceOverview';
 import { Footer } from '../components/Footer';
 import { useBackendHealth } from '../hooks/useBackendHealth';
 import { submitScan, fetchRecentScans, fetchScanById } from '../services/scanService';
@@ -16,6 +18,8 @@ export const LandingPage: React.FC = () => {
   const [recentScans, setRecentScans] = useState<ScanSummaryItem[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [requestedUrl, setRequestedUrl] = useState<string | null>(null);
+  const [graphSearchQuery, setGraphSearchQuery] = useState<string | null>(null);
 
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -29,8 +33,10 @@ export const LandingPage: React.FC = () => {
   }, []);
 
   const handleInvestigate = async (url: string) => {
+    if (isScanning) return;
     setIsScanning(true);
     setScanError(null);
+    setRequestedUrl(url);
     try {
       const report = await submitScan(url);
       setActiveReport(report);
@@ -39,14 +45,15 @@ export const LandingPage: React.FC = () => {
       setTimeout(() => {
         reportRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
-    } catch (err: any) {
-      setScanError(err.message || 'Failed to complete threat investigation.');
+    } catch (err: unknown) {
+      setScanError(err instanceof Error ? err.message : 'Failed to complete threat investigation.');
     } finally {
       setIsScanning(false);
     }
   };
 
   const handleSelectRecentScan = async (scanId: string) => {
+    if (isScanning) return;
     setIsScanning(true);
     setScanError(null);
     try {
@@ -55,31 +62,62 @@ export const LandingPage: React.FC = () => {
       setTimeout(() => {
         reportRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
-    } catch (err: any) {
-      setScanError(err.message || 'Failed to retrieve scan report.');
+    } catch (err: unknown) {
+      setScanError(err instanceof Error ? err.message : 'Failed to retrieve scan report.');
     } finally {
       setIsScanning(false);
     }
   };
 
+  // Cross-module handler: when user clicks "Investigate in URL Scanner" from Scam DNA report
+  const handleCrossModuleUrlInvestigation = (urlToInvestigate: string) => {
+    setRequestedUrl(urlToInvestigate);
+    const scannerSection = document.getElementById('investigate');
+    if (scannerSection) {
+      scannerSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    // Automatically trigger investigation
+    handleInvestigate(urlToInvestigate);
+  };
+
+  // Cross-module handler: when user clicks "Explore in Threat Graph" from URL scan or Scam report
+  const handleExploreGraph = (query: string) => {
+    setGraphSearchQuery(query);
+    const graphSection = document.getElementById('relationship-graph');
+    if (graphSection) {
+      graphSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#080c14] text-slate-100 flex flex-col selection:bg-cyan-500/20 selection:text-cyan-200">
+    <div className="site-app">
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <Header
         status={healthState.status}
         latencyMs={healthState.latencyMs}
         onRefresh={healthState.refetch}
       />
 
-      <main className="flex-1 pb-16">
+      <main id="main-content">
+        {/* Phase 2: URL & Domain Investigation Engine */}
         <ThreatSearchHero
           onInvestigate={handleInvestigate}
           isScanning={isScanning}
           error={scanError}
+          requestedUrl={requestedUrl}
         />
 
-        {/* Active Investigation Report */}
-        <div ref={reportRef}>
-          {activeReport && <InvestigationReport report={activeReport} />}
+        {/* Active URL Investigation Report */}
+        <div ref={reportRef} className="report-section" id="report" aria-live="polite">
+          {activeReport && (
+            <InvestigationReport
+              key={activeReport.id}
+              report={activeReport}
+              onExploreGraph={handleExploreGraph}
+            />
+          )}
         </div>
 
         {/* Recent Investigations List */}
@@ -89,14 +127,23 @@ export const LandingPage: React.FC = () => {
           isLoading={isScanning}
         />
 
-        {/* Backend & Database Telemetry Card */}
-        <BackendStatusCard
-          healthState={healthState}
-          onRefresh={healthState.refetch}
+        {/* Phase 3: AI Scam DNA Analyzer */}
+        <ScamDnaAnalyzer
+          onInvestigateUrl={handleCrossModuleUrlInvestigation}
+          onExploreGraph={handleExploreGraph}
         />
 
-        {/* Foundation & Architecture Specs */}
-        <FoundationSpecCard />
+        {/* Phase 4: Interactive Threat Relationship Intelligence Graph */}
+        <ThreatRelationshipGraph
+          onInvestigateUrl={handleCrossModuleUrlInvestigation}
+          initialSearch={graphSearchQuery}
+        />
+
+        {/* Phase 3: What Should I Do Now? Incident Guidance Protocol */}
+        <WhatShouldIDoNow />
+
+        {/* Platform Capabilities & Threat Matrix */}
+        <IntelligenceOverview />
       </main>
 
       <Footer />

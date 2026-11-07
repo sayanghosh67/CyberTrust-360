@@ -13,21 +13,21 @@ for p in [str(project_root), str(backend_path)]:
 
 from backend.app.core.config import settings
 from backend.app.models.base import Base
+from backend.app.models.scan import ScanRecord
+from backend.app.models.scam import ScamAnalysisRecord
+from backend.app.core.database import get_active_engine
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Set database connection string dynamically from application settings
-config.set_main_option("sqlalchemy.url", settings.sync_database_url)
-
 target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = config.get_main_option("sqlalchemy.url")
+    url = settings.sync_database_url
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -41,11 +41,7 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    connectable = get_active_engine()
 
     with connectable.connect() as connection:
         context.configure(

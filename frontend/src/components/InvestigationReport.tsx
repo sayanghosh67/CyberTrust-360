@@ -15,15 +15,17 @@ import {
   Clock,
   Layers,
   HelpCircle,
+  Network,
 } from 'lucide-react';
 import type { ScanResponse, RiskClassification, IndicatorSeverity } from '../types/scan';
 
 interface InvestigationReportProps {
   report: ScanResponse;
   onNewScanClick?: () => void;
+  onExploreGraph?: (query: string) => void;
 }
 
-export const InvestigationReport: React.FC<InvestigationReportProps> = ({ report }) => {
+export const InvestigationReport: React.FC<InvestigationReportProps> = ({ report, onExploreGraph }) => {
   const [activeTab, setActiveTab] = useState<'indicators' | 'ssl' | 'headers' | 'dns' | 'intel'>('indicators');
 
   const getRiskTheme = (risk: RiskClassification) => {
@@ -123,6 +125,16 @@ export const InvestigationReport: React.FC<InvestigationReportProps> = ({ report
               <p className="text-xs text-slate-400 font-mono mt-0.5 break-all">
                 Target URL: <span className="text-cyan-300">{report.url}</span>
               </p>
+              {onExploreGraph && (
+                <a
+                  href="#relationship-graph"
+                  onClick={() => onExploreGraph(report.registered_domain || report.hostname)}
+                  className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/70 text-cyan-300 border border-cyan-800/60 text-xs font-mono transition-colors"
+                >
+                  <Network className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Explore in Threat Graph</span>
+                </a>
+              )}
             </div>
           </div>
 

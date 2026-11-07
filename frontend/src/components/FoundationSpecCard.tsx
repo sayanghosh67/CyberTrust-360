@@ -45,7 +45,7 @@ export const FoundationSpecCard: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-16">
       <div className="flex items-center gap-2 mb-4 text-xs font-mono uppercase tracking-wider text-slate-400">
         <Layers className="w-4 h-4 text-cyan-400" />
-        <span>Phase 1 Verification Matrix</span>
+        <span>CyberTrust 360 Platform Architecture Matrix</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -74,7 +74,7 @@ export const FoundationSpecCard: React.FC = () => {
       <div className="mt-6 p-4 rounded-xl bg-slate-950 border border-slate-800/80 font-mono text-xs">
         <div className="flex items-center gap-2 text-slate-400 mb-2">
           <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="font-semibold text-slate-300">Phase 1 Dev Execution Commands:</span>
+          <span className="font-semibold text-slate-300">Platform Dev Execution Commands:</span>
         </div>
         <div className="space-y-1 text-slate-400 pl-2">
           <p>

@@ -25,6 +25,41 @@ In Phase 2, the core threat investigation engine is fully operational:
 
 ---
 
+## Phase 3 Highlights: AI Scam DNA & Deception Intelligence Engine
+
+In Phase 3, CyberTrust 360 introduces specialized linguistic and behavioral deception sequencing:
+- **Scam DNA Message Analyzer**: Analyze suspicious SMS, WhatsApp forwards, phishing emails, job offers, and payment requests for manipulation patterns.
+- **Indian Digital Threat Detection**: Tailored heuristic rules and indicators for:
+  - **Fake Bank KYC Updates**: SBI/HDFC/ICICI account block and PAN card deactivation coercion.
+  - **UPI Refund & PIN Fraud**: Inversion scams where fraudsters trick victims into entering UPI PINs to "claim refunds" or "receive prize money".
+  - **Utility & Bijli Disconnection**: Urgent threats in English and Hinglish alleging electricity power cut-offs tonight due to unpaid bills.
+  - **Fake Part-Time Job Scams**: YouTube video liking, Google Maps rating, and Telegram task scams offering unrealistic daily earnings.
+  - **Postal & Parcel Delivery Traps**: Fake India Post/courier notifications demanding re-delivery fees for incomplete addresses.
+  - **OTP Harvesting**: Urgent pressure coercing victims into sharing one-time authorization codes.
+- **Prompt Injection Defense**: Untrusted message delimiters (`<untrusted_user_message>`), strict system framing, and instruction isolation to prevent adversarial override.
+- **Dual AI & Rule-Based Intelligence Engine**: Configurable support for Gemini and OpenAI LLM models, paired with a deterministic heuristic fallback engine with 100% honest attribution.
+- **Cross-Module Threat Investigation**: 1-click CTA on extracted URLs and domains in Scam DNA reports that seamlessly pre-populates and runs Phase 2's deep URL threat scanner.
+- **"What Should I Do Now?" Incident Response**: 5-situation interactive decision support matrix (Received only, Clicked link, Entered password, Shared OTP, Made UPI payment) featuring Golden Hour response guidance and India's **National Cyber Crime Helpline 1930** and **cybercrime.gov.in**.
+
+---
+
+## Phase 4 Highlights: Threat Relationship Intelligence & Scam Relationship Map
+
+In Phase 4, CyberTrust 360 introduces interactive multi-hop graph intelligence:
+- **Interactive Relationship Graph**: Powered by React Flow (`@xyflow/react`), rendering 7 entity node types (`scam_report`, `url_scan`, `domain`, `url`, `brand`, `tactic`, `indicator`).
+- **Verified vs. Possible Relationship Distinction**:
+  - **VERIFIED_SHARED_INDICATOR** (Solid Green): Direct technical matches across reports (shared domain, identical URL, shared phone, shared UPI VPA).
+  - **POSSIBLE_RELATIONSHIP** (Dashed Amber): Heuristic links inferred from shared deceptive playbooks, brand impersonation, or linguistic patterns.
+- **Attribution Guardrail**: Strict limitations disclaimer on every edge: *"A shared technical indicator indicates common infrastructure, not proof of identical attacker identity or coordinated criminal campaigns without external attribution."*
+- **Forensic Inspection Side Panel**: Clicking any node or connection displays deep forensic evidence, source report IDs, confidence ratings, and 1-click cross-module investigation triggers.
+- **Cross-Module Navigation**:
+  - URL Scanner → Threat Graph (`Explore in Threat Graph`)
+  - Scam DNA Analyzer → Threat Graph (`View Threat Graph`)
+  - Threat Graph → Deep URL Scanner (`Investigate Target in URL Scanner`)
+- **Synthetic Demonstration Clusters**: Built-in toggle providing an explicitly labeled demonstration dataset showing cross-cluster pivots between banking phishing and utility bill extortion networks.
+
+---
+
 ## Tech Stack
 
 - **Frontend**: React 19, TypeScript, Vite 8, Tailwind CSS v4, Lucide Icons
@@ -111,7 +146,7 @@ docker compose ps
 ### 6. Running Automated Tests
 
 ```bash
-# Run backend test suite (12 tests covering SSRF, typosquatting, headers, SSL, and risk scoring)
+# Run backend test suite (36 comprehensive tests covering URL Engine, Scam DNA, and Threat Relationship Graph)
 PYTHONPATH=. backend/.venv/bin/pytest backend/tests -v
 
 # Run frontend TypeScript typecheck and production build
@@ -127,6 +162,13 @@ cd frontend && npm run build
 | `POST` | `/api/v1/scans` | Submit a target URL for comprehensive threat investigation. |
 | `GET` | `/api/v1/scans/{scan_id}` | Retrieve full forensic telemetry and indicators by scan ID. |
 | `GET` | `/api/v1/scans` | List recent scan history with summary metrics and risk scores. |
+| `POST` | `/api/v1/scam/analyze` | AI Scam DNA sequencing for SMS, WhatsApp, emails, and job offers. |
+| `GET` | `/api/v1/scam/analyses` | List recent Scam DNA analysis records and classifications. |
+| `GET` | `/api/v1/scam/analyses/{analysis_id}` | Retrieve specific Scam DNA forensic report by UUID. |
+| `POST` | `/api/v1/scam/guidance` | Action-specific incident response guidance (5 situational states). |
+| `GET` | `/api/v1/intelligence/graph` | Interactive threat relationship graph with verified vs inferred edges. |
+| `GET` | `/api/v1/intelligence/relationships/{report_id}` | 1-hop and 2-hop connected reports and shared indicators for a report. |
+| `GET` | `/api/v1/intelligence/indicators` | Aggregated recurring threat indicators (shared domains, phones, UPI). |
 | `GET` | `/api/health` | Health telemetry (server status, database connection, uptime). |
 | `GET` | `/docs` | Interactive Swagger UI API documentation. |
 
