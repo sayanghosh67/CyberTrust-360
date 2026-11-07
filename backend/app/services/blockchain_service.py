@@ -541,3 +541,4 @@ def get_registration_by_report_id(report_id: str, db: Session) -> Optional[Block
         registration_status=rec.registration_status,
         disclaimer=BLOCKCHAIN_DISCLAIMER,
     )
+

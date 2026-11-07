@@ -153,3 +153,4 @@ def get_registration(
             detail=f"No blockchain registration found for report '{report_id}'.",
         )
     return record
+

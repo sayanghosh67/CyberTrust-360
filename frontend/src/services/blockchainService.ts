@@ -100,3 +100,4 @@ export async function fetchReportRegistration(reportId: string): Promise<Blockch
     return null;
   }
 }
+

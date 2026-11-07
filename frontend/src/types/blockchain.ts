@@ -63,3 +63,4 @@ export interface BlockchainRegistrationSummary {
   registration_status: string;
   registered_at: string;
 }
+

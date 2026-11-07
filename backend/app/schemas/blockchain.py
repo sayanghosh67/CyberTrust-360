@@ -76,3 +76,4 @@ class BlockchainRegistrationSummary(BaseModel):
 class BlockchainRegistrationListResponse(BaseModel):
     registrations: List[BlockchainRegistrationSummary]
     total_count: int
+

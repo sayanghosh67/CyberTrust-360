@@ -60,3 +60,4 @@ class BlockchainRegistrationRecord(Base):
             "registration_status": self.registration_status,
             "registered_at": self.registered_at.isoformat(),
         }
+

@@ -178,3 +178,4 @@ def generate_report_fingerprint(report_record: Any, report_type: str) -> Tuple[s
     report_id_hash = compute_report_id_hash(report_id)
 
     return canonical_json, report_id_hash, content_hash
+
