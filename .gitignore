@@ -54,9 +54,13 @@ yarn-error.log*
 
 # Database & Docker Volume mountings
 postgres_data/
+*.db
+*.sqlite3
+cybertrust.db
 
 # IDE / Editor
 .vscode/
 .idea/
 *.swp
 *.swo
+

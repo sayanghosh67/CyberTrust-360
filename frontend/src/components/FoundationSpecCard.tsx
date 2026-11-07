@@ -94,3 +94,4 @@ export const FoundationSpecCard: React.FC = () => {
     </div>
   );
 };
+

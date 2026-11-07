@@ -39,6 +39,14 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "cybertrust_db"
     DATABASE_URL: str | None = None
     DATABASE_CONNECT_TIMEOUT: int = 2
+    USE_SQLITE_FALLBACK: bool = True
+    SQLITE_DB_PATH: str = "./cybertrust.db"
+
+    # Threat Intelligence Provider API Keys (Keep secret, never expose to client)
+    GOOGLE_SAFE_BROWSING_API_KEY: str | None = None
+    VIRUSTOTAL_API_KEY: str | None = None
+    PHISHTANK_API_KEY: str | None = None
+    URLHAUS_ENABLED: bool = True
 
     @property
     def sync_database_url(self) -> str:

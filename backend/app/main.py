@@ -95,3 +95,4 @@ def root():
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 # Also register /health directly for orchestration & container probes
 app.include_router(health_router, prefix="")
+

@@ -35,3 +35,4 @@ def test_404_error_handling():
     data = response.json()
     assert data["error_code"] == "HTTP_404"
     assert "timestamp" in data
+

@@ -38,3 +38,4 @@ def get_health() -> HealthResponse:
             "trust_intelligence": "ready",
         },
     )
+

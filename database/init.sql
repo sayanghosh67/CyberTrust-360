@@ -10,3 +10,4 @@ DO $$
 BEGIN
    RAISE NOTICE 'CyberTrust 360 database initialized successfully.';
 END $$;
+

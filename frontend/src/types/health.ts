@@ -23,3 +23,4 @@ export interface HealthState {
   latencyMs: number | null;
   lastChecked: Date | null;
 }
+
