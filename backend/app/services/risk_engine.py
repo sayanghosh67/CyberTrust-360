@@ -137,17 +137,43 @@ def evaluate_risk(
         )
 
     # 4. Evaluate SSL/TLS Configuration
-    if not ssl_data.https_available:
-        accumulated_score += 25
-        indicators.append(
-            DetectedIndicator(
-                name="Missing HTTPS / TLS Encryption",
-                category="ssl",
-                severity="medium",
-                description="The server does not support secure HTTPS communication on port 443.",
-                technical_evidence=ssl_data.error_message or "Connection refused on port 443.",
+    # 4. Evaluate SSL/TLS Configuration
+    if dns_data.status != "resolved":
+        # Network-level checks cannot be performed when DNS does not resolve
+        if ssl_data.error_message:
+            indicators.append(
+                DetectedIndicator(
+                    name="TLS Inspection Unavailable",
+                    category="ssl",
+                    severity="info",
+                    description="TLS certificate could not be inspected because the host does not resolve.",
+                    technical_evidence=ssl_data.error_message,
+                )
             )
-        )
+    elif not ssl_data.https_available:
+        err_msg_lower = (ssl_data.error_message or "").lower()
+        if "refused" in err_msg_lower:
+            accumulated_score += 20
+            indicators.append(
+                DetectedIndicator(
+                    name="Unencrypted HTTP / Port 443 Refused",
+                    category="ssl",
+                    severity="medium",
+                    description="The server explicitly refused HTTPS connections on port 443.",
+                    technical_evidence=ssl_data.error_message or "Connection refused on port 443.",
+                )
+            )
+        else:
+            # Check was unavailable / timed out, NOT confirmed missing encryption
+            indicators.append(
+                DetectedIndicator(
+                    name="TLS Check Unavailable",
+                    category="ssl",
+                    severity="info",
+                    description="Could not complete TLS inspection due to connection timeout or network filtering.",
+                    technical_evidence=ssl_data.error_message or "TLS session could not be established.",
+                )
+            )
     else:
         if ssl_data.expired:
             accumulated_score += 35
@@ -196,7 +222,7 @@ def evaluate_risk(
             )
         )
 
-    # Missing critical security headers
+    # Missing critical security headers (only if the server actually returned an HTTP response)
     if headers_data.status_code and not headers_data.hsts_present:
         accumulated_score += 5
         indicators.append(
@@ -213,14 +239,7 @@ def evaluate_risk(
     risk_score = min(accumulated_score, 100)
 
     # Determine Classification
-    if dns_data.status == "failed" and not confirmed_malicious:
-        classification = "Inconclusive"
-        confidence = "Medium"
-        summary = (
-            f"Unable to complete full inspection: The domain '{url_data.hostname}' did not resolve to active DNS records. "
-            "It may be unregistered, decommissioned, or recently taken down."
-        )
-    elif confirmed_malicious or risk_score >= 80:
+    if confirmed_malicious or risk_score >= 80:
         classification = "Confirmed Malicious" if confirmed_malicious else "High Risk"
         confidence = "High"
         summary = (
@@ -230,16 +249,35 @@ def evaluate_risk(
     elif risk_score >= 50:
         classification = "High Risk"
         confidence = "High" if len(indicators) >= 2 else "Medium"
-        summary = (
-            f"High risk posture detected on '{url_data.hostname}'. "
-            "Significant security irregularities observed across URL structure, TLS, or redirection paths."
-        )
+        if dns_data.status == "failed":
+            summary = (
+                f"High-risk deceptive domain structure identified for '{url_data.hostname}', "
+                "though the domain does not currently resolve to active authoritative nameservers."
+            )
+        else:
+            summary = (
+                f"High risk posture detected on '{url_data.hostname}'. "
+                "Significant security irregularities observed across URL structure, TLS, or redirection paths."
+            )
     elif risk_score >= 25:
         classification = "Suspicious"
         confidence = "Medium"
+        if dns_data.status == "failed":
+            summary = (
+                f"Suspicious structural patterns identified on '{url_data.hostname}', "
+                "though the domain does not currently resolve to active DNS records."
+            )
+        else:
+            summary = (
+                f"Suspicious signals identified on '{url_data.hostname}'. "
+                "While not definitively confirmed malicious, several defensive abnormalities warrant caution."
+            )
+    elif dns_data.status == "failed":
+        classification = "Inconclusive"
+        confidence = "Medium"
         summary = (
-            f"Suspicious signals identified on '{url_data.hostname}'. "
-            "While not definitively confirmed malicious, several defensive abnormalities warrant caution."
+            f"Unable to complete live security inspection: The domain '{url_data.hostname}' did not resolve to active DNS records. "
+            "It may be unregistered, decommissioned, or recently taken down."
         )
     else:
         classification = "Low Risk"

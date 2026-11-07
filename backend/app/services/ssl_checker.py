@@ -112,21 +112,27 @@ def _sync_inspect_ssl(hostname: str, port: int = 443) -> SSLAnalysis:
             valid=False,
             error_message=f"TLS Handshake Failure: {str(err)}",
         )
+    except socket.gaierror as err:
+        return SSLAnalysis(
+            https_available=False,
+            valid=False,
+            error_message="Host unreachable (DNS resolution failed for target host).",
+        )
     except (socket.timeout, TimeoutError):
         return SSLAnalysis(
             https_available=False,
             valid=False,
-            error_message="HTTPS connection timed out on port 443.",
+            error_message="HTTPS connection timed out on port 443 (host unreachable or filtered).",
         )
     except ConnectionRefusedError:
         return SSLAnalysis(
             https_available=False,
             valid=False,
-            error_message="Port 443 refused connection. Host does not support HTTPS.",
+            error_message="Port 443 refused connection. Host does not accept HTTPS connections.",
         )
     except Exception as exc:
         return SSLAnalysis(
             https_available=False,
             valid=False,
-            error_message=f"Could not establish TLS session: {str(exc)}",
+            error_message=f"TLS session could not be established: {str(exc)}",
         )

@@ -231,3 +231,58 @@ def test_scan_lifecycle_and_history():
         get_data = get_res.json()
         assert get_data["id"] == scan_id
         assert get_data["hostname"] == "cloudflare.com"
+
+
+def test_unavailable_tls_check_not_described_as_missing_encryption():
+    """Verify that unavailable/timeout TLS checks are NOT penalized as confirmed missing encryption."""
+    url_data = analyze_url("https://unreachable-timeout.com")
+    dns_data = DNSAnalysis(status="resolved", a_records=["93.184.216.34"])
+    # Host resolved but TLS connection timed out (not confirmed plain HTTP refusal)
+    ssl_timeout = SSLAnalysis(
+        https_available=False,
+        valid=False,
+        error_message="HTTPS connection timed out on port 443 (host unreachable or filtered)."
+    )
+    headers_data = HeadersAnalysis(error_message="Connection timed out")
+
+    c, score, conf, summary, indicators, _ = evaluate_risk(
+        url_data=url_data,
+        dns_data=dns_data,
+        ssl_data=ssl_timeout,
+        headers_data=headers_data,
+        threat_intel=[],
+        failed_checks=[]
+    )
+
+    # Must NOT have "Missing HTTPS / TLS Encryption" penalty or label
+    assert not any(i.name == "Missing HTTPS / TLS Encryption" for i in indicators)
+    assert any("TLS Check Unavailable" in i.name for i in indicators)
+    # The score should NOT be inflated by a 25-point penalty
+    assert score == 0
+
+
+def test_dns_unresolvable_url_and_inconclusive_score():
+    """Verify that an unresolvable domain without deceptive patterns yields Inconclusive and low score."""
+    url_data = analyze_url("https://nonexistent-random-domain-xyz-98234.org")
+    dns_failed = DNSAnalysis(status="failed", error_message="Domain does not exist (NXDOMAIN).")
+    ssl_failed = SSLAnalysis(
+        https_available=False,
+        valid=False,
+        error_message="Host unreachable (DNS resolution failed for target host)."
+    )
+    headers_failed = HeadersAnalysis(error_message="HTTP connection failed: DNS error")
+
+    classification, score, conf, summary, indicators, _ = evaluate_risk(
+        url_data=url_data,
+        dns_data=dns_failed,
+        ssl_data=ssl_failed,
+        headers_data=headers_failed,
+        threat_intel=[],
+        failed_checks=[]
+    )
+
+    assert classification == "Inconclusive"
+    # Score must be low (0) because target has no deceptive indicators and network checks were skipped
+    assert score < 25
+    assert "Unable to complete live security inspection" in summary
+    assert not any(i.name == "Missing HTTPS / TLS Encryption" for i in indicators)

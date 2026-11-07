@@ -41,6 +41,29 @@ def is_ip_blocked(ip_str: str) -> bool:
         return False
 
 
+def is_target_host_blocked(hostname: str) -> bool:
+    """
+    Validates if a hostname or IP address resolves to private, loopback, link-local,
+    multicast, or cloud metadata IP address. Protects against SSRF and DNS rebinding.
+    """
+    clean_host = hostname.lower().strip(".")
+    if clean_host in ("localhost", "local", "broadcasthost", "ip6-localhost", "ip6-loopback"):
+        return True
+    if is_ip_blocked(clean_host):
+        return True
+    try:
+        addr_info = socket.getaddrinfo(clean_host, None)
+        for ai in addr_info:
+            if ai[4]:
+                resolved_ip = ai[4][0]
+                if is_ip_blocked(resolved_ip):
+                    return True
+    except socket.gaierror:
+        # Unresolvable hostname
+        pass
+    return False
+
+
 def normalize_and_validate_target(raw_url: str) -> dict:
     """
     Sanitizes, canonicalizes, and verifies a URL for safe threat investigation.

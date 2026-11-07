@@ -2,7 +2,7 @@ import httpx
 from urllib.parse import urlparse
 from typing import List
 from backend.app.schemas.scan import HeadersAnalysis
-from backend.app.utils.security import is_ip_blocked
+from backend.app.utils.security import is_target_host_blocked
 
 RECOMMENDED_SECURITY_HEADERS = [
     ("strict-transport-security", "Strict-Transport-Security (HSTS)"),
@@ -41,10 +41,10 @@ async def inspect_headers(canonical_url: str, initial_hostname: str) -> HeadersA
             while hops < max_hops:
                 hops += 1
 
-                # SSRF check on target host of each hop
+                # SSRF and DNS rebinding check on target host of each hop
                 parsed_hop = urlparse(current_url)
                 hop_host = parsed_hop.hostname
-                if not hop_host or is_ip_blocked(hop_host):
+                if not hop_host or is_target_host_blocked(hop_host):
                     suspicious_redirect = True
                     return HeadersAnalysis(
                         redirect_count=len(redirect_chain) - 1,
