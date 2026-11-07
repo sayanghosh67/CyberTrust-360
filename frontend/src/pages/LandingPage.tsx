@@ -7,7 +7,6 @@ import { ScamDnaAnalyzer } from '../components/ScamDnaAnalyzer';
 import { WhatShouldIDoNow } from '../components/WhatShouldIDoNow';
 import { PlatformDashboardOverview } from '../components/PlatformDashboardOverview';
 import { ThreatRelationshipGraph } from '../components/ThreatRelationshipGraph';
-import { OpeningPage } from '../components/OpeningPage';
 import { BlockchainTrustCenter } from '../components/BlockchainTrustCenter';
 import { IntelligenceOverview } from '../components/IntelligenceOverview';
 import { Footer } from '../components/Footer';
@@ -24,7 +23,6 @@ export const LandingPage: React.FC = () => {
   const [requestedUrl, setRequestedUrl] = useState<string | null>(null);
   const [graphSearchQuery, setGraphSearchQuery] = useState<string | null>(null);
   const [blockchainReportId, setBlockchainReportId] = useState<string | null>(null);
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState<boolean>(() => localStorage.getItem('cybertrust_hide_opening_screen') !== 'true');
 
   // The hash target does not exist when the browser first loads the React shell.
   useEffect(() => {
@@ -121,11 +119,7 @@ export const LandingPage: React.FC = () => {
         status={healthState.status}
         latencyMs={healthState.latencyMs}
         onRefresh={healthState.refetch}
-        onOpenWelcome={() => setIsWelcomeOpen(true)}
       />
-
-      {/* Opening Welcome Screen & Logo Showcase */}
-      <OpeningPage isOpen={isWelcomeOpen} onClose={() => setIsWelcomeOpen(false)} />
 
       <main id="main-content">
         {/* Phase 2: URL & Domain Investigation Engine */}

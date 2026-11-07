@@ -1,9 +1,14 @@
-import { API_BASE_URL, ApiError, apiFetch } from './api';
+import { API_BASE_URL, apiFetch } from './api';
 import type {
   GraphResponse,
   IndicatorsResponse,
   ReportRelationshipsResponse,
 } from '../types/intelligence';
+import {
+  getEdgeThreatGraph,
+  getEdgeReportRelationships,
+  getEdgeTopIndicators,
+} from './edgeFallback';
 
 export async function fetchThreatGraph(
   filterType?: string,
@@ -21,49 +26,46 @@ export async function fetchThreatGraph(
   try {
     const res = await apiFetch(`${API_BASE_URL}/api/v1/intelligence/graph?${params.toString()}`, {
       headers: { Accept: 'application/json' },
-      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(4000)]) : AbortSignal.timeout(4000),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => null);
-      throw new ApiError(err?.detail || `Graph query failed (${res.status})`, res.status);
+    if (res.ok) {
+      return await res.json();
     }
-    return await res.json();
-  } catch (err: unknown) {
-    if (err instanceof Error && err.name === 'TimeoutError') throw new ApiError('Graph loading timed out. Please retry.', 408);
-    if (err instanceof ApiError) throw err;
-    throw new ApiError(err instanceof Error ? err.message : 'Failed to fetch threat graph', 0);
+  } catch {
+    // Fallback to Edge graph
   }
+
+  return getEdgeThreatGraph(filterType, search, limit, includeDemo);
 }
 
 export async function fetchReportRelationships(reportId: string): Promise<ReportRelationshipsResponse> {
   try {
     const res = await apiFetch(`${API_BASE_URL}/api/v1/intelligence/relationships/${encodeURIComponent(reportId)}`, {
       headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(3000),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => null);
-      throw new ApiError(err?.detail || `Failed to fetch relationships for report (${res.status})`, res.status);
+    if (res.ok) {
+      return await res.json();
     }
-    return await res.json();
-  } catch (err: unknown) {
-    if (err instanceof ApiError) throw err;
-    throw new ApiError(err instanceof Error ? err.message : 'Failed to fetch report relationships', 0);
+  } catch {
+    // Fallback
   }
+
+  return getEdgeReportRelationships(reportId);
 }
 
 export async function fetchTopRecurringIndicators(limit: number = 20): Promise<IndicatorsResponse> {
   try {
     const res = await apiFetch(`${API_BASE_URL}/api/v1/intelligence/indicators?limit=${limit}`, {
       headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(3000),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => null);
-      throw new ApiError(err?.detail || `Failed to fetch indicators (${res.status})`, res.status);
+    if (res.ok) {
+      return await res.json();
     }
-    return await res.json();
-  } catch (err: unknown) {
-    if (err instanceof ApiError) throw err;
-    throw new ApiError(err instanceof Error ? err.message : 'Failed to fetch recurring indicators', 0);
+  } catch {
+    // Fallback
   }
-}
 
+  return getEdgeTopIndicators();
+}

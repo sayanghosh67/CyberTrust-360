@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { ArrowUpRight, Menu, X, Sparkles, AlertTriangle, Network, Lock } from 'lucide-react';
 import type { ConnectionStatus } from '../types/health';
+import roundLogo from '../assets/cybertrust-logo-round.png';
 
 interface HeaderProps {
   status: ConnectionStatus;
   latencyMs: number | null;
   onRefresh: () => void;
-  onOpenWelcome?: () => void;
 }
 
-export function Header({ status, latencyMs, onRefresh, onOpenWelcome }: HeaderProps) {
+export function Header({ status, latencyMs, onRefresh }: HeaderProps) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(location.hash.slice(1) || 'home');
   useEffect(() => {
@@ -30,7 +30,7 @@ export function Header({ status, latencyMs, onRefresh, onOpenWelcome }: HeaderPr
         <a className="brand" href="#home" aria-label="CyberTrust 360 home">
           <span className="brand-symbol">
             <img
-              src="/cybertrust-logo-round.png"
+              src={roundLogo}
               alt="CyberTrust 360"
               className="w-8 h-8 rounded-full object-contain filter drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
             />
@@ -81,16 +81,6 @@ export function Header({ status, latencyMs, onRefresh, onOpenWelcome }: HeaderPr
               ? 'Service degraded'
               : 'Service offline'}
           </button>
-          {onOpenWelcome && (
-            <button
-              onClick={onOpenWelcome}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/50 hover:text-emerald-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
-              title="Open CyberTrust 360 Opening Screen & Logo Showcase"
-            >
-              <img src="/cybertrust-logo-round.png" className="w-4 h-4 rounded-full" alt="" />
-              <span className="hidden sm:inline">Intro</span>
-            </button>
-          )}
           <a href="#scam-dna" className="header-cta">
             Scam Analyzer <ArrowUpRight size={14} />
           </a>

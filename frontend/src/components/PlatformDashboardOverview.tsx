@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { fetchDashboardMetrics } from '../services/dashboardService';
 import type { DashboardMetrics } from '../types/dashboard';
+import roundLogo from '../assets/cybertrust-logo-round.png';
 
 export const PlatformDashboardOverview: React.FC = () => {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -41,7 +42,7 @@ export const PlatformDashboardOverview: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div className="flex items-start gap-4">
           <img
-            src="/cybertrust-logo-round.png"
+            src={roundLogo}
             alt="CyberTrust 360"
             className="w-12 h-12 rounded-full object-cover border border-emerald-500/40 shadow-lg shadow-emerald-500/20 shrink-0 hidden sm:block"
           />

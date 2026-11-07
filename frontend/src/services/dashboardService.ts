@@ -1,18 +1,19 @@
-import { API_BASE_URL, ApiError, apiFetch } from './api';
+import { API_BASE_URL, apiFetch } from './api';
 import type { DashboardMetrics } from '../types/dashboard';
+import { getEdgeDashboardMetrics } from './edgeFallback';
 
 export async function fetchDashboardMetrics(): Promise<DashboardMetrics> {
   try {
     const res = await apiFetch(`${API_BASE_URL}/api/v1/dashboard/metrics`, {
       headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(3000),
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => null);
-      throw new ApiError(err?.detail || `Failed to fetch dashboard metrics (${res.status})`, res.status);
+    if (res.ok) {
+      return await res.json();
     }
-    return await res.json();
-  } catch (err: unknown) {
-    if (err instanceof ApiError) throw err;
-    throw new ApiError(err instanceof Error ? err.message : 'Network error connecting to metrics probe', 0);
+  } catch {
+    // Fallback to Edge metrics
   }
+
+  return getEdgeDashboardMetrics();
 }

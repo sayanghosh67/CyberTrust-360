@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, ArrowUpRight, Globe2, Loader2, ScanLine, ShieldCheck, AlertCircle, Fingerprint, LockKeyhole } from 'lucide-react';
 import { ThreatGlobe } from './ThreatGlobe';
+import horizontalLogo from '../assets/cybertrust-logo-horizontal.png';
 
 interface Props {
   onInvestigate: (url: string) => Promise<void>;
@@ -45,7 +46,7 @@ export function ThreatSearchHero({ onInvestigate, isScanning, error, requestedUr
         <div className="hero-copy">
           <div className="mb-3">
             <img
-              src="/cybertrust-logo-horizontal.png"
+              src={horizontalLogo}
               alt="CyberTrust 360"
               className="h-8 sm:h-10 object-contain filter drop-shadow-[0_2px_10px_rgba(16,185,129,0.3)]"
             />
