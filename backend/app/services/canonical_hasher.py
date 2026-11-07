@@ -7,7 +7,7 @@ import tldextract
 
 logger = logging.getLogger("cybertrust.canonical_hasher")
 
-CANONICAL_VERSION = "v1"
+CANONICAL_VERSION = "ct360-v2"
 HASH_ALGORITHM = "sha256"
 
 
@@ -35,13 +35,13 @@ def _sort_recursive(obj: Any) -> Any:
 
 def canonicalize_to_json(protected_dict: Dict[str, Any]) -> str:
     """
-    Serializes a dictionary into deterministic RFC 8785 / Canonical JSON format:
+    Serializes a dictionary into deterministic CyberTrust JSON format (NOT RFC 8785 JCS):
     - Recursively sorted keys
     - Minimal separators without whitespace (',', ':')
     - UTF-8 preserved without unnecessary Unicode escapes
     """
     sorted_obj = _sort_recursive(protected_dict)
-    return json.dumps(sorted_obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return json.dumps(sorted_obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
 
 
 def compute_sha256_hex(data_str: str) -> str:
@@ -63,7 +63,7 @@ def compute_report_id_hash(report_id: str) -> str:
 # Protected Fields Extractors
 # ==============================================================================
 
-def extract_url_scan_protected_fields(scan_record: Any) -> Dict[str, Any]:
+def _legacy_url(scan_record: Any) -> Dict[str, Any]:
     """
     Extracts the immutable, non-volatile technical payload of a Phase 2 URL investigation.
     Excludes volatile fields such as UI viewing timestamps, transient database IDs, and connection latencies.
@@ -73,7 +73,7 @@ def extract_url_scan_protected_fields(scan_record: Any) -> Dict[str, Any]:
         try:
             raw_data = json.loads(scan_record.report_data) if isinstance(scan_record.report_data, str) else scan_record.report_data
         except Exception as e:
-            logger.warning(f"Failed to parse scan report_data JSON: {e}")
+            logger.warning("Operation failed; sensitive details suppressed")
 
     # Standardize indicators
     threat_intel = []
@@ -96,7 +96,7 @@ def extract_url_scan_protected_fields(scan_record: Any) -> Dict[str, Any]:
     security_headers = sorted(list(set(security_headers)))
 
     return {
-        "canonical_version": CANONICAL_VERSION,
+        "canonical_version": "v1",
         "report_type": "url_scan",
         "target_url": _normalize_string(getattr(scan_record, "url", raw_data.get("url", ""))),
         "registered_domain": _normalize_string(getattr(scan_record, "registered_domain", raw_data.get("registered_domain", ""))),
@@ -111,7 +111,7 @@ def extract_url_scan_protected_fields(scan_record: Any) -> Dict[str, Any]:
     }
 
 
-def extract_scam_report_protected_fields(scam_record: Any) -> Dict[str, Any]:
+def _legacy_scam(scam_record: Any) -> Dict[str, Any]:
     """
     Extracts the immutable, non-volatile threat assessment payload of a Phase 3 Scam DNA analysis.
     Excludes sensitive personal transcripts and volatile timestamps.
@@ -121,7 +121,7 @@ def extract_scam_report_protected_fields(scam_record: Any) -> Dict[str, Any]:
         try:
             raw_data = json.loads(scam_record.report_data) if isinstance(scam_record.report_data, str) else scam_record.report_data
         except Exception as e:
-            logger.warning(f"Failed to parse scam report_data JSON: {e}")
+            logger.warning("Operation failed; sensitive details suppressed")
 
     # Standardize tactics
     tactics = []
@@ -142,7 +142,7 @@ def extract_scam_report_protected_fields(scam_record: Any) -> Dict[str, Any]:
     indicators = sorted(list(set(indicators)))
 
     return {
-        "canonical_version": CANONICAL_VERSION,
+        "canonical_version": "v1",
         "report_type": "scam_report",
         "scam_archetype": _normalize_string(getattr(scam_record, "scam_archetype", raw_data.get("scam_archetype", "General Analysis"))),
         "risk_classification": _normalize_string(getattr(scam_record, "risk_classification", raw_data.get("risk_classification", "Inconclusive"))),
@@ -157,25 +157,35 @@ def extract_scam_report_protected_fields(scam_record: Any) -> Dict[str, Any]:
     }
 
 
-def generate_report_fingerprint(report_record: Any, report_type: str) -> Tuple[str, str, str]:
-    """
-    Generates canonical JSON string, reportIdHash, and contentHash for a threat report.
-    Returns: (canonical_json, report_id_hash, content_hash)
-    """
-    report_id = str(getattr(report_record, "id", ""))
-    if not report_id:
+def _full_report(record: Any, report_type: str) -> Dict[str, Any]:
+    raw = getattr(record, "report_data", None)
+    data = json.loads(raw) if isinstance(raw, str) else raw
+    if not isinstance(data, dict):
+        raise ValueError("A valid saved report payload is required")
+    fields = ("url", "registered_domain", "risk_classification", "risk_score", "confidence", "summary") if report_type == "url_scan" else ("scam_archetype", "risk_classification", "risk_score", "confidence", "summary", "message_preview")
+    return {"canonical_version": CANONICAL_VERSION, "report_type": report_type,
+            "report_id": str(record.id), "report_data": data,
+            "stored_fields": {name: getattr(record, name, None) for name in fields}}
+
+
+def extract_url_scan_protected_fields(record):
+    return _full_report(record, "url_scan")
+
+
+def extract_scam_report_protected_fields(record):
+    return _full_report(record, "scam_report")
+
+
+def generate_report_fingerprint(report_record: Any, report_type: str, canonical_version=CANONICAL_VERSION) -> Tuple[str, str, str]:
+    if not getattr(report_record, "id", None):
         raise ValueError("Report record must possess a non-empty id")
-
-    if report_type == "url_scan":
-        protected = extract_url_scan_protected_fields(report_record)
-    elif report_type == "scam_report":
-        protected = extract_scam_report_protected_fields(report_record)
+    if report_type not in {"url_scan", "scam_report"}:
+        raise ValueError("Unsupported report type")
+    if canonical_version == "v1":
+        protected = (_legacy_url if report_type == "url_scan" else _legacy_scam)(report_record)
+    elif canonical_version == CANONICAL_VERSION:
+        protected = _full_report(report_record, report_type)
     else:
-        raise ValueError(f"Unsupported report type for blockchain attestation: {report_type}")
-
-    canonical_json = canonicalize_to_json(protected)
-    content_hash = compute_sha256_hex(canonical_json)
-    report_id_hash = compute_report_id_hash(report_id)
-
-    return canonical_json, report_id_hash, content_hash
-
+        raise ValueError("Unsupported fingerprint version")
+    canonical = canonicalize_to_json(protected)
+    return canonical, compute_report_id_hash(str(report_record.id)), compute_sha256_hex(canonical)

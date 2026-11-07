@@ -49,8 +49,8 @@ async def analyze_message_with_ai(
     Analyzes message using a real LLM if configured; otherwise uses deterministic rule-based fallback.
     Guarantees transparent source labeling ('ai_llm' vs 'rule_based_fallback').
     """
-    has_gemini = bool(settings.GEMINI_API_KEY)
-    has_openai = bool(settings.OPENAI_API_KEY)
+    has_gemini = settings.LLM_PROVIDER == "gemini" and bool(settings.GEMINI_API_KEY)
+    has_openai = settings.LLM_PROVIDER == "openai" and bool(settings.OPENAI_API_KEY)
 
     # 1. Attempt LLM Analysis if an API key is available
     if has_gemini or has_openai:
@@ -61,23 +61,25 @@ async def analyze_message_with_ai(
                 ai_result = await _call_openai_api(message, extracted_indicators)
 
             ai_result["analysis_source"] = "ai_llm"
-            ai_result["model_used"] = settings.LLM_MODEL_NAME
+            ai_result["model_used"] = settings.LLM_MODEL_NAME or ("gemini-2.5-flash" if has_gemini else "gpt-4o-mini")
+            # Deterministic protective advice cannot be removed by model output.
+            ai_result["recommended_actions"] = analyze_scam_rules(message, extracted_indicators)["recommended_actions"]
             return ai_result
         except Exception as exc:
-            logger.warning(f"LLM API request failed or timed out: {exc}. Falling back to deterministic rule engine.")
+            logger.warning("Configured LLM unavailable; using deterministic rules")
 
     # 2. Deterministic Rule-Based Fallback
     fallback_result = analyze_scam_rules(message, extracted_indicators)
     fallback_result["analysis_source"] = "rule_based_fallback"
-    fallback_result["model_used"] = "Deterministic Rule-Based Intelligence Engine (No LLM key configured)"
+    fallback_result["model_used"] = "Deterministic Rule-Based Intelligence Engine (configured provider unavailable or disabled)"
     return fallback_result
 
 
 async def _call_gemini_api(message: str, extracted_indicators: List[ExtractedIndicator]) -> Dict[str, Any]:
     """Calls Google Gemini REST API using configured backend API key."""
     api_key = settings.GEMINI_API_KEY
-    model = settings.LLM_MODEL_NAME or "gemini-1.5-flash"
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    model = settings.LLM_MODEL_NAME or "gemini-2.5-flash"
+    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
     user_prompt = f"""Analyze this submitted text for Scam DNA:
 <untrusted_user_message>
@@ -90,7 +92,8 @@ Phones: {[ind.value for ind in extracted_indicators if ind.type == 'phone']}
 UPI IDs: {[ind.value for ind in extracted_indicators if ind.type == 'upi_id']}"""
 
     payload = {
-        "contents": [{"parts": [{"text": f"{SYSTEM_PROMPT}\n\n{user_prompt}"}]}],
+        "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+        "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
         "generationConfig": {
             "temperature": 0.1,
             "responseMimeType": "application/json",
@@ -98,7 +101,7 @@ UPI IDs: {[ind.value for ind in extracted_indicators if ind.type == 'upi_id']}""
     }
 
     async with httpx.AsyncClient(timeout=settings.LLM_REQUEST_TIMEOUT) as client:
-        resp = await client.post(endpoint, json=payload)
+        resp = await client.post(endpoint, json=payload, headers={"x-goog-api-key": api_key})
         resp.raise_for_status()
         data = resp.json()
         candidate = data["candidates"][0]["content"]["parts"][0]["text"]

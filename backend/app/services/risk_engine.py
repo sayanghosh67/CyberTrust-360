@@ -43,7 +43,7 @@ def evaluate_risk(
 
     # 2. Evaluate URL and Deceptive Structuring
     if url_data.is_ip_address:
-        accumulated_score += 30
+        accumulated_score += 10
         indicators.append(
             DetectedIndicator(
                 name="IP Address Based Host",
@@ -214,13 +214,19 @@ def evaluate_risk(
         accumulated_score += 25
         indicators.append(
             DetectedIndicator(
-                name="Suspicious or Off-Domain Redirection",
+                name="Redirect Security Warning",
                 category="headers",
                 severity="medium",
-                description="The URL redirects to an external or potentially deceptive destination.",
-                technical_evidence=f"Hops: {headers_data.redirect_count} | Chain: {' -> '.join(headers_data.redirect_chain[:3])}",
+                description="A redirect was blocked, downgraded HTTPS, or led to a destination with a deceptive URL pattern.",
+                technical_evidence="; ".join(headers_data.redirect_notes) or f"Hops: {headers_data.redirect_count} | Chain: {' -> '.join(headers_data.redirect_chain[:3])}",
             )
         )
+
+    elif headers_data.cross_domain_redirect:
+        indicators.append(DetectedIndicator(
+            name="Cross-Domain Redirect Observed", category="headers", severity="info",
+            description="The destination uses a different registrable domain. Common for redirects and sign-in services; no risk points added solely for this change.",
+            technical_evidence=f"Chain: {' -> '.join(headers_data.redirect_chain[:6])}"))
 
     # Missing critical security headers (only if the server actually returned an HTTP response)
     if headers_data.status_code and not headers_data.hsts_present:
@@ -230,7 +236,7 @@ def evaluate_risk(
                 name="Missing Strict-Transport-Security (HSTS)",
                 category="headers",
                 severity="info",
-                description="The site does not enforce strict TLS connections against downgrade attacks.",
+                description="No HSTS header was observed in this response. This is a configuration observation, not evidence of phishing.",
                 technical_evidence="HSTS header absent in response.",
             )
         )
@@ -272,12 +278,11 @@ def evaluate_risk(
                 f"Suspicious signals identified on '{url_data.hostname}'. "
                 "While not definitively confirmed malicious, several defensive abnormalities warrant caution."
             )
-    elif dns_data.status == "failed":
+    elif dns_data.status != "resolved" or not ssl_data.valid or not headers_data.status_code or headers_data.error_message or failed_checks:
         classification = "Inconclusive"
         confidence = "Medium"
         summary = (
-            f"Unable to complete live security inspection: The domain '{url_data.hostname}' did not resolve to active DNS records. "
-            "It may be unregistered, decommissioned, or recently taken down."
+            "Unable to complete live security inspection: DNS, TLS or HTTP checks were incomplete. Available evidence is insufficient for a low-risk verdict."
         )
     else:
         classification = "Low Risk"

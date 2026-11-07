@@ -96,7 +96,7 @@ async def _check_urlhaus(target_url: str) -> ThreatIntelSource:
                 details=f"Provider responded with HTTP {resp.status_code}.",
             )
     except Exception as exc:
-        logger.debug(f"URLhaus query error: {exc}")
+        logger.debug("Operation failed; sensitive details suppressed")
         return ThreatIntelSource(
             provider="URLhaus (abuse.ch)",
             status="unavailable",
@@ -142,7 +142,7 @@ async def _check_google_safe_browsing(target_url: str) -> ThreatIntelSource:
         return ThreatIntelSource(
             provider="Google Safe Browsing",
             status="unavailable",
-            details=f"Query failed: {str(exc)}",
+            details="Provider query unavailable",
         )
 
 
@@ -158,5 +158,5 @@ async def _check_virustotal(target_url: str) -> ThreatIntelSource:
     return ThreatIntelSource(
         provider="VirusTotal",
         status="unavailable",
-        details="VirusTotal API v3 integration active.",
+        details="VirusTotal lookup is not implemented; no provider verdict is available.",
     )

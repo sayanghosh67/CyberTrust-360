@@ -1,0 +1,217 @@
+1
+00:00:03,058 --> 00:00:07,619
+A suspicious link. An urgent message. A decision
+that can put your digital life at risk.
+
+2
+00:00:10,677 --> 00:00:16,494
+Introducing CyberTrust 360, built by TECHNIX PRO.
+Your digital world, protected from every
+
+3
+00:00:16,494 --> 00:00:16,942
+angle.
+
+4
+00:00:22,474 --> 00:00:27,284
+A familiar logo can hide a phishing website. A fake
+bank message can turn urgency into a
+
+5
+00:00:27,284 --> 00:00:28,415
+request for your credentials.
+
+6
+00:00:30,890 --> 00:00:36,163
+UPI scams exploit confusion about payments. Social
+engineering pushes people to act before
+
+7
+00:00:36,163 --> 00:00:36,569
+checking.
+
+8
+00:00:39,043 --> 00:00:42,526
+And when evidence changes later, investigators need
+a way to detect it.
+
+9
+00:00:45,749 --> 00:00:52,391
+CyberTrust 360 brings four capabilities into one
+interface: URL investigation, Scam DNA,
+
+10
+00:00:52,391 --> 00:00:55,159
+relationship intelligence, and blockchain
+verification.
+
+11
+00:00:55,908 --> 00:01:00,459
+This is the working application with synthetic
+demonstration records. Its indicator counter
+
+12
+00:01:00,459 --> 00:01:04,251
+also includes built-in fixtures, a limitation
+identified in the audit.
+
+13
+00:01:05,981 --> 00:01:10,871
+We submit example dot com, a safe demonstration
+target, through the actual application.
+
+14
+00:01:11,852 --> 00:01:17,411
+The backend checks DNS, the TLS certificate, HTTP
+headers, and configured intelligence sources.
+
+15
+00:01:17,411 --> 00:01:21,687
+This run returned a low-risk classification with
+visible technical evidence.
+
+16
+00:01:22,668 --> 00:01:27,542
+URLhaus was unavailable, and keyed providers were
+not configured. These are not successful
+
+17
+00:01:27,542 --> 00:01:28,292
+provider verdicts.
+
+18
+00:01:29,273 --> 00:01:34,019
+Low risk is not a guarantee of safety. An
+unavailable check is not proof of malicious
+behavior.
+
+19
+00:01:36,569 --> 00:01:41,505
+Next, we submit a clearly synthetic bank KYC
+message. It threatens account suspension and asks
+
+20
+00:01:41,505 --> 00:01:42,492
+for an OTP.
+
+21
+00:01:44,061 --> 00:01:49,479
+Scam DNA identifies manipulation tactics and
+extracts the indicators. No live language model is
+
+22
+00:01:49,479 --> 00:01:52,575
+configured, so this result comes from deterministic
+rules.
+
+23
+00:01:54,144 --> 00:01:59,303
+If money has been transferred, the guidance directs
+users to their bank or payment provider,
+
+24
+00:01:59,303 --> 00:02:03,431
+helpline 1930, and cybercrime dot gov dot in.
+Recovery is never guaranteed.
+
+25
+00:02:06,557 --> 00:02:10,685
+The relationship graph connects reports and the
+indicators they share. These demonstration
+
+26
+00:02:10,685 --> 00:02:12,749
+reports reference the same example domain.
+
+27
+00:02:14,306 --> 00:02:18,830
+Solid green links represent exact shared indicators.
+Dashed amber links represent inferred
+
+28
+00:02:18,830 --> 00:02:21,092
+similarities such as tactics or brands.
+
+29
+00:02:22,648 --> 00:02:26,918
+The evidence panel explains each relationship. A
+shared indicator does not prove that two
+
+30
+00:02:26,918 --> 00:02:28,443
+incidents have the same attacker.
+
+31
+00:02:31,182 --> 00:02:36,876
+The Trust Center computes a SHA-256 fingerprint from
+selected report fields and submits a real
+
+32
+00:02:36,876 --> 00:02:37,635
+registration transaction.
+
+33
+00:02:38,817 --> 00:02:45,651
+This demonstration runs on a local Hardhat EVM,
+chain I D 31337. It is a resettable local
+
+34
+00:02:45,651 --> 00:02:48,063
+network, not a public decentralized blockchain.
+
+35
+00:02:49,245 --> 00:02:53,812
+The receipt confirms registration. Verification
+compares the recomputed fingerprint with the
+
+36
+00:02:53,812 --> 00:02:54,643
+recorded hash.
+
+37
+00:02:55,825 --> 00:03:00,239
+Now the built-in demonstration changes the score in
+memory. The hashes differ, and the
+
+38
+00:03:00,239 --> 00:03:01,500
+interface displays a mismatch.
+
+39
+00:03:02,682 --> 00:03:06,481
+This proves the demonstrated score-change check. The
+audit found that some report evidence
+
+40
+00:03:06,481 --> 00:03:08,818
+fields are not yet protected by the hash.
+
+41
+00:03:10,954 --> 00:03:15,630
+React connects to FastAPI services for
+investigation, intelligence, and database
+persistence.
+
+42
+00:03:15,630 --> 00:03:19,882
+The backend submits selected report fingerprints to
+the Solidity registry.
+
+43
+00:03:20,836 --> 00:03:25,918
+Independent verification passed all 58 existing
+tests and the frontend build. Security and
+
+44
+00:03:25,918 --> 00:03:29,046
+integrity findings still require correction before
+public deployment.
+
+45
+00:03:32,144 --> 00:03:36,916
+CyberTrust 360. Detect. Understand. Connect. Verify.
+
+46
+00:03:39,060 --> 00:03:42,856
+Built by TECHNIX PRO. Your digital world, protected
+from every angle.

@@ -1,3 +1,5 @@
+> Remediation update: use `start_demo.sh` for a localhost-only authenticated demo. Current behavior and verification results are in `CODEX_POST_REMEDIATION_REPORT.md`. Older screenshots, the original PPTX and the original video are historical captures.
+
 # CyberTrust 360 — Technical Architecture Specification
 
 > **Team**: TECHNIX PRO  
@@ -47,7 +49,7 @@ flowchart TD
         Solidity[CyberTrustReportRegistry.sol\nLocal EVM Node - Chain ID 31337]
     end
     
-    DB -->|Canonical RFC 8785 Hash| Web3Engine
+    DB -->|Canonical CyberTrust v2 Hash| Web3Engine
     Web3Engine -->|Submit Report Fingerprint| Solidity
     Web3Engine -->|Audit Trail Sync| DB
     Web3Engine -->|Verify Immutable Hash| Solidity
@@ -76,7 +78,7 @@ The end-to-end lifecycle follows an auditable 7-step pipeline:
 [5. Threat Relationship Correlation (Graph Clustering)]
        │
        ▼
-[6. Canonical SHA-256 Hashing (RFC 8785)]
+[6. Canonical SHA-256 Hashing (CyberTrust v2)]
        │
        ▼
 [7. On-Chain Smart Contract Registration & Integrity Verification]
@@ -89,7 +91,7 @@ The end-to-end lifecycle follows an auditable 7-step pipeline:
 3. **Risk Evidence & Explainable Scoring**: An explainable 0–100 composite score is calculated with granular, readable evidence items and actionable defensive guidance.
 4. **Relational Database Persistence**: Reports are persisted in PostgreSQL 16 (or local SQLite fallback `./cybertrust.db` if Docker is offline) with full structured JSON telemetry.
 5. **Threat Relationship Correlation**: The graph correlation engine queries database records to extract shared technical indicators (domains, IPs, phone numbers, UPI VPAs) and playbook patterns, constructing interactive multi-hop clusters.
-6. **Canonical SHA-256 Hashing**: The report is serialized into RFC 8785 canonical JSON (recursively sorted keys, zero ephemeral UI timestamps) and hashed using SHA-256 to create an immutable 32-byte cryptographic fingerprint (`bytes32`).
+6. **Canonical SHA-256 Hashing**: The report is serialized into CyberTrust v2 canonical JSON (recursively sorted keys, the complete saved report and summary columns) and hashed using SHA-256 to create an immutable 32-byte cryptographic fingerprint (`bytes32`).
 7. **On-Chain Smart Contract Registration & Integrity Verification**: The fingerprint is committed to `CyberTrustReportRegistry.sol` on an EVM blockchain. Any future audit queries the contract to verify whether the report remains unchanged or has been tampered with.
 
 ---
@@ -156,6 +158,7 @@ The end-to-end lifecycle follows an auditable 7-step pipeline:
 
 - **Smart Contract Tests**: 13/13 passing (`CI=true npx hardhat test`)
 - **Backend Tests**: 45/45 passing (`PYTHONPATH=. backend/.venv/bin/pytest backend/tests -v`)
-- **Total Automated Tests**: **58 / 58 Passing**
+- **Total Automated Tests**: **See CODEX_POST_REMEDIATION_REPORT.md**
 - **Frontend Production Build**: Zero TypeScript errors (`tsc -b && vite build`)
 - **One-Command Startup**: Fully verified via `./start_demo.sh`
+

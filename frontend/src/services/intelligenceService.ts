@@ -1,4 +1,4 @@
-import { API_BASE_URL, ApiError } from './api';
+import { API_BASE_URL, ApiError, apiFetch } from './api';
 import type {
   GraphResponse,
   IndicatorsResponse,
@@ -9,7 +9,8 @@ export async function fetchThreatGraph(
   filterType?: string,
   search?: string,
   limit: number = 100,
-  includeDemo: boolean = false
+  includeDemo: boolean = false,
+  signal?: AbortSignal
 ): Promise<GraphResponse> {
   const params = new URLSearchParams();
   if (filterType && filterType !== 'all') params.append('filter_type', filterType);
@@ -18,8 +19,9 @@ export async function fetchThreatGraph(
   if (includeDemo) params.append('include_demo', 'true');
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/intelligence/graph?${params.toString()}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/intelligence/graph?${params.toString()}`, {
       headers: { Accept: 'application/json' },
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(15000)]) : AbortSignal.timeout(15000),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => null);
@@ -27,6 +29,7 @@ export async function fetchThreatGraph(
     }
     return await res.json();
   } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'TimeoutError') throw new ApiError('Graph loading timed out. Please retry.', 408);
     if (err instanceof ApiError) throw err;
     throw new ApiError(err instanceof Error ? err.message : 'Failed to fetch threat graph', 0);
   }
@@ -34,7 +37,7 @@ export async function fetchThreatGraph(
 
 export async function fetchReportRelationships(reportId: string): Promise<ReportRelationshipsResponse> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/intelligence/relationships/${encodeURIComponent(reportId)}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/intelligence/relationships/${encodeURIComponent(reportId)}`, {
       headers: { Accept: 'application/json' },
     });
     if (!res.ok) {
@@ -50,7 +53,7 @@ export async function fetchReportRelationships(reportId: string): Promise<Report
 
 export async function fetchTopRecurringIndicators(limit: number = 20): Promise<IndicatorsResponse> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/intelligence/indicators?limit=${limit}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/intelligence/indicators?limit=${limit}`, {
       headers: { Accept: 'application/json' },
     });
     if (!res.ok) {

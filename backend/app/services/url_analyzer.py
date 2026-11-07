@@ -4,6 +4,7 @@ import difflib
 from typing import List, Dict, Any
 from urllib.parse import urlparse
 import tldextract
+_extract = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None)
 from backend.app.schemas.scan import URLAnalysis, TyposquatMatch
 
 # High-value targets frequently spoofed in phishing/typosquatting attacks
@@ -32,13 +33,13 @@ def analyze_url(raw_url: str) -> URLAnalysis:
     parsed = urlparse(processed_url)
     hostname = (parsed.hostname or "").lower().strip(".")
     scheme = parsed.scheme.lower()
-    canonical_url = f"{scheme}://{hostname}{parsed.path or '/'}"
+    canonical_url = f"{scheme}://{parsed.netloc}{parsed.path or '/'}"
     if parsed.query:
         canonical_url += f"?{parsed.query}"
 
     # Extract domain tokens
-    extracted = tldextract.extract(hostname)
-    reg_domain = getattr(extracted, "top_domain_under_public_suffix", None) or extracted.registered_domain or hostname
+    extracted = _extract(hostname)
+    reg_domain = extracted.top_domain_under_public_suffix or hostname
     registered_domain = reg_domain
     subdomain = extracted.subdomain
     domain_name = extracted.domain
@@ -59,7 +60,7 @@ def analyze_url(raw_url: str) -> URLAnalysis:
         suspicious_patterns.append("Host is an explicit raw IP address rather than a registered domain name.")
 
     # Embedded credentials / @ symbol in URL
-    if "@" in raw_url:
+    if parsed.username is not None or parsed.password is not None:
         suspicious_patterns.append("URL contains an '@' delimiter, which can deceive users about the true destination host.")
 
     # Excessive subdomains (phishing depth trick)
@@ -73,7 +74,7 @@ def analyze_url(raw_url: str) -> URLAnalysis:
 
     # Brand keyword placed inside subdomain (e.g., paypal.com.verify-login.xyz)
     for brand in TARGET_BRANDS:
-        if brand in subdomain_parts:
+        if brand in subdomain_parts and domain_name.lower() != brand:
             suspicious_patterns.append(
                 f"Legitimate brand name '{brand}' detected in subdomain while registered domain is '{registered_domain}'."
             )

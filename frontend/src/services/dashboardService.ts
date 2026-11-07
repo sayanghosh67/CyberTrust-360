@@ -1,9 +1,9 @@
-import { API_BASE_URL, ApiError } from './api';
+import { API_BASE_URL, ApiError, apiFetch } from './api';
 import type { DashboardMetrics } from '../types/dashboard';
 
 export async function fetchDashboardMetrics(): Promise<DashboardMetrics> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/dashboard/metrics`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/dashboard/metrics`, {
       headers: { Accept: 'application/json' },
     });
     if (!res.ok) {

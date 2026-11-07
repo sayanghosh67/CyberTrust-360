@@ -1,0 +1,10 @@
+ M backend/app/api/dashboard.py
+ M backend/app/schemas/dashboard.py
+ M backend/tests/test_dashboard.py
+ M docs/ARCHITECTURE.md
+ M docs/DEMO_VIDEO_STORYBOARD.md
+ M docs/PRESENTATION.md
+ M docs/generate_pitch_deck.py
+ M frontend/src/types/dashboard.ts
+ M start_demo.sh
+?? hackathon-video/

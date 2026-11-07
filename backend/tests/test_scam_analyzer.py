@@ -196,4 +196,5 @@ def test_safety_guidance_endpoint():
     assert res3.status_code == 200
     guidance3 = res3.json()
     assert guidance3["severity_level"] == "low"
-    assert "You are safe" in guidance3["immediate_steps"][0]
+    assert "usually does not indicate compromise" in guidance3["immediate_steps"][0]
+    assert "no compromise has occurred" not in str(guidance3)

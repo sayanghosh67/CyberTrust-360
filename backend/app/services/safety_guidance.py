@@ -45,14 +45,14 @@ def generate_safety_guidance(action_taken: str, scam_type: str = "") -> SafetyGu
             ),
             immediate_steps=[
                 "Dial 1930 immediately to report the transaction ID, UPI reference number (UTR), and recipient UPI handle to the National Cyber Financial Fraud helpline (early reporting is critical, though full recovery depends on whether funds remain unwithdrawn).",
-                "Call your bank's fraud reporting helpline immediately (printed on the back of your debit card) and request a transaction dispute and lien on the beneficiary account.",
+                "Contact your payment app support and call your bank's fraud reporting helpline immediately (printed on the back of your debit card) and request a transaction dispute and lien on the beneficiary account.",
                 "Take screenshots of the payment confirmation screen, recipient UPI ID/account number, and the conversation thread as forensic evidence.",
                 "Register an official complaint on the National Cyber Crime Reporting Portal (https://cybercrime.gov.in) under 'Financial Fraud'.",
-                "Visit your local cyber police station to file an FIR with your complaint acknowledgement number if loss exceeds local thresholds.",
+                "Contact local cyber police with your complaint acknowledgement number for further assistance.",
             ],
             reporting_channels=REPORTING_CHANNELS,
             preventative_measures=[
-                "Remember: Entering your UPI PIN ALWAYS debits money from your account. You NEVER need to enter a UPI PIN to receive money.",
+                "You do not need to enter a UPI PIN to receive money. Never share your PIN; approve only transactions you intended.",
                 "Block the fraudster's number on WhatsApp and Truecaller.",
                 "Never send a test amount of ₹1 or ₹5 to unlock refunds.",
             ],
@@ -128,7 +128,7 @@ def generate_safety_guidance(action_taken: str, scam_type: str = "") -> SafetyGu
             severity_level="low",
             urgent_warning=None,
             immediate_steps=[
-                "You are safe! Because you did not click links, share OTPs, or transfer money, no compromise has occurred.",
+                "Receiving a message alone usually does not indicate compromise. Avoid interaction and watch for unexpected account activity.",
                 "Report the message as spam/phishing within WhatsApp or your SMS messaging app.",
                 "Report the sender number on the Department of Telecommunications' Chakshu portal (https://sancharsaathi.gov.in) to help authorities block the fraudster.",
                 "Block and delete the sender number.",

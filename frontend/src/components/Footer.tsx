@@ -21,7 +21,7 @@ export function Footer() {
       </div>
       <div className="footer-bottom">
         <span>
-          © {currentYear} CyberTrust 360. Engineered by <strong>TECHNIX PRO</strong>.
+          © {currentYear} CyberTrust 360. All rights reserved. Engineered by <strong>TECHNIX PRO</strong>.
         </span>
         <span>BUILT WITH PURPOSE. DESIGNED FOR TRUST.</span>
         <a href="#home">Back to top ↑</a>

@@ -1,0 +1,6 @@
+{
+  "changed_baseline_files": [],
+  "tracked_files_checked": 140,
+  "original_database_unchanged": true,
+  "git_status": " M backend/app/api/dashboard.py\n M backend/app/schemas/dashboard.py\n M backend/tests/test_dashboard.py\n M docs/ARCHITECTURE.md\n M docs/DEMO_VIDEO_STORYBOARD.md\n M docs/PRESENTATION.md\n M docs/generate_pitch_deck.py\n M frontend/src/types/dashboard.ts\n M start_demo.sh\n?? hackathon-video/\n"
+}

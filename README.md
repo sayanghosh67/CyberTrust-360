@@ -1,3 +1,7 @@
+> Website update: the token landing page has been removed. Visitors enter directly with automatically scoped private sessions. See [website hosting and motion notes](docs/WEBSITE_HOSTING.md).
+
+> Remediation update: use `start_demo.sh` for a localhost-only authenticated demo. Current behavior and verification results are in `CODEX_POST_REMEDIATION_REPORT.md`. Older screenshots, the original PPTX and the original video are historical captures.
+
 # CyberTrust 360
 
 > **Your Digital World. Protected from Every Angle.**  
@@ -30,7 +34,7 @@ CyberTrust 360 provides an end-to-end cyber defense and trust intelligence matri
 - **Non-Invasive Technical URL Inspection**: Concurrently audits DNS, TLS/SSL certificate lifespans, and HTTP security headers with strict SSRF defense.
 - **AI Scam DNA Sequencing**: Parses linguistic manipulation, extracts burner phone numbers and UPI VPAs, and guides victims through situational response protocols.
 - **Threat Relationship Intelligence**: Clusters database records into an interactive React Flow graph to reveal shared infrastructure across scam campaigns.
-- **Blockchain Attestation**: Hashes reports using RFC 8785 canonical serialization and anchors immutable 32-byte fingerprints on a Solidity smart contract with real-time tamper detection.
+- **Blockchain Attestation**: Hashes reports using versioned deterministic JSON serialization (not RFC 8785 JCS) and anchors immutable 32-byte fingerprints on a Solidity smart contract with real-time tamper detection.
 
 ---
 
@@ -61,7 +65,7 @@ CyberTrust 360 provides an end-to-end cyber defense and trust intelligence matri
   - Evidence inspection side panel with exact technical quotes and attribution guardrails.
 - **Module 4 — Blockchain Threat Report Integrity**:
   - Solidity 0.8.24 registry (`CyberTrustReportRegistry.sol`) on local EVM node (Chain ID 31337).
-  - RFC 8785 canonical JSON deterministic hashing.
+  - CyberTrust v2 canonical JSON deterministic hashing.
   - Scenario A (Verified Unchanged) and Scenario B (Tamper Detection Mismatch).
 
 ---
@@ -72,7 +76,7 @@ CyberTrust 360 provides an end-to-end cyber defense and trust intelligence matri
 - **Backend**: Python 3.11+, FastAPI (v0.162+), Pydantic v2, Web3.py, dnspython, tldextract, httpx, Uvicorn
 - **Blockchain**: Solidity 0.8.24, Hardhat, Ethers.js, Local EVM Node (Chain ID 31337)
 - **Database**: PostgreSQL 16 Alpine via Docker Compose, SQLAlchemy 2.0 ORM, SQLite 3 automatic fallback
-- **Security**: Strict SSRF guardrails, per-hop redirect validation, prompt injection shields, zero secret exposure
+- **Security**: Strict SSRF guardrails, per-hop redirect validation, prompt injection shields, redacted operational logs
 
 ---
 
@@ -87,7 +91,7 @@ User Input ──► FastAPI Gateway ──► Multi-Vector Threat Inspection �
                                                                                 │
                      ┌──────────────────────────────────────────────────────────┘
                      ▼
-             Threat Relationship Graph ──► RFC 8785 Hashing ──► Solidity Smart Contract (EVM)
+             Threat Relationship Graph ──► CyberTrust v2 Hashing ──► Solidity Smart Contract (EVM)
              (React Flow Multi-Hop)      (Deterministic SHA-256)   (On-Chain Tamper Detection)
 ```
 
@@ -108,7 +112,7 @@ cp .env.example .env
 ```
 
 ### 2. One-Command Demonstration Startup (Recommended)
-CyberTrust 360 includes a verified one-command script that tests prerequisites, starts the local Hardhat blockchain, deploys the smart contract, launches the backend, and opens the frontend:
+CyberTrust 360 includes a verified one-command script that tests prerequisites, starts the local Hardhat blockchain, deploys the smart contract, launches the backend, and serves the frontend:
 
 ```bash
 chmod +x start_demo.sh
@@ -125,13 +129,13 @@ Configure `.env` using `.env.example` as a template:
 # Platform Configuration
 PROJECT_NAME="CyberTrust 360"
 ENVIRONMENT="development"
-DEBUG=True
+DEBUG=False
 
 # Database Configuration (PostgreSQL with automatic SQLite fallback)
 POSTGRES_SERVER=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=cybertrust
-POSTGRES_PASSWORD=cybertrust_secret
+POSTGRES_PASSWORD=replace_with_a_unique_local_password
 POSTGRES_DB=cybertrust_db
 USE_SQLITE_FALLBACK=True
 SQLITE_DB_PATH="./cybertrust.db"
@@ -164,7 +168,7 @@ If you prefer running services individually:
 ```bash
 # Terminal 1: Hardhat Blockchain Node
 cd blockchain
-CI=true npx hardhat node --hostname 127.0.0.1 --port 8545
+CI=true npx --no-install hardhat node --hostname 127.0.0.1 --port 8545
 
 # Terminal 2: Smart Contract Deployment
 cd blockchain
@@ -187,13 +191,13 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 ## 11. Automated Testing Suite
 
-All **58 automated tests** pass with 100% reliability:
+Run the current regression suite; see CODEX_POST_REMEDIATION_REPORT.md for actual results:
 
 ```bash
 # 1. Run Smart Contract Tests (13 tests)
-cd blockchain && CI=true npx hardhat test
+cd blockchain && CI=true npx --no-install hardhat test
 
-# 2. Run Backend Pytest Suite (45 tests covering all phases)
+# 2. Run Backend Pytest Suite (disposable database; isolated local chain required)
 PYTHONPATH=. backend/.venv/bin/pytest backend/tests -v
 
 # 3. Verify Frontend Production Build (0 errors)
@@ -224,7 +228,7 @@ All screenshots are stored in [`docs/screenshots/`](file:///Users/sayanghosh/Des
 - **1:30 - 2:30**: Open Scam DNA Analyzer. Paste an electricity cutoff threat message. Review extracted phone number and urgency pressure. Scroll to "What Should I Do Now?" and review Golden Hour 1930 guidance.
 - **2:30 - 3:30**: Open Threat Relationship Graph. Click a banking phishing node to highlight 1-hop connections and dim unrelated nodes. Inspect the green verified edge evidence.
 - **3:30 - 4:30**: Open Blockchain Trust Center. Verify report integrity on-chain (Scenario A). Click "Simulate Tamper" (Scenario B) to demonstrate instant cryptographic mismatch detection.
-- **4:30 - 5:00**: Show terminal with 58 automated tests passing. Conclude with project vision.
+- **4:30 - 5:00**: Show terminal with the verified regression suite passing. Conclude with project vision.
 
 ---
 
@@ -282,3 +286,31 @@ CyberTrust 360 is configured for modular cloud deployment:
 Developed by **Team TECHNIX PRO** for hackathon demonstration.  
 Licensed under the **MIT License**.  
 *CyberTrust 360 is intended for cyber threat defense and educational digital trust awareness.*
+
+## Remediated local demo and access control
+
+`./start_demo.sh` supervises the three local services, applies additive migrations and checks actual database and registry readiness. It installs nothing. Existing dependencies and compiled artifacts must be present. It refuses occupied API/frontend ports and never resets a running chain. Use `--reuse-chain` only for a known local Hardhat node. Stop with Ctrl-C; only its child processes are stopped.
+
+For an isolated demo alongside existing services:
+
+```sh
+./start_demo.sh --api-port 18000 --web-port 15173 --chain-port 18545
+```
+
+Open the printed URL directly; a private visitor session is created automatically. `.runtime/demo-token.txt` remains a private operator credential, not a website login requirement. The persistent demo database is `.runtime/demo.db`; original `cybertrust.db` records are preserved. Live LLM inference is off by default in this launcher; set `LLM_PROVIDER` and the matching provider key/model explicitly to opt in.
+
+Optional operator access uses `API_AUTH_TOKENS`, a JSON object mapping random tokens (at least 32 characters) to `{"id":"person-id","role":"admin"}`. Roles: admin sees all records; analyst creates and reads their own reports; registrar additionally signs their own reports; reader can only read their own reports. Multiple tokens can share an identity. Pre-migration records have no owner and are visible only to admins until ownership is assigned through a reviewed migration. The frontend automatically keeps a short-lived visitor session in tab storage. Visitor identities can access only their own reports. Root, health and rate-limited visitor-session creation are public; operator and report endpoints retain authorization. Public blockchain signing is disabled by default.
+
+The built-in rate limiter applies per IP and identity, limits payload size and concurrent requests, and assumes one API worker. Distributed deployments need a shared ingress limiter and managed identity/secret storage. Public hosting is not approved by this remediation.
+
+New `ct360-v2` SHA-256 fingerprints cover the entire saved report JSON plus displayed summary columns. This custom deterministic JSON is **not RFC 8785 JCS**. Legacy v1 fingerprints remain verifiable but clearly show partial coverage; explicitly register a new version to protect the complete report. Registrations require chain ID 31337, the expected runtime bytecode, authorized registrar and a confirmed matching receipt. Only hashes/type/version are placed on chain. Hardhat remains a resettable local EVM, not a public decentralized ledger.
+
+Dashboard counts exclude graph fixtures; related indicators describe the latest 100 URL and 100 scam records (up to 200 records), not an unlimited corpus. Blockchain count means distinct reports with saved confirmed registrations; use live verification to check current chain state. Local test inputs remain test data even though their reports are genuinely persisted.
+
+Backend tests create a new temporary database automatically and use localhost:18545. Start a separate Hardhat node and deploy the contract there before running the full suite. Never point these tests at the user's chain or database. Test credentials are explicitly development-only. See the post-remediation report for reproducible commands and results.
+
+Incident guidance references: [NPCI fraud awareness](https://www.npci.org.in/fraud-awareness), [National cybercrime reporting instructions](https://cybercrime.gov.in/uploadmedia/instructions_citizenreportingcyberfrauds.pdf). Prompt reporting to the bank/payment provider, 1930 and cybercrime.gov.in is recommended; recovery is not guaranteed.
+
+Current corrected presentation: [CyberTrust360_PitchDeck_Remediated.pptx](docs/CyberTrust360_PitchDeck_Remediated.pptx). The original deck remains historical.
+
+For backend integration tests, start Hardhat on 127.0.0.1:18545 and run `backend/.venv/bin/python scripts/deploy_test_chain.py` from the repository root. This helper validates the local test registry without writing application ABI metadata.

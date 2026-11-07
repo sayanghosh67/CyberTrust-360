@@ -6,6 +6,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   const network = await ethers.provider.getNetwork();
 
+  if (network.chainId !== 31337n) throw new Error("Only the local chain 31337 is supported");
   console.log("=================================================");
   console.log("TECHNIX PRO — CyberTrust 360 Smart Contract Deploy");
   console.log("=================================================");
@@ -49,6 +50,7 @@ async function main() {
       contractAddress: contractAddress,
       chainId: Number(network.chainId),
       abi: artifact.abi,
+      runtimeBytecodeHash: ethers.keccak256(artifact.deployedBytecode),
     };
     const backendAbiDir = path.join(__dirname, "../../backend/app/blockchain");
     if (!fs.existsSync(backendAbiDir)) {

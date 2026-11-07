@@ -1,3 +1,5 @@
+> Remediation update: use `start_demo.sh` for a localhost-only authenticated demo. Current behavior and verification results are in `CODEX_POST_REMEDIATION_REPORT.md`. Older screenshots, the original PPTX and the original video are historical captures.
+
 # PROJECT CONTEXT: CyberTrust 360
 
 > **Team / Developer Branding**: TECHNIX PRO  
@@ -255,7 +257,7 @@ HACKMATRIX/
    - Local EVM Deployment: Contract deployed at `0x5FbDB2315678afecb367f032d93F642f64180aa3` (Chain ID 31337).
 
 2. **Deterministic Canonical Fingerprinting (`backend/app/services/canonical_hasher.py`)**:
-   - RFC 8785-compliant deterministic canonical JSON serializer with recursive key sorting and UTF-8 encoding.
+   - CyberTrust v2 deterministic (not CyberTrust v2 JCS) deterministic canonical JSON serializer with recursive key sorting and UTF-8 encoding.
    - Protected fields include: target URL / message summary, domain, threat verdicts, risk score, classification, extracted indicators, and tactics. Volatile UI and timestamp fields are excluded to ensure deterministic hash reproducibility.
    - Generates standard `0x`-prefixed 32-byte SHA-256 digests (`compute_sha256_hex`).
 
@@ -290,7 +292,7 @@ HACKMATRIX/
    - Masked internal error messages in production exception handlers.
 
 3. **One-Command Demonstration Startup (`start_demo.sh`)**:
-   - Fully automated startup script testing node/python prerequisites, launching the Hardhat EVM daemon, deploying `CyberTrustReportRegistry.sol`, launching FastAPI, launching Vite, and validating readiness probes in under 3 seconds.
+   - Fully automated startup script testing node/python prerequisites, launching the Hardhat EVM daemon, deploying `CyberTrustReportRegistry.sol`, launching FastAPI, launching Vite, and validating readiness probes with bounded readiness checks.
 
 4. **Hackathon Submission & Presentation Assets**:
    - `docs/CyberTrust360_PitchDeck.pptx`: 10-slide PowerPoint pitch deck with dark cybersecurity styling.
@@ -317,7 +319,7 @@ PYTHONPATH=. backend/.venv/bin/pytest backend/tests -v
 # 4. Run frontend production build (0 TypeScript errors)
 npm run build --prefix frontend
 
-# 5. Total Automated Tests Passing: 58 / 58
+# 5. Total Automated Tests Passing: See CODEX_POST_REMEDIATION_REPORT.md
 ```
 
 ---

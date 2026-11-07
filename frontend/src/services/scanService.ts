@@ -1,4 +1,5 @@
-import { API_BASE_URL, ApiError } from './api';
+import { notifyReportsChanged } from './reportEvents';
+import { API_BASE_URL, ApiError, apiFetch } from './api';
 import type { ScanResponse, ScanSummaryItem } from '../types/scan';
 
 export async function submitScan(url: string): Promise<ScanResponse> {
@@ -6,7 +7,7 @@ export async function submitScan(url: string): Promise<ScanResponse> {
   const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout for full multi-vector investigation
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/scans`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/scans`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,6 +26,7 @@ export async function submitScan(url: string): Promise<ScanResponse> {
     }
 
     const data: ScanResponse = await res.json();
+    notifyReportsChanged();
     return data;
   } catch (err: any) {
     clearTimeout(timeoutId);
@@ -40,7 +42,7 @@ export async function submitScan(url: string): Promise<ScanResponse> {
 
 export async function fetchRecentScans(limit: number = 10): Promise<ScanSummaryItem[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/scans?limit=${limit}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/scans?limit=${limit}`, {
       headers: { 'Accept': 'application/json' },
     });
     if (!res.ok) return [];
@@ -51,7 +53,7 @@ export async function fetchRecentScans(limit: number = 10): Promise<ScanSummaryI
 }
 
 export async function fetchScanById(scanId: string): Promise<ScanResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/v1/scans/${scanId}`, {
+  const res = await apiFetch(`${API_BASE_URL}/api/v1/scans/${scanId}`, {
     headers: { 'Accept': 'application/json' },
   });
   if (!res.ok) {

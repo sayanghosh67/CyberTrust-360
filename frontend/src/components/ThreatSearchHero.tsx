@@ -43,8 +43,15 @@ export function ThreatSearchHero({ onInvestigate, isScanning, error, requestedUr
     <>
       <section className="hero-section shell" id="home">
         <div className="hero-copy">
+          <div className="mb-3">
+            <img
+              src="/cybertrust-logo-horizontal.png"
+              alt="CyberTrust 360"
+              className="h-8 sm:h-10 object-contain filter drop-shadow-[0_2px_10px_rgba(16,185,129,0.3)]"
+            />
+          </div>
           <div className="eyebrow">
-            <span className="signal-dot" /> THE NEXT LAYER OF DIGITAL TRUST <span className="version-tag">PRODUCTION READY</span>
+            <span className="signal-dot" /> THE NEXT LAYER OF DIGITAL TRUST <span className="version-tag">DIGITAL TRUST PLATFORM</span>
           </div>
           <h1>
             Trust is earned.<br /> <span>Verify everything.</span>

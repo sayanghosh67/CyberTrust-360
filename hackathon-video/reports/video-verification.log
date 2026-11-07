@@ -1,0 +1,24 @@
+{
+  "file": "/Users/sayanghosh/Desktop/HACKMATRIX/hackathon-video/output/CyberTrust360_Final_Hackathon_Demo.mp4",
+  "bytes": 21830100,
+  "sha256": "7d32344320b54ab3847118a401979a32ec8ae04c4d59c5f84aa489e050e58668",
+  "duration_seconds": 225.0,
+  "resolution": [
+    1920,
+    1080
+  ],
+  "fps": 30.0,
+  "decoded_video_frames": 6750,
+  "video_stream": "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 1920x1080 [SAR 1:1 DAR 16:9], 610 kb/s, 30 fps, 30 tbr, 15360 tbn (default)",
+  "audio_stream": "Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, mono, fltp, 156 kb/s (default)",
+  "subtitle_stream_present": true,
+  "srt_cue_count": 46,
+  "full_decode_exit": 0,
+  "black_intervals": [],
+  "audio_mean_db": [
+    "-16.5 dB"
+  ],
+  "audio_peak_db": [
+    "-1.5 dB"
+  ]
+}

@@ -1,9 +1,10 @@
+import re
 import hashlib
 import json
 import uuid
 from datetime import datetime, timezone
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import select, desc
 
@@ -51,7 +52,7 @@ async def analyze_scam_message(
     # Compute deterministic message hash for indexing and dedup
     msg_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
     # Sanitize preview: first 120 chars without linebreaks
-    preview = " ".join(text[:120].split())
+    preview = re.sub(r"\d{4,}", "[redacted]", " ".join(text[:120].split()))
     if len(text) > 120:
         preview += "..."
 
@@ -102,8 +103,7 @@ async def analyze_scam_message(
         db.commit()
     except Exception as db_err:
         db.rollback()
-        # Log database error gracefully; do not fail API response delivery
-        pass
+        raise HTTPException(status_code=503, detail="Analysis could not be saved; please retry") from None
 
     return response
 
@@ -114,7 +114,7 @@ async def analyze_scam_message(
     summary="Retrieve Recent Scam Analysis History",
 )
 def list_scam_analyses(
-    limit: int = 20,
+    limit: int = Query(20, ge=1, le=50),
     db: Session = Depends(get_db),
 ) -> List[ScamAnalysisSummaryItem]:
     try:
@@ -136,7 +136,7 @@ def list_scam_analyses(
             for r in records
         ]
     except Exception:
-        return []
+        raise HTTPException(status_code=503, detail="History is unavailable") from None
 
 
 @router.get(
@@ -162,7 +162,7 @@ def get_scam_analysis(
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to parse report data: {str(exc)}",
+            detail="Stored report is unavailable",
         )
 
 

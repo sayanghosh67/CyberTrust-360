@@ -1,4 +1,5 @@
-import { API_BASE_URL, ApiError } from './api';
+import { notifyReportsChanged } from './reportEvents';
+import { API_BASE_URL, ApiError, apiFetch } from './api';
 import type {
   ScamAnalysisResponse,
   ScamAnalysisSummaryItem,
@@ -16,7 +17,7 @@ export async function analyzeScamMessage(
   const normalizedContext = context.toLowerCase().replace(/[\s-]+/g, '_');
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/scam/analyze`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/scam/analyze`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,7 +35,9 @@ export async function analyzeScamMessage(
       throw new ApiError(detail, res.status);
     }
 
-    return await res.json();
+    const data: ScamAnalysisResponse = await res.json();
+    notifyReportsChanged();
+    return data;
   } catch (err: unknown) {
     clearTimeout(timeoutId);
     if (err instanceof Error && err.name === 'AbortError') {
@@ -49,7 +52,7 @@ export async function analyzeScamMessage(
 
 export async function fetchRecentScamAnalyses(limit: number = 8): Promise<ScamAnalysisSummaryItem[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/scam/analyses?limit=${limit}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/scam/analyses?limit=${limit}`, {
       headers: { 'Accept': 'application/json' },
     });
     if (!res.ok) return [];
@@ -60,7 +63,7 @@ export async function fetchRecentScamAnalyses(limit: number = 8): Promise<ScamAn
 }
 
 export async function fetchScamAnalysisById(id: string): Promise<ScamAnalysisResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/v1/scam/analyses/${id}`, {
+  const res = await apiFetch(`${API_BASE_URL}/api/v1/scam/analyses/${id}`, {
     headers: { 'Accept': 'application/json' },
   });
   if (!res.ok) {
@@ -70,7 +73,7 @@ export async function fetchScamAnalysisById(id: string): Promise<ScamAnalysisRes
 }
 
 export async function fetchSafetyGuidance(actionTaken: ActionTakenType): Promise<SafetyGuidanceResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/v1/scam/guidance`, {
+  const res = await apiFetch(`${API_BASE_URL}/api/v1/scam/guidance`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

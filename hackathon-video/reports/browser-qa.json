@@ -1,0 +1,262 @@
+{
+  "errors": [],
+  "responses": [],
+  "title": "CyberTrust 360 — Digital Trust, Decoded",
+  "links": [
+    {
+      "text": "Skip to content",
+      "target": "#main-content",
+      "exists": true
+    },
+    {
+      "text": "cybertrust360DIGITAL TRUST. DECODED. · BY TECHNIX PRO",
+      "target": "#home",
+      "exists": true
+    },
+    {
+      "text": "Overview",
+      "target": "#platform-overview",
+      "exists": true
+    },
+    {
+      "text": "URL Scanner",
+      "target": "#investigate",
+      "exists": true
+    },
+    {
+      "text": "Scam DNA",
+      "target": "#scam-dna",
+      "exists": true
+    },
+    {
+      "text": "Threat Graph",
+      "target": "#relationship-graph",
+      "exists": true
+    },
+    {
+      "text": "Blockchain Trust",
+      "target": "#blockchain-trust",
+      "exists": true
+    },
+    {
+      "text": "Incident Response",
+      "target": "#incident-guidance",
+      "exists": true
+    },
+    {
+      "text": "Scam Analyzer",
+      "target": "#scam-dna",
+      "exists": true
+    },
+    {
+      "text": "Investigate URL",
+      "target": "#investigate",
+      "exists": true
+    },
+    {
+      "text": "Scan Scam Message",
+      "target": "#scam-dna",
+      "exists": true
+    },
+    {
+      "text": "Module 01Investigate WebsiteDeep inspection of DNS, TLS/SSL lifespan, HTTP security headers, and domain typosquatting heuristics.Explore Scanner→",
+      "target": "#investigate",
+      "exists": true
+    },
+    {
+      "text": "Module 02Analyze Scam MessageSequence linguistic deception, urgency pressure, fake UPI refunds, electricity cutoffs, and Telegram job traps.Analyze DNA→",
+      "target": "#scam-dna",
+      "exists": true
+    },
+    {
+      "text": "Module 03Threat Relationship MapInteractive multi-hop React Flow graph linking shared domains, UPI VPAs, phone numbers, and attacker tactics.Explore Graph→",
+      "target": "#relationship-graph",
+      "exists": true
+    },
+    {
+      "text": "Module 04Blockchain Trust CenterImmutable SHA-256 fingerprint attestation and tamper detection backed by Solidity smart contract on EVM.Verify Integrity→",
+      "target": "#blockchain-trust",
+      "exists": true
+    },
+    {
+      "text": "New investigation",
+      "target": "#investigate",
+      "exists": true
+    },
+    {
+      "text": "Investigate a domain",
+      "target": "#investigate",
+      "exists": true
+    },
+    {
+      "text": "Start your first scan",
+      "target": "#investigate",
+      "exists": true
+    },
+    {
+      "text": "cybertrust360",
+      "target": "#home",
+      "exists": true
+    },
+    {
+      "text": "Stay a step ahead",
+      "target": "#investigate",
+      "exists": true
+    },
+    {
+      "text": "Back to top ↑",
+      "target": "#home",
+      "exists": true
+    }
+  ],
+  "scan": {
+    "id": "bdc2084f-4224-47d0-94dc-a8c8933cdc8f",
+    "url": "https://example.com/",
+    "hostname": "example.com",
+    "registered_domain": "example.com",
+    "created_at": "2026-11-07T13:49:30.960727+00:00",
+    "risk_classification": "Low Risk",
+    "risk_score": 5,
+    "confidence": "High",
+    "summary": "No critical anomalies or threat flags observed on 'example.com'. Target presents standard technical indicators and valid certificates.",
+    "recommended_actions": [
+      "Standard browsing vigilance applies. Low risk does not guarantee complete safety.",
+      "Ensure your browser and operating system security definitions remain up to date."
+    ],
+    "disclaimer": "A Low Risk result does not guarantee that a website is safe. Absence of known threats is not proof of safety.",
+    "url_analysis": {
+      "original_url": "https://example.com",
+      "canonical_url": "https://example.com/",
+      "hostname": "example.com",
+      "registered_domain": "example.com",
+      "subdomain": "",
+      "tld": "com",
+      "scheme": "https",
+      "is_ip_address": false,
+      "is_url_shortener": false,
+      "suspicious_patterns": [],
+      "typosquatting_matches": []
+    },
+    "dns_analysis": {
+      "status": "resolved",
+      "a_records": [
+        "172.66.147.243",
+        "104.20.23.154"
+      ],
+      "aaaa_records": [
+        "2606:4700:9a95:72db:f2ef:0:ef6b:ff98"
+      ],
+      "mx_records": [
+        "0 ."
+      ],
+      "txt_records": [
+        "v=spf1 -all",
+        "_k2n1y4vw3qtb4skdx9e7dxt97qrmmq9"
+      ],
+      "ns_records": [
+        "elliott.ns.cloudflare.com",
+        "hera.ns.cloudflare.com"
+      ],
+      "error_message": null
+    },
+    "ssl_analysis": {
+      "https_available": true,
+      "valid": true,
+      "expired": false,
+      "days_remaining": 48,
+      "issuer": {
+        "country": "US",
+        "organization": "SSL Corporation",
+        "common_name": "Cloudflare TLS Issuing ECC CA 3"
+      },
+      "subject": {
+        "common_name": "example.com",
+        "alt_names": [
+          "example.com",
+          "*.example.com"
+        ]
+      },
+      "protocol": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "hostname_mismatch": false,
+      "error_message": null
+    },
+    "headers_analysis": {
+      "status_code": 200,
+      "hsts_present": false,
+      "csp_present": false,
+      "x_frame_options": null,
+      "x_content_type_options": null,
+      "referrer_policy": null,
+      "permissions_policy": null,
+      "server": "cloudflare",
+      "redirect_count": 0,
+      "redirect_chain": [
+        "https://example.com/"
+      ],
+      "is_http_to_https_redirect": false,
+      "suspicious_redirect": false,
+      "missing_headers": [
+        "Strict-Transport-Security (HSTS)",
+        "Content-Security-Policy (CSP)",
+        "X-Frame-Options (Clickjacking defense)",
+        "X-Content-Type-Options (MIME sniffing defense)",
+        "Referrer-Policy",
+        "Permissions-Policy"
+      ],
+      "error_message": null
+    },
+    "threat_intel": [
+      {
+        "provider": "URLhaus (abuse.ch)",
+        "status": "unavailable",
+        "details": "Provider responded with HTTP 401.",
+        "reference_url": null
+      },
+      {
+        "provider": "Google Safe Browsing",
+        "status": "not_configured",
+        "details": "GOOGLE_SAFE_BROWSING_API_KEY not configured in backend environment.",
+        "reference_url": null
+      },
+      {
+        "provider": "PhishTank",
+        "status": "not_configured",
+        "details": "PHISHTANK_API_KEY not configured in backend environment.",
+        "reference_url": null
+      },
+      {
+        "provider": "VirusTotal",
+        "status": "not_configured",
+        "details": "VIRUSTOTAL_API_KEY not configured in backend environment.",
+        "reference_url": null
+      }
+    ],
+    "indicators": [
+      {
+        "name": "Missing Strict-Transport-Security (HSTS)",
+        "category": "headers",
+        "severity": "info",
+        "description": "The site does not enforce strict TLS connections against downgrade attacks.",
+        "technical_evidence": "HSTS header absent in response."
+      }
+    ],
+    "failed_checks": []
+  },
+  "reportVisible": true,
+  "unnamedButtons": [],
+  "widths": [
+    {
+      "viewport": 1440,
+      "document": 1440
+    },
+    {
+      "viewport": 768,
+      "document": 768
+    },
+    {
+      "viewport": 390,
+      "document": 390
+    }
+  ]
+}

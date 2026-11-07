@@ -153,7 +153,7 @@ def build_threat_graph(
 
     # 2. If database is completely empty and demo not explicitly requested, or if demo is requested
     is_demo = False
-    if total_reports == 0 or include_demo:
+    if include_demo:
         is_demo = True
         _inject_synthetic_demo_data(nodes_map, edges_map)
 
@@ -272,7 +272,7 @@ def build_threat_graph(
                         limitations=STANDARD_LIMITATION,
                     )
         except Exception as e:
-            logger.debug(f"Error parsing scan report_data: {e}")
+            logger.debug("Operation failed; sensitive details suppressed")
 
     # 4. Process Live Scam Reports
     for scam in scam_reports:
@@ -514,7 +514,7 @@ def build_threat_graph(
                     )
 
         except Exception as e:
-            logger.debug(f"Error parsing scam report_data: {e}")
+            logger.debug("Operation failed; sensitive details suppressed")
 
     # 5. Apply Optional Filtering
     filtered_nodes = list(nodes_map.values())
@@ -829,7 +829,7 @@ def _inject_synthetic_demo_data(
 
 def get_report_relationships(report_id: str, db: Session) -> ReportRelationshipsResponse:
     """Returns all 1-hop and 2-hop connections for a specific investigation report."""
-    graph = build_threat_graph(db=db, limit=200, include_demo=True)
+    graph = build_threat_graph(db=db, limit=200, include_demo=False)
     target_node_id_options = [
         f"url_scan:{report_id}",
         f"scam_report:{report_id}",
@@ -909,7 +909,7 @@ def get_report_relationships(report_id: str, db: Session) -> ReportRelationships
 
 def get_top_recurring_indicators(db: Session, limit: int = 20) -> IndicatorsResponse:
     """Aggregates shared entities that appear in multiple reports."""
-    graph = build_threat_graph(db=db, limit=200, include_demo=True)
+    graph = build_threat_graph(db=db, limit=200, include_demo=False)
     recurring_nodes = [
         n for n in graph.nodes
         if n.type in ("domain", "url", "indicator", "brand") and n.report_count >= 1
@@ -940,5 +940,5 @@ def get_top_recurring_indicators(db: Session, limit: int = 20) -> IndicatorsResp
 
     return IndicatorsResponse(
         indicators=indicators_list,
-        total_count=len(indicators_list),
+        total_count=len(recurring_nodes),
     )

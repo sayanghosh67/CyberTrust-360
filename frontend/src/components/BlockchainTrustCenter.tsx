@@ -259,16 +259,16 @@ export const BlockchainTrustCenter: React.FC<BlockchainTrustCenterProps> = ({
 
             <p className="text-xs text-slate-400 mb-4 leading-relaxed font-mono">
               Enter any investigation report ID (from URL Scans or Scam DNA Intelligence) to verify
-              its cryptographic hash against the immutable on-chain registry.
+              its cryptographic hash against the local EVM registry.
             </p>
 
             {/* Target ID Input */}
             <div className="space-y-2 mb-4">
-              <label className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
+              <label htmlFor="blockchain-report-id" className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
                 Target Investigation Report UUID
               </label>
               <div className="relative">
-                <input
+                <input id="blockchain-report-id"
                   type="text"
                   value={targetReportId}
                   onChange={(e) => setTargetReportId(e.target.value)}
@@ -557,7 +557,7 @@ export const BlockchainTrustCenter: React.FC<BlockchainTrustCenterProps> = ({
               Recent On-Chain Attestations ({registrations.length})
             </h3>
           </div>
-          <span className="text-xs font-mono text-slate-500">Immutable Ledger Records</span>
+          <span className="text-xs font-mono text-slate-500">Saved Local Registrations</span>
         </div>
 
         {registrations.length === 0 ? (

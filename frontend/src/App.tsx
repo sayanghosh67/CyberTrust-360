@@ -1,7 +1,6 @@
 import { LandingPage } from './pages/LandingPage';
+import { CinematicExperience } from './components/CinematicExperience';
 
-function App() {
-  return <LandingPage />;
+export default function App() {
+  return <><CinematicExperience /><LandingPage /></>;
 }
-
-export default App;

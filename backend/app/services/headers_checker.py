@@ -1,131 +1,136 @@
-import httpx
-from urllib.parse import urlparse
-from typing import List
+"""Header-only investigation with pinned sockets, bounded headers and validated redirects."""
+import asyncio
+import http.client
+import socket
+import ssl
+import threading
+import time
+import tldextract
+from urllib.parse import urlsplit, urljoin
 from backend.app.schemas.scan import HeadersAnalysis
-from backend.app.utils.security import is_target_host_blocked
+from backend.app.utils.security import connect_public, normalize_and_validate_target, SecurityValidationError
+
+from backend.app.services.url_analyzer import analyze_url
+
+# Private suffixes keep independent hosting tenants (e.g. *.github.io) separate.
+_site_extract = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None, include_psl_private_domains=True)
+
+def site_identity(hostname):
+    host = hostname.lower().rstrip(".")
+    return _site_extract(host).top_domain_under_public_suffix or host
+
+def assess_redirect(source, destination):
+    old, new = urlsplit(source), urlsplit(destination)
+    external = site_identity(old.hostname) != site_identity(new.hostname)
+    downgrade = old.scheme == "https" and new.scheme == "http"
+    notes = []
+    deceptive = False
+    if external:
+        notes.append("Redirect crosses a registrable-domain boundary; this alone is not evidence of a threat.")
+        analysis = analyze_url(destination)
+        deceptive = bool(analysis.typosquatting_matches) or any("brand name" in item for item in analysis.suspicious_patterns)
+        if deceptive: notes.append("The destination URL has a brand-lookalike or impersonation pattern; investigate it separately.")
+    elif old.hostname != new.hostname:
+        notes.append("Hostname changes within the same registrable site; no redirect risk points added.")
+    if downgrade: notes.append("HTTPS redirects to unencrypted HTTP.")
+    return external, downgrade, deceptive, notes
 
 RECOMMENDED_SECURITY_HEADERS = [
-    ("strict-transport-security", "Strict-Transport-Security (HSTS)"),
-    ("content-security-policy", "Content-Security-Policy (CSP)"),
-    ("x-frame-options", "X-Frame-Options (Clickjacking defense)"),
-    ("x-content-type-options", "X-Content-Type-Options (MIME sniffing defense)"),
-    ("referrer-policy", "Referrer-Policy"),
-    ("permissions-policy", "Permissions-Policy"),
+    ('strict-transport-security', 'Strict-Transport-Security (HSTS)'),
+    ('content-security-policy', 'Content-Security-Policy (CSP)'),
+    ('x-frame-options', 'X-Frame-Options (Clickjacking defense)'),
+    ('x-content-type-options', 'X-Content-Type-Options (MIME sniffing defense)'),
+    ('referrer-policy', 'Referrer-Policy'), ('permissions-policy', 'Permissions-Policy'),
 ]
 
+class PinnedConnection(http.client.HTTPConnection):
+    def __init__(self, host, port, secure, timeout):
+        super().__init__(host, port, timeout=timeout)
+        self.secure = secure
+        self.deadline = time.monotonic() + timeout
+    def connect(self):
+        sock = connect_public(self.host, self.port, self.timeout)
+        try:
+            remaining = self.deadline - time.monotonic()
+            if remaining <= 0: raise TimeoutError("HTTP connection deadline")
+            sock.settimeout(remaining)
+            self.sock = ssl.create_default_context().wrap_socket(sock, server_hostname=self.host) if self.secure else sock
+        except BaseException:
+            sock.close()
+            raise
+
+
+def _request_headers(url, timeout=4.0, method='HEAD'):
+    p = urlsplit(url)
+    conn = PinnedConnection(p.hostname, p.port or (443 if p.scheme == 'https' else 80), p.scheme == 'https', timeout)
+    def abort():
+        if conn.sock:
+            try:
+                conn.sock.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
+            conn.close()
+    timer = threading.Timer(timeout, abort)
+    timer.daemon = True
+    timer.start()
+    try:
+        conn.request(method, (p.path or '/') + ('?' + p.query if p.query else ''), headers={'User-Agent': 'CyberTrust360/2.0', 'Accept-Encoding': 'identity', 'Connection': 'close'})
+        response = conn.getresponse()
+        # HTTPResponse bounds header lines/count; impose a stricter aggregate budget.
+        headers = response.getheaders()
+        if sum(len(k) + len(v) for k, v in headers) > 32768:
+            raise ValueError('Response headers exceed 32 KiB')
+        return response.status, {k.lower(): v for k, v in headers}
+        # Never call response.read(): HEAD and GET fallback both consume zero body bytes.
+    finally:
+        timer.cancel()
+        conn.close()
+
+
+def _inspect(canonical_url, initial_hostname):
+    chain = [canonical_url]
+    current = canonical_url
+    deadline = time.monotonic() + 12
+    suspicious = False
+    external = False
+    downgrade = False
+    notes = []
+    try:
+        for hop in range(6):
+            if time.monotonic() >= deadline:
+                raise TimeoutError()
+            target = normalize_and_validate_target(current)
+            current = target['canonical_url']
+            status, headers = _request_headers(current, min(4, max(.1, deadline-time.monotonic())))
+            if status in (405, 501):
+                status, headers = _request_headers(current, min(4, max(.1, deadline-time.monotonic())), method='GET')
+            if status in (301, 302, 303, 307, 308) and 'location' in headers:
+                if hop == 5:
+                    raise ValueError('Redirect limit exceeded')
+                next_url = urljoin(current, headers['location'])
+                next_target = normalize_and_validate_target(next_url)
+                changed_site, less_secure, deceptive, hop_notes = assess_redirect(current, next_target['canonical_url'])
+                external |= changed_site
+                downgrade |= less_secure
+                suspicious |= less_secure or deceptive
+                notes.extend(note for note in hop_notes if note not in notes)
+                current = next_target['canonical_url']
+                chain.append(current)
+                continue
+            return HeadersAnalysis(status_code=status, hsts_present='strict-transport-security' in headers,
+                csp_present='content-security-policy' in headers, x_frame_options=headers.get('x-frame-options'),
+                x_content_type_options=headers.get('x-content-type-options'), referrer_policy=headers.get('referrer-policy'),
+                permissions_policy=headers.get('permissions-policy'), server=headers.get('server'),
+                redirect_count=len(chain)-1, redirect_chain=chain, suspicious_redirect=suspicious, cross_domain_redirect=external, https_downgrade=downgrade, redirect_notes=notes,
+                is_http_to_https_redirect=canonical_url.startswith('http:') and current.startswith('https:'),
+                missing_headers=[label for name,label in RECOMMENDED_SECURITY_HEADERS if name not in headers])
+    except SecurityValidationError:
+        return HeadersAnalysis(redirect_chain=chain, redirect_count=len(chain)-1, suspicious_redirect=True, blocked_redirect=True, cross_domain_redirect=external, https_downgrade=downgrade, redirect_notes=notes + ['Redirect destination blocked by network safety policy.'], error_message='Destination blocked by network safety policy.')
+    except Exception as exc:
+        return HeadersAnalysis(redirect_chain=chain, redirect_count=len(chain)-1, suspicious_redirect=suspicious, cross_domain_redirect=external, https_downgrade=downgrade, redirect_notes=notes, error_message=f'HTTP inspection unavailable ({type(exc).__name__}).')
 
 async def inspect_headers(canonical_url: str, initial_hostname: str) -> HeadersAnalysis:
-    """Safe, non-invasive inspection of HTTP response headers and redirect chains with SSRF guardrails."""
-    redirect_chain: List[str] = [canonical_url]
-    current_url = canonical_url
-    missing_headers: List[str] = []
-    suspicious_redirect = False
-    is_http_to_https = False
-
-    custom_headers = {
-        "User-Agent": "CyberTrust360-Bot/1.0 (Web Threat & Trust Intelligence Scanner; +https://technixpro.dev/bot)",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    }
-
     try:
-        # Use an AsyncClient without auto-following redirects so we can validate each hop for SSRF
-        async with httpx.AsyncClient(
-            verify=False,  # We inspect cert separately; here we want headers even on self-signed/expired
-            timeout=5.0,
-            headers=custom_headers,
-        ) as client:
-            hops = 0
-            max_hops = 6
-            final_response = None
-
-            while hops < max_hops:
-                hops += 1
-
-                # SSRF and DNS rebinding check on target host of each hop
-                parsed_hop = urlparse(current_url)
-                hop_host = parsed_hop.hostname
-                if not hop_host or is_target_host_blocked(hop_host):
-                    suspicious_redirect = True
-                    return HeadersAnalysis(
-                        redirect_count=len(redirect_chain) - 1,
-                        redirect_chain=redirect_chain,
-                        suspicious_redirect=True,
-                        error_message=f"Redirect chain attempted access to blocked/internal host '{hop_host}'.",
-                    )
-
-                try:
-                    response = await client.get(current_url, follow_redirects=False)
-                    final_response = response
-                except httpx.RequestError as req_err:
-                    return HeadersAnalysis(
-                        redirect_count=len(redirect_chain) - 1,
-                        redirect_chain=redirect_chain,
-                        error_message=f"HTTP connection failed: {str(req_err)}",
-                    )
-
-                # Check if it's a redirect status code (301, 302, 303, 307, 308)
-                if response.status_code in (301, 302, 303, 307, 308) and "location" in response.headers:
-                    location = response.headers["location"]
-                    # Resolve relative redirect URLs
-                    if location.startswith("/"):
-                        location = f"{parsed_hop.scheme}://{parsed_hop.netloc}{location}"
-
-                    redirect_chain.append(location)
-
-                    # Check HTTP to HTTPS upgrade
-                    if canonical_url.startswith("http://") and location.startswith("https://"):
-                        is_http_to_https = True
-
-                    # Check off-domain redirects
-                    target_host = urlparse(location).hostname or ""
-                    if target_host and initial_hostname not in target_host and target_host not in initial_hostname:
-                        suspicious_redirect = True
-
-                    current_url = location
-                else:
-                    # Final destination reached
-                    break
-
-            if final_response is None:
-                return HeadersAnalysis(error_message="No response received from target host.")
-
-            headers_lower = {k.lower(): v for k, v in final_response.headers.items()}
-
-            hsts = "strict-transport-security" in headers_lower
-            csp = "content-security-policy" in headers_lower
-            x_frame = headers_lower.get("x-frame-options")
-            x_content_type = headers_lower.get("x-content-type-options")
-            referrer = headers_lower.get("referrer-policy")
-            permissions = headers_lower.get("permissions-policy")
-            server = headers_lower.get("server")
-
-            for header_key, friendly_name in RECOMMENDED_SECURITY_HEADERS:
-                if header_key not in headers_lower:
-                    missing_headers.append(friendly_name)
-
-            if hops >= max_hops:
-                suspicious_redirect = True
-
-            return HeadersAnalysis(
-                status_code=final_response.status_code,
-                hsts_present=hsts,
-                csp_present=csp,
-                x_frame_options=x_frame,
-                x_content_type_options=x_content_type,
-                referrer_policy=referrer,
-                permissions_policy=permissions,
-                server=server,
-                redirect_count=len(redirect_chain) - 1,
-                redirect_chain=redirect_chain,
-                is_http_to_https_redirect=is_http_to_https,
-                suspicious_redirect=suspicious_redirect,
-                missing_headers=missing_headers,
-                error_message=None,
-            )
-
-    except Exception as exc:
-        return HeadersAnalysis(
-            redirect_count=len(redirect_chain) - 1,
-            redirect_chain=redirect_chain,
-            error_message=f"HTTP header inspection error: {str(exc)}",
-        )
+        return await asyncio.wait_for(asyncio.to_thread(_inspect, canonical_url, initial_hostname), timeout=13)
+    except TimeoutError:
+        return HeadersAnalysis(error_message='HTTP inspection deadline exceeded.')

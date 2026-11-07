@@ -9,6 +9,8 @@ from backend.app.models.base import Base
 class ScamAnalysisRecord(Base):
     __tablename__ = "scam_analysis_records"
 
+    owner_id: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+
     id: Mapped[str] = mapped_column(
         String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )

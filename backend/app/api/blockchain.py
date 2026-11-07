@@ -59,10 +59,10 @@ def register_report(
             detail=f"Blockchain network unavailable: {str(e)}",
         )
     except Exception as e:
-        logger.error(f"Error registering report on blockchain: {e}")
+        logger.error("Blockchain operation failed; details suppressed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Blockchain registration failed: {str(e)}",
+            detail="Blockchain registration failed; retry or contact the administrator",
         )
 
 
@@ -83,10 +83,10 @@ def verify_report(
     try:
         return verify_report_integrity(report_id=report_id, db=db)
     except Exception as e:
-        logger.error(f"Error verifying report against blockchain: {e}")
+        logger.error("Blockchain operation failed; details suppressed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Verification query failed: {str(e)}",
+            detail="Verification query failed; retry or contact the administrator",
         )
 
 
@@ -110,10 +110,10 @@ def demo_tamper_detection(
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
-        logger.error(f"Error executing tamper demonstration: {e}")
+        logger.error("Blockchain operation failed; details suppressed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Tamper demonstration failed: {str(e)}",
+            detail="Tamper demonstration failed; retry or contact the administrator",
         )
 
 

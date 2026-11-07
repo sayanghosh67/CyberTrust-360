@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   ReactFlow,
   Background,
@@ -7,6 +7,7 @@ import {
   useNodesState,
   useEdgesState,
   useReactFlow,
+  useNodesInitialized,
   type Node,
   type Edge,
 } from '@xyflow/react';
@@ -25,6 +26,7 @@ import {
 
 import { CyberGraphNode } from './CyberGraphNode';
 import { GraphDetailPanel } from './GraphDetailPanel';
+import { REPORTS_CHANGED } from '../services/reportEvents';
 import { fetchThreatGraph } from '../services/intelligenceService';
 import type {
   GraphResponse,
@@ -41,15 +43,25 @@ const nodeTypes = {
   cyber: CyberGraphNode,
 };
 
-// Internal auto-centering controller on filter/search change
-const GraphAutoCenter: React.FC<{ filterKey: string }> = ({ filterKey }) => {
+// Fit only after React Flow has measured nodes; refit when its actual container changes.
+const GraphAutoCenter: React.FC<{ layoutKey: string; container: React.RefObject<HTMLDivElement | null> }> = ({ layoutKey, container }) => {
   const { fitView } = useReactFlow();
+  const initialized = useNodesInitialized();
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fitView({ padding: 0.25, duration: 350 });
-    }, 120);
-    return () => clearTimeout(timer);
-  }, [fitView, filterKey]);
+    const element = container.current;
+    if (!initialized || !element) return;
+    let frame = 0;
+    const fit = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (element.clientWidth && element.clientHeight) void fitView({ padding: 0.22, duration: 0, minZoom: 0.05, maxZoom: 1 });
+      });
+    };
+    const resize = new ResizeObserver(fit);
+    const visible = new IntersectionObserver(entries => { if (entries.some(e => e.isIntersecting)) fit(); });
+    resize.observe(element); visible.observe(element); fit();
+    return () => { cancelAnimationFrame(frame); resize.disconnect(); visible.disconnect(); };
+  }, [fitView, initialized, layoutKey, container]);
   return null;
 };
 
@@ -309,6 +321,13 @@ export const ThreatRelationshipGraph: React.FC<ThreatRelationshipGraphProps> = (
   const [includeDemo, setIncludeDemo] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const graphContainer = useRef<HTMLDivElement>(null);
+  const request = useRef<AbortController | null>(null);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Manageable view mode: 'focused' (initial manageable cluster view) or 'all' (full dataset)
   const [viewMode, setViewMode] = useState<'focused' | 'all'>('focused');
@@ -321,23 +340,30 @@ export const ThreatRelationshipGraph: React.FC<ThreatRelationshipGraphProps> = (
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  // 1. Fetch raw graph from backend
+  // Cancel obsolete searches and ignore late responses so they cannot blank a newer graph.
   const loadGraph = useCallback(async () => {
+    request.current?.abort();
+    const controller = new AbortController();
+    request.current = controller;
     setLoading(true);
     setError(null);
     try {
-      // Pass a generous record limit to backend so correlation engine evaluates complete database
-      const data = await fetchThreatGraph(filterType, search, 100, includeDemo);
+      const data = await fetchThreatGraph(filterType, debouncedSearch, 100, includeDemo, controller.signal);
+      if (controller.signal.aborted) return;
       setRawResponse(data);
+      setSelectedNode(null); setSelectedEdge(null);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load intelligence graph.');
+      if (!controller.signal.aborted) setError(err instanceof Error ? err.message : 'Failed to load intelligence graph.');
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
-  }, [filterType, search, includeDemo]);
+  }, [filterType, debouncedSearch, includeDemo]);
 
   useEffect(() => {
-    loadGraph();
+    void loadGraph();
+    const refresh = () => { void loadGraph(); };
+    window.addEventListener(REPORTS_CHANGED, refresh);
+    return () => { request.current?.abort(); window.removeEventListener(REPORTS_CHANGED, refresh); };
   }, [loadGraph]);
 
   // Clear selections when filter, search or demo mode changes
@@ -660,6 +686,7 @@ export const ThreatRelationshipGraph: React.FC<ThreatRelationshipGraphProps> = (
           <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
           <input
             type="text"
+            aria-label="Search threat relationships"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search domain, brand, phone, or tactic..."
@@ -668,6 +695,7 @@ export const ThreatRelationshipGraph: React.FC<ThreatRelationshipGraphProps> = (
           {search && (
             <button
               onClick={() => setSearch('')}
+              aria-label="Clear graph search"
               className="absolute right-3 top-2.5 text-xs text-slate-500 hover:text-white cursor-pointer"
             >
               ✕
@@ -734,16 +762,16 @@ export const ThreatRelationshipGraph: React.FC<ThreatRelationshipGraphProps> = (
       )}
 
       {/* Graph Visualizer Canvas Area */}
-      <div className="relative w-full h-[640px] rounded-3xl border border-slate-800 bg-slate-950/90 shadow-2xl overflow-hidden backdrop-blur-md">
+      <div ref={graphContainer} aria-label="Threat relationship graph canvas" aria-busy={loading} className="threat-graph-canvas relative w-full h-[640px] rounded-3xl border border-slate-800 bg-slate-950/90 shadow-2xl overflow-hidden backdrop-blur-md">
         {loading && (
-          <div className="absolute inset-0 bg-slate-950/80 z-20 flex flex-col items-center justify-center gap-3">
+          <div role="status" className="absolute inset-0 bg-slate-950/80 z-20 flex flex-col items-center justify-center gap-3">
             <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin" />
             <span className="text-xs font-mono text-cyan-300">Correlating Threat Infrastructure...</span>
           </div>
         )}
 
         {error && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 p-6 text-center">
+          <div role="alert" className="absolute inset-0 bg-slate-950/95 z-20 flex flex-col items-center justify-center gap-3 p-6 text-center">
             <AlertTriangle className="w-10 h-10 text-rose-400" />
             <p className="text-sm text-slate-300 max-w-md">{error}</p>
             <button
@@ -752,6 +780,18 @@ export const ThreatRelationshipGraph: React.FC<ThreatRelationshipGraphProps> = (
             >
               Retry Graph Load
             </button>
+          </div>
+        )}
+
+        {!loading && !error && rawResponse && displayedNodes.length === 0 && (
+          <div className="graph-empty absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 p-6 text-center" role="status">
+            <Network className="w-12 h-12 text-cyan-400" />
+            <h3 className="text-lg font-semibold text-white">{search || filterType !== 'all' ? 'No matching relationships' : 'Your intelligence graph starts here'}</h3>
+            <p className="text-sm text-slate-400 max-w-md">{search || filterType !== 'all' ? 'Try a different indicator or clear the filters to see your available reports.' : 'Analyze a URL or scam message to map the indicators in your private session. New reports appear here automatically.'}</p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {search || filterType !== 'all' ? <button className="graph-action" onClick={() => { setSearch(''); setFilterType('all'); }}>Clear filters</button> : <a className="graph-action" href="#investigate">Investigate a URL</a>}
+              {!includeDemo && <button className="graph-action" onClick={() => setIncludeDemo(true)}>Explore synthetic demo</button>}
+            </div>
           </div>
         )}
 
@@ -765,15 +805,16 @@ export const ThreatRelationshipGraph: React.FC<ThreatRelationshipGraphProps> = (
           onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
           fitView
-          minZoom={0.15}
+          minZoom={0.05}
           maxZoom={2.5}
           proOptions={{ hideAttribution: true }}
         >
           <GraphAutoCenter
-            filterKey={`${search}-${filterType}-${includeDemo}-${viewMode}-${displayedNodes.length}`}
+            layoutKey={JSON.stringify(baseLayout.nodes.map(n => [n.id, n.position.x, n.position.y]))}
+            container={graphContainer}
           />
           <Background color="#1e293b" gap={24} size={1} />
-          <Controls className="!bg-slate-900 !border-slate-800 !rounded-xl overflow-hidden" />
+          <Controls position="top-left" className="!bg-slate-900 !border-slate-800 !rounded-xl overflow-hidden" />
           <MiniMap
             nodeColor={(n) => {
               if (n.data?.type === 'domain') return '#06b6d4';
@@ -787,7 +828,7 @@ export const ThreatRelationshipGraph: React.FC<ThreatRelationshipGraphProps> = (
         </ReactFlow>
 
         {/* Legend Overlay */}
-        <div className="absolute bottom-4 left-4 z-10 p-3 rounded-2xl bg-slate-900/90 border border-slate-800/90 backdrop-blur-md text-[11px] font-mono space-y-1.5 shadow-xl pointer-events-none">
+        <div className="graph-legend absolute bottom-4 left-4 z-10 p-3 rounded-2xl bg-slate-900/90 border border-slate-800/90 backdrop-blur-md text-[11px] font-mono space-y-1.5 shadow-xl pointer-events-none">
           <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">
             Graph Legend
           </span>
@@ -818,7 +859,7 @@ export const ThreatRelationshipGraph: React.FC<ThreatRelationshipGraphProps> = (
         </div>
 
         {/* Forensic Detail & Evidence Side Panel Overlay */}
-        <div className="absolute top-4 right-4 z-10 max-h-[600px]">
+        <div className="graph-detail absolute top-4 right-4 bottom-4 z-10">
           <GraphDetailPanel
             selectedNode={selectedNode}
             selectedEdge={selectedEdge}

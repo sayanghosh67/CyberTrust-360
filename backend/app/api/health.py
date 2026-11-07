@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Response
 from backend.app.core.config import settings
 from backend.app.core.database import check_database_connection
 from backend.app.schemas.health import HealthResponse, DatabaseHealth
@@ -14,7 +14,7 @@ router = APIRouter(tags=["Health"])
     summary="Platform Health Check",
     description="Returns genuine system status, uptime timestamp, database connectivity, and environment metadata.",
 )
-def get_health() -> HealthResponse:
+def get_health(response: Response) -> HealthResponse:
     db_result = check_database_connection()
 
     db_health = DatabaseHealth(
@@ -22,6 +22,8 @@ def get_health() -> HealthResponse:
         message=db_result["message"]
     )
 
+    if db_health.status != "connected":
+        response.status_code = 503
     overall_status = "healthy" if db_health.status == "connected" else "degraded"
 
     return HealthResponse(

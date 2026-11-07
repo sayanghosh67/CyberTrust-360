@@ -24,6 +24,7 @@ export const PlatformDashboardOverview: React.FC = () => {
       const data = await fetchDashboardMetrics();
       setMetrics(data);
     } catch {
+      setMetrics(null);
       setError('Unable to fetch live platform metrics.');
     } finally {
       setLoading(false);
@@ -38,18 +39,25 @@ export const PlatformDashboardOverview: React.FC = () => {
     <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-b border-slate-800/60" id="platform-overview">
       {/* Platform Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/40 text-xs font-mono uppercase tracking-wider mb-2">
-            <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-            <span>360° THREAT INTELLIGENCE DASHBOARD</span>
+        <div className="flex items-start gap-4">
+          <img
+            src="/cybertrust-logo-round.png"
+            alt="CyberTrust 360"
+            className="w-12 h-12 rounded-full object-cover border border-emerald-500/40 shadow-lg shadow-emerald-500/20 shrink-0 hidden sm:block"
+          />
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/40 text-xs font-mono uppercase tracking-wider mb-2">
+              <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+              <span>360° THREAT INTELLIGENCE DASHBOARD</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Integrated Cyber Defense Matrix
+            </h2>
+            <p className="text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              Multi-vector threat scanning, linguistic scam DNA sequencing, interactive graph correlation,
+              and local EVM integrity verification — unified in one cybersecurity platform.
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Integrated Cyber Defense Matrix
-          </h2>
-          <p className="text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
-            Multi-vector threat scanning, linguistic scam DNA sequencing, interactive graph correlation,
-            and decentralized EVM audit proof — unified in one cybersecurity platform.
-          </p>
         </div>
 
         <button
@@ -72,7 +80,7 @@ export const PlatformDashboardOverview: React.FC = () => {
             <Globe2 className="w-4 h-4 text-cyan-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-black text-cyan-300 font-mono">
-            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.total_url_investigations ?? 0}
+            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.total_url_investigations ?? '—'}
           </div>
           <span className="text-[11px] text-slate-500 font-mono block mt-1">Investigated Targets</span>
         </div>
@@ -84,7 +92,7 @@ export const PlatformDashboardOverview: React.FC = () => {
             <Sparkles className="w-4 h-4 text-purple-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-black text-purple-300 font-mono">
-            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.total_scam_analyses ?? 0}
+            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.total_scam_analyses ?? '—'}
           </div>
           <span className="text-[11px] text-slate-500 font-mono block mt-1">Sequenced Messages</span>
         </div>
@@ -96,31 +104,31 @@ export const PlatformDashboardOverview: React.FC = () => {
             <AlertTriangle className="w-4 h-4 text-rose-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-black text-rose-300 font-mono">
-            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.high_risk_reports ?? 0}
+            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.high_risk_reports ?? '—'}
           </div>
           <span className="text-[11px] text-slate-500 font-mono block mt-1">Confirmed Threats</span>
         </div>
 
-        {/* Metric 4: Related Threat Indicators */}
+        {/* Metric 4: Indicators in Recent Reports */}
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 transition-colors">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Correlations</span>
             <Network className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-black text-amber-300 font-mono">
-            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.related_threat_indicators ?? 0}
+            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.related_threat_indicators ?? '—'}
           </div>
-          <span className="text-[11px] text-slate-500 font-mono block mt-1">Tracked Indicators</span>
+          <span className="text-[11px] text-slate-500 font-mono block mt-1">Recent Report Indicators</span>
         </div>
 
-        {/* Metric 5: Blockchain Registered Reports */}
+        {/* Metric 5: Saved Registrations Reports */}
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 transition-colors col-span-2 sm:col-span-1">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">On-Chain</span>
             <Lock className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-black text-emerald-300 font-mono">
-            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.blockchain_registered_reports ?? 0}
+            {loading ? <span className="text-slate-600 animate-pulse">...</span> : metrics?.blockchain_registered_reports ?? '—'}
           </div>
           <span className="text-[11px] text-slate-500 font-mono block mt-1">Attested Proofs</span>
         </div>

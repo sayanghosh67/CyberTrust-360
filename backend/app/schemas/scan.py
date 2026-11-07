@@ -69,6 +69,10 @@ class HeadersAnalysis(BaseModel):
     redirect_chain: List[str] = Field(default_factory=list)
     is_http_to_https_redirect: bool = False
     suspicious_redirect: bool = False
+    cross_domain_redirect: bool = False
+    https_downgrade: bool = False
+    blocked_redirect: bool = False
+    redirect_notes: List[str] = Field(default_factory=list)
     missing_headers: List[str] = Field(default_factory=list)
     error_message: Optional[str] = None
 

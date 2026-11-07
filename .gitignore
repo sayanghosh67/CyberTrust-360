@@ -70,3 +70,11 @@ blockchain/typechain-types/
 *.swp
 *.swo
 
+# Local demo credentials, audit backups and generated media (never stage by default)
+.runtime/
+hackathon-video/runtime/
+hackathon-video/remediation/
+hackathon-video/output/
+hackathon-video/recordings/
+hackathon-video/scenes/rendered/
+hackathon-video/assets/narration/

@@ -1,0 +1,26 @@
+WARNING: You are currently using Node.js v25.1.0, which is not supported by Hardhat. This can lead to unexpected behavior. See https://v2.hardhat.org/nodejs-versions
+
+
+
+
+  CyberTrustReportRegistry Smart Contract
+    Deployment & Access Control
+      ✔ should set deployer as owner and initial authorized registrar
+      ✔ should allow owner to authorize and revoke registrar
+      ✔ should reject non-owner trying to authorize registrar
+    Report Registration
+      ✔ should successfully register report fingerprint from authorized registrar
+      ✔ should reject registration from unauthorized caller
+      ✔ should reject zero hashes
+      ✔ should prevent duplicate registration of identical fingerprint and version
+      ✔ should support incremental version updates and archive historical fingerprints
+      ✔ should reject non-increasing version number on update
+    Report Verification
+      ✔ should verify successfully when content hash matches
+      ✔ should detect tampering when content hash differs
+      ✔ should return false for unregistered report
+      ✔ should emit ReportVerified audit event on state-modifying verification
+
+
+  13 passing (433ms)
+

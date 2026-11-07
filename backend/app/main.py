@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,8 +16,18 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger("cybertrust.api")
+for library in ("httpx", "httpcore", "urllib3", "web3"):
+    logging.getLogger(library).setLevel(logging.CRITICAL)
+
+@asynccontextmanager
+async def lifespan(app):
+    from backend.app.core.database import initialize_database
+    initialize_database()
+    yield
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.PROJECT_NAME,
     description="CyberTrust 360: AI-Powered Web Threat Detection & Digital Trust Intelligence Platform (by Technix Pro)",
     version=settings.VERSION,
@@ -24,6 +35,10 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
 )
+
+# Authentication sits inside CORS so preflight and errors get correct origin headers.
+from backend.app.core.access import AccessMiddleware
+app.add_middleware(AccessMiddleware)
 
 # CORS Middleware Configuration
 app.add_middleware(
@@ -37,7 +52,7 @@ app.add_middleware(
 # Exception Handlers
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-    logger.warning(f"HTTP {exc.status_code} error on {request.method} {request.url.path}: {exc.detail}")
+    logger.warning("HTTP request rejected with status %s", exc.status_code)
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -51,12 +66,12 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    logger.warning(f"Validation error on {request.method} {request.url.path}: {exc.errors()}")
+    logger.warning("Request validation failed")
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "detail": "Input validation failed",
-            "errors": exc.errors(),
+            "errors": [{"loc": e["loc"], "type": e["type"], "msg": "Invalid input"} for e in exc.errors()],
             "error_code": "VALIDATION_ERROR",
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "path": request.url.path,
@@ -66,7 +81,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Unhandled exception on {request.method} {request.url.path}: {exc}", exc_info=True)
+    logger.error("Unhandled request error: %s", type(exc).__name__)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
@@ -96,3 +111,7 @@ app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 # Also register /health directly for orchestration & container probes
 app.include_router(health_router, prefix="")
 
+
+@app.get("/api/v1/access/me")
+def access_me(request: Request):
+    return request.state.principal

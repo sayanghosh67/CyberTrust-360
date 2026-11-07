@@ -433,6 +433,9 @@ export const InvestigationReport: React.FC<InvestigationReportProps> = ({ report
                   <span className="text-slate-400 font-mono block mb-1">
                     Redirection Chain ({report.headers_analysis.redirect_count} hop(s)):
                   </span>
+                  {report.headers_analysis.redirect_notes?.map((note, index) => (
+                    <p key={index} className="text-slate-400 leading-relaxed mb-2">{note}</p>
+                  ))}
                   <div className="space-y-1 font-mono text-[11px]">
                     {report.headers_analysis.redirect_chain.map((url, i) => (
                       <div key={i} className="flex items-center gap-2 text-slate-300">

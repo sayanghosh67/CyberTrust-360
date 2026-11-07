@@ -1,0 +1,74 @@
+/Users/sayanghosh/Desktop/HACKMATRIX/backend/.venv/lib/python3.11/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform darwin -- Python 3.11.14, pytest-9.2.0, pluggy-1.7.0 -- /Users/sayanghosh/Desktop/HACKMATRIX/backend/.venv/bin/python3.11
+cachedir: hackathon-video/runtime/pytest-cache
+rootdir: /Users/sayanghosh/Desktop/HACKMATRIX
+plugins: anyio-4.16.0, asyncio-1.4.1.post1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 45 items
+
+backend/tests/test_blockchain.py::test_deterministic_hashing_identical_records PASSED [  2%]
+backend/tests/test_blockchain.py::test_hash_changes_when_protected_fields_modified PASSED [  4%]
+backend/tests/test_blockchain.py::test_blockchain_status_endpoint PASSED [  6%]
+backend/tests/test_blockchain.py::test_unregistered_report_verification PASSED [  8%]
+backend/tests/test_blockchain.py::test_url_scan_blockchain_registration_and_verification PASSED [ 11%]
+backend/tests/test_blockchain.py::test_scam_report_blockchain_registration_and_verification PASSED [ 13%]
+backend/tests/test_blockchain.py::test_tamper_detection_demonstration PASSED [ 15%]
+backend/tests/test_blockchain.py::test_blockchain_registrations_history_and_lookup PASSED [ 17%]
+backend/tests/test_dashboard.py::test_dashboard_metrics_endpoint PASSED  [ 20%]
+backend/tests/test_health.py::test_root_endpoint PASSED                  [ 22%]
+backend/tests/test_health.py::test_api_health_endpoint PASSED            [ 24%]
+backend/tests/test_health.py::test_404_error_handling PASSED             [ 26%]
+backend/tests/test_intelligence_graph.py::test_normalization_utilities PASSED [ 28%]
+backend/tests/test_intelligence_graph.py::test_empty_database_graph_handling PASSED [ 31%]
+backend/tests/test_intelligence_graph.py::test_synthetic_demonstration_dataset_explicitly_labeled PASSED [ 33%]
+backend/tests/test_intelligence_graph.py::test_verified_vs_possible_relationship_classification PASSED [ 35%]
+backend/tests/test_intelligence_graph.py::test_cross_module_exact_shared_domain_linking PASSED [ 37%]
+backend/tests/test_intelligence_graph.py::test_unrelated_reports_remain_unconnected PASSED [ 40%]
+backend/tests/test_intelligence_graph.py::test_graph_api_endpoints_and_filtering PASSED [ 42%]
+backend/tests/test_intelligence_graph.py::test_recurring_indicators_endpoint PASSED [ 44%]
+backend/tests/test_intelligence_graph.py::test_sensitive_data_exclusion_in_graph PASSED [ 46%]
+backend/tests/test_investigation.py::test_invalid_url_submission PASSED  [ 48%]
+backend/tests/test_investigation.py::test_ssrf_and_unsafe_redirect_protection PASSED [ 51%]
+backend/tests/test_investigation.py::test_suspicious_url_examples PASSED [ 53%]
+backend/tests/test_investigation.py::test_benign_url_examples PASSED     [ 55%]
+backend/tests/test_investigation.py::test_tls_certificate_errors PASSED  [ 57%]
+backend/tests/test_investigation.py::test_missing_security_headers PASSED [ 60%]
+backend/tests/test_investigation.py::test_threat_intelligence_unconfigured_reporting PASSED [ 62%]
+backend/tests/test_investigation.py::test_risk_classification_levels PASSED [ 64%]
+backend/tests/test_investigation.py::test_scan_lifecycle_and_history PASSED [ 66%]
+backend/tests/test_investigation.py::test_unavailable_tls_check_not_described_as_missing_encryption PASSED [ 68%]
+backend/tests/test_investigation.py::test_dns_unresolvable_url_and_inconclusive_score PASSED [ 71%]
+backend/tests/test_scam_analyzer.py::test_benign_message_analysis PASSED [ 73%]
+backend/tests/test_scam_analyzer.py::test_benign_bank_alert_with_otp_warning PASSED [ 75%]
+backend/tests/test_scam_analyzer.py::test_fake_bank_kyc_message PASSED   [ 77%]
+backend/tests/test_scam_analyzer.py::test_upi_pin_fraud_message PASSED   [ 80%]
+backend/tests/test_scam_analyzer.py::test_otp_harvesting_coercion PASSED [ 82%]
+backend/tests/test_scam_analyzer.py::test_fake_job_telegram_task_scam PASSED [ 84%]
+backend/tests/test_scam_analyzer.py::test_electricity_bill_scam_hinglish PASSED [ 86%]
+backend/tests/test_scam_analyzer.py::test_prompt_injection_attempt_is_defended PASSED [ 88%]
+backend/tests/test_scam_analyzer.py::test_invalid_and_oversized_inputs PASSED [ 91%]
+backend/tests/test_scam_analyzer.py::test_missing_api_key_rule_based_fallback_label PASSED [ 93%]
+backend/tests/test_scam_analyzer.py::test_llm_failure_falls_back_gracefully PASSED [ 95%]
+backend/tests/test_scam_analyzer.py::test_scam_database_persistence_and_history PASSED [ 97%]
+backend/tests/test_scam_analyzer.py::test_safety_guidance_endpoint PASSED [100%]
+
+=============================== warnings summary ===============================
+backend/.venv/lib/python3.11/site-packages/fastapi/testclient.py:1
+  /Users/sayanghosh/Desktop/HACKMATRIX/backend/.venv/lib/python3.11/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+backend/tests/test_investigation.py::test_invalid_url_submission
+backend/tests/test_scam_analyzer.py::test_invalid_and_oversized_inputs
+  /Users/sayanghosh/Desktop/HACKMATRIX/backend/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py:59: StarletteDeprecationWarning: 'HTTP_422_UNPROCESSABLE_ENTITY' is deprecated. Use 'HTTP_422_UNPROCESSABLE_CONTENT' instead.
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+backend/tests/test_investigation.py::test_suspicious_url_examples
+  /Users/sayanghosh/Desktop/HACKMATRIX/backend/app/services/url_analyzer.py:41: DeprecationWarning: The 'registered_domain' property is deprecated and will be removed in the next major version. Use 'top_domain_under_public_suffix' instead, which has the same behavior but a more accurate name.
+    reg_domain = getattr(extracted, "top_domain_under_public_suffix", None) or extracted.registered_domain or hostname
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 45 passed, 4 warnings in 10.04s ========================

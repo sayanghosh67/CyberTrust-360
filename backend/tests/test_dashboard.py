@@ -20,3 +20,4 @@ def test_dashboard_metrics_endpoint():
     assert isinstance(data["related_threat_indicators"], int)
     assert isinstance(data["blockchain_registered_reports"], int)
     assert data["total_url_investigations"] >= 0
+

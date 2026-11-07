@@ -1,3 +1,5 @@
+> Remediation update: use `start_demo.sh` for a localhost-only authenticated demo. Current behavior and verification results are in `CODEX_POST_REMEDIATION_REPORT.md`. Older screenshots, the original PPTX and the original video are historical captures.
+
 # CyberTrust 360 — Presentation Materials & Pitch Scripts
 
 > **Team**: TECHNIX PRO  
@@ -37,7 +39,7 @@
 - **Step 3**: Linguistic engine sequences manipulation tactics and extracts indicators.
 - **Step 4**: Structured findings persisted in PostgreSQL / SQLite ledger.
 - **Step 5**: Correlation engine links shared indicators into graph clusters.
-- **Step 6**: RFC 8785 canonical hash calculated and registered to Solidity smart contract on EVM.
+- **Step 6**: CyberTrust v2 canonical hash calculated and registered to Solidity smart contract on EVM.
 - **Step 7**: Instant on-chain integrity verification detects modifications.
 
 ### Slide 5: Module 01 — URL & Website Investigation Engine
@@ -60,14 +62,14 @@
 ### Slide 8: Module 04 — Blockchain Threat Report Integrity
 - **Solidity Smart Contract (`CyberTrustReportRegistry.sol`)**: Solidity 0.8.24 registry deployed to local Hardhat EVM (Chain ID 31337).
 - **Zero-PII Storage**: Commits only 32-byte reportIdHash, contentHash, reportType, and version.
-- **RFC 8785 Canonical Serialization**: Deterministic SHA-256 fingerprinting.
+- **CyberTrust v2 Canonical Serialization**: Deterministic SHA-256 fingerprinting.
 - **Live Demonstrations**:
   - *Scenario A*: Verified unchanged report with block height and transaction hash.
   - *Scenario B*: Tamper detection simulating modified risk score and raising cryptographic security alert.
 
 ### Slide 9: Architecture, Rigor & Security Hardening
-- **Security Hardening**: Strict SSRF prevention, per-hop redirect validation, prompt injection sandboxing, zero secret exposure, and PostgreSQL with zero-downtime SQLite fallback.
-- **Automated Testing Suite**: 58 automated tests passing (13 Hardhat smart contract + 45 backend pytest tests).
+- **Security Hardening**: Strict SSRF prevention, per-hop redirect validation, untrusted-input instructions and validated model outputs; not a sandbox, redacted operational logs, and PostgreSQL with explicit local SQLite fallback.
+- **Automated Testing Suite**: Regression coverage includes network safety, access controls, report mutations and real local EVM transactions; see the post-remediation report for current results.
 - **One-Command Startup**: Fully validated via `./start_demo.sh`.
 
 ### Slide 10: Real-World Impact, Roadmap & Team
@@ -90,10 +92,10 @@
 
 > **[0:55 - 1:30] Threat Graph & Blockchain**  
 > *"Third, our Threat Relationship Graph visualizes multi-hop campaign clusters using React Flow, clearly distinguishing verified shared technical indicators from inferred playbooks so analysts can spot distributed attacker networks.  
-> And fourth, our Blockchain Trust Center anchors reports to an EVM Solidity smart contract using RFC 8785 deterministic hashing. If any party attempts to alter a threat score after the fact, our smart contract immediately detects the cryptographic mismatch and sounds a security alert."*
+> And fourth, our Blockchain Trust Center anchors reports to an EVM Solidity smart contract using CyberTrust v2 deterministic hashing. If any party attempts to alter a threat score after the fact, our smart contract immediately detects the cryptographic mismatch and sounds a security alert."*
 
 > **[1:30 - 2:00] Validation & Closing**  
-> *"We built this platform with engineering rigor: 58 automated tests passing across Hardhat and pytest, zero TypeScript errors, and one-command reproducible startup with automatic database fallback.  
+> *"We built this platform with engineering rigor: the verified regression suite passing across Hardhat and pytest, zero TypeScript errors, and supervised local startup with explicit database configuration.
 > CyberTrust 360 turns fear and confusion into explainable, tamper-proof digital trust. Thank you!"*
 
 ---
@@ -133,6 +135,9 @@
   Now, let's execute Hackathon Scenario B: we click 'Simulate Tamper' to alter the report's risk score in memory. Instantly, our smart contract catches the mismatch and triggers a red security alert showing the exact hash discrepancy."*
 
 ### [4:30 - 5:00] Closing & Verification Proof
-- **Action**: Show terminal with 58 automated tests passing (`CI=true npx hardhat test` + `pytest`).
+- **Action**: Show terminal with the verified regression suite passing (`CI=true npx hardhat test` + `pytest`).
 - **Spoken**:  
-  *"CyberTrust 360 bridges AI deception detection, cybersecurity infrastructure inspection, and Web3 cryptographic integrity. All 58 automated tests pass, the frontend is production built, and one-command local startup is verified. Thank you, and we welcome your questions!"*
+  *"CyberTrust 360 bridges AI deception detection, cybersecurity infrastructure inspection, and Web3 cryptographic integrity. The current regression results are recorded in the remediation report, the frontend is production built, and one-command local startup is verified. Thank you, and we welcome your questions!"*
+
+
+Current corrected presentation: [CyberTrust360_PitchDeck_Remediated.pptx](CyberTrust360_PitchDeck_Remediated.pptx). The original deck remains historical.

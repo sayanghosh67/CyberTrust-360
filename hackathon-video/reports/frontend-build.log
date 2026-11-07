@@ -1,0 +1,23 @@
+
+> frontend@0.0.0 build
+> tsc -b && vite build --outDir ../hackathon-video/runtime/frontend-dist
+
+vite v8.3.6 building client environment for production...
+transforming...
+✓ 2102 modules transformed.
+
+(!) outDir /Users/sayanghosh/Desktop/HACKMATRIX/hackathon-video/runtime/frontend-dist is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+
+rendering chunks...
+computing gzip size...
+../hackathon-video/runtime/frontend-dist/index.html                   0.70 kB │ gzip:   0.44 kB
+../hackathon-video/runtime/frontend-dist/assets/index-M4zGo7UU.css  107.96 kB │ gzip:  19.27 kB
+../hackathon-video/runtime/frontend-dist/assets/index-BJH7ZAnq.js   560.37 kB │ gzip: 164.51 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 228ms

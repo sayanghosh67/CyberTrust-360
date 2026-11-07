@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 import asyncio
 import uuid
 import json
@@ -29,7 +30,7 @@ async def conduct_investigation(raw_url: str, db: Session) -> ScanResponse:
     Guarantees non-blocking execution, error boundary isolation, and persistent record storage.
     """
     # 1. Input Sanitization & SSRF Protection
-    validated = normalize_and_validate_target(raw_url)
+    validated = await asyncio.wait_for(asyncio.to_thread(normalize_and_validate_target, raw_url), timeout=5.0)
     hostname = validated["hostname"]
     canonical_url = validated["canonical_url"]
     registered_domain = validated["registered_domain"]
@@ -37,7 +38,7 @@ async def conduct_investigation(raw_url: str, db: Session) -> ScanResponse:
     failed_checks: List[str] = []
 
     # 2. Run URL Analysis (Synchronous/pure computation)
-    url_data = analyze_url(raw_url)
+    url_data = analyze_url(canonical_url)
 
     # 3. Concurrent Multi-Vector Execution with Error Boundaries
     dns_task = resolve_dns(hostname)
@@ -51,33 +52,33 @@ async def conduct_investigation(raw_url: str, db: Session) -> ScanResponse:
 
     # Handle DNS result
     if isinstance(dns_res, Exception):
-        failed_checks.append(f"DNS Resolution: {str(dns_res)}")
-        dns_data = DNSAnalysis(status="unavailable", error_message=str(dns_res))
+        failed_checks.append(f"DNS Resolution: {type(dns_res).__name__}")
+        dns_data = DNSAnalysis(status="unavailable", error_message=type(dns_res).__name__)
     else:
         dns_data = dns_res
 
     # Handle SSL result
     if isinstance(ssl_res, Exception):
-        failed_checks.append(f"SSL/TLS Inspection: {str(ssl_res)}")
-        ssl_data = SSLAnalysis(https_available=False, valid=False, error_message=str(ssl_res))
+        failed_checks.append(f"SSL/TLS Inspection: {type(ssl_res).__name__}")
+        ssl_data = SSLAnalysis(https_available=False, valid=False, error_message=type(ssl_res).__name__)
     else:
         ssl_data = ssl_res
 
     # Handle Headers result
     if isinstance(headers_res, Exception):
-        failed_checks.append(f"HTTP Headers Inspection: {str(headers_res)}")
-        headers_data = HeadersAnalysis(error_message=str(headers_res))
+        failed_checks.append(f"HTTP Headers Inspection: {type(headers_res).__name__}")
+        headers_data = HeadersAnalysis(error_message=type(headers_res).__name__)
     else:
         headers_data = headers_res
 
     # Handle Threat Intelligence result
     if isinstance(intel_res, Exception):
-        failed_checks.append(f"Threat Intelligence: {str(intel_res)}")
+        failed_checks.append(f"Threat Intelligence: {type(intel_res).__name__}")
         threat_intel = [
             ThreatIntelSource(
                 provider="Threat Aggregator",
                 status="unavailable",
-                details=f"Service unavailable: {str(intel_res)}",
+                details=f"Service unavailable: {type(intel_res).__name__}",
             )
         ]
     else:
@@ -136,7 +137,6 @@ async def conduct_investigation(raw_url: str, db: Session) -> ScanResponse:
         db.commit()
     except Exception as db_err:
         db.rollback()
-        # Log error but do not fail user scan delivery
-        pass
+        raise HTTPException(status_code=503, detail="Investigation could not be saved; please retry") from None
 
     return response

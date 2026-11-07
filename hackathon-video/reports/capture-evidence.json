@@ -1,0 +1,604 @@
+{
+  "capturedAt": "2026-11-07T13:54:49.377Z",
+  "base": "http://127.0.0.1:15173",
+  "synthetic": true,
+  "responses": [
+    {
+      "url": "http://127.0.0.1:18000/api/v1/scam/guidance",
+      "status": 200,
+      "data": {
+        "action_taken": "received_only",
+        "action_title": "I only received the message (took no action)",
+        "severity_level": "low",
+        "urgent_warning": null,
+        "immediate_steps": [
+          "You are safe! Because you did not click links, share OTPs, or transfer money, no compromise has occurred.",
+          "Report the message as spam/phishing within WhatsApp or your SMS messaging app.",
+          "Report the sender number on the Department of Telecommunications' Chakshu portal (https://sancharsaathi.gov.in) to help authorities block the fraudster.",
+          "Block and delete the sender number."
+        ],
+        "reporting_channels": [
+          {
+            "name": "Sanchar Saathi (Chakshu Portal - DoT)",
+            "contact": "Report Fraud Communication",
+            "url": "https://sancharsaathi.gov.in",
+            "description": "Report suspected fraudulent SMS, calls, or WhatsApp messages for telecom number deactivation."
+          }
+        ],
+        "preventative_measures": [
+          "Share this warning with friends, family, and colleagues who may receive similar messages.",
+          "Remember: Banks will never threaten account deactivation via SMS with urgent external links."
+        ]
+      }
+    },
+    {
+      "url": "http://127.0.0.1:18000/api/v1/scans",
+      "status": 201,
+      "data": {
+        "id": "2f53d895-2930-44aa-ba62-cb77f206e0e6",
+        "url": "https://example.com/",
+        "hostname": "example.com",
+        "registered_domain": "example.com",
+        "created_at": "2026-11-07T13:54:56.101409+00:00",
+        "risk_classification": "Low Risk",
+        "risk_score": 5,
+        "confidence": "High",
+        "summary": "No critical anomalies or threat flags observed on 'example.com'. Target presents standard technical indicators and valid certificates.",
+        "recommended_actions": [
+          "Standard browsing vigilance applies. Low risk does not guarantee complete safety.",
+          "Ensure your browser and operating system security definitions remain up to date."
+        ],
+        "disclaimer": "A Low Risk result does not guarantee that a website is safe. Absence of known threats is not proof of safety.",
+        "url_analysis": {
+          "original_url": "https://example.com",
+          "canonical_url": "https://example.com/",
+          "hostname": "example.com",
+          "registered_domain": "example.com",
+          "subdomain": "",
+          "tld": "com",
+          "scheme": "https",
+          "is_ip_address": false,
+          "is_url_shortener": false,
+          "suspicious_patterns": [],
+          "typosquatting_matches": []
+        },
+        "dns_analysis": {
+          "status": "resolved",
+          "a_records": [
+            "104.20.23.154",
+            "172.66.147.243"
+          ],
+          "aaaa_records": [
+            "2606:4700:9b05:72db:f2a8:0:ef6b:ff98"
+          ],
+          "mx_records": [
+            "0 ."
+          ],
+          "txt_records": [
+            "_k2n1y4vw3qtb4skdx9e7dxt97qrmmq9",
+            "v=spf1 -all"
+          ],
+          "ns_records": [
+            "hera.ns.cloudflare.com",
+            "elliott.ns.cloudflare.com"
+          ],
+          "error_message": null
+        },
+        "ssl_analysis": {
+          "https_available": true,
+          "valid": true,
+          "expired": false,
+          "days_remaining": 48,
+          "issuer": {
+            "country": "US",
+            "organization": "SSL Corporation",
+            "common_name": "Cloudflare TLS Issuing ECC CA 3"
+          },
+          "subject": {
+            "common_name": "example.com",
+            "alt_names": [
+              "example.com",
+              "*.example.com"
+            ]
+          },
+          "protocol": "TLSv1.3",
+          "cipher": "TLS_AES_256_GCM_SHA384",
+          "hostname_mismatch": false,
+          "error_message": null
+        },
+        "headers_analysis": {
+          "status_code": 200,
+          "hsts_present": false,
+          "csp_present": false,
+          "x_frame_options": null,
+          "x_content_type_options": null,
+          "referrer_policy": null,
+          "permissions_policy": null,
+          "server": "cloudflare",
+          "redirect_count": 0,
+          "redirect_chain": [
+            "https://example.com/"
+          ],
+          "is_http_to_https_redirect": false,
+          "suspicious_redirect": false,
+          "missing_headers": [
+            "Strict-Transport-Security (HSTS)",
+            "Content-Security-Policy (CSP)",
+            "X-Frame-Options (Clickjacking defense)",
+            "X-Content-Type-Options (MIME sniffing defense)",
+            "Referrer-Policy",
+            "Permissions-Policy"
+          ],
+          "error_message": null
+        },
+        "threat_intel": [
+          {
+            "provider": "URLhaus (abuse.ch)",
+            "status": "unavailable",
+            "details": "Provider responded with HTTP 401.",
+            "reference_url": null
+          },
+          {
+            "provider": "Google Safe Browsing",
+            "status": "not_configured",
+            "details": "GOOGLE_SAFE_BROWSING_API_KEY not configured in backend environment.",
+            "reference_url": null
+          },
+          {
+            "provider": "PhishTank",
+            "status": "not_configured",
+            "details": "PHISHTANK_API_KEY not configured in backend environment.",
+            "reference_url": null
+          },
+          {
+            "provider": "VirusTotal",
+            "status": "not_configured",
+            "details": "VIRUSTOTAL_API_KEY not configured in backend environment.",
+            "reference_url": null
+          }
+        ],
+        "indicators": [
+          {
+            "name": "Missing Strict-Transport-Security (HSTS)",
+            "category": "headers",
+            "severity": "info",
+            "description": "The site does not enforce strict TLS connections against downgrade attacks.",
+            "technical_evidence": "HSTS header absent in response."
+          }
+        ],
+        "failed_checks": []
+      }
+    },
+    {
+      "url": "http://127.0.0.1:18000/api/v1/scam/analyze",
+      "status": 201,
+      "data": {
+        "id": "2a620dce-57d1-448f-a8e1-3c171db2d66c",
+        "message_preview": "SYNTHETIC DEMO: Dear SBI User, your account will be blocked within 24 hours. Update your KYC immediately at https://exam...",
+        "risk_score": 100,
+        "risk_classification": "High Risk",
+        "confidence": "High",
+        "summary": "High-confidence scam indicators identified. Message exhibits 3 core deceptive tactic(s) characteristic of 'Bank KYC / Account Suspension Deception'. High risk of financial loss or credential compromise.",
+        "analysis_source": "rule_based_fallback",
+        "model_used": "Deterministic Rule-Based Intelligence Engine (No LLM key configured)",
+        "detected_language": "English",
+        "scam_archetype": "Bank KYC / Account Suspension Deception",
+        "tactics": [
+          {
+            "id": "tactic_bank_kyc",
+            "category": "impersonation",
+            "name": "Fake Bank KYC / Account Block Coercion",
+            "severity": "critical",
+            "evidence": "account will be blocked",
+            "explanation": "Coercive alert claiming account deactivation or pending KYC, prompting user to click unverified links or call unauthorized numbers."
+          },
+          {
+            "id": "tactic_otp_harvest",
+            "category": "credential_harvesting",
+            "name": "Direct OTP Solicitation",
+            "severity": "critical",
+            "evidence": "share your otp with our officer",
+            "explanation": "Explicitly asks the recipient to share or enter a One Time Password (OTP). Legitimate financial institutions never solicit OTPs."
+          },
+          {
+            "id": "tactic_urgency_pressure",
+            "category": "urgency_threat",
+            "name": "Artificial Urgency & Coercive Pressure",
+            "severity": "medium",
+            "evidence": "within 24 hours",
+            "explanation": "Creates psychological panic using aggressive deadlines or threatened legal action to bypass critical thinking."
+          }
+        ],
+        "extracted_indicators": [
+          {
+            "type": "url",
+            "value": "https://example.com/kyc",
+            "context_snippet": "...KYC immediately at https://example.com/kyc. Share your OTP wit..."
+          },
+          {
+            "type": "brand",
+            "value": "SBI",
+            "context_snippet": "Referenced Brand / Service: SBI"
+          }
+        ],
+        "recommended_actions": [
+          "Do NOT click any links, open attachments, or call numbers listed in the message.",
+          "NEVER share OTPs, PINs, passwords, or install screen-sharing software (AnyDesk, TeamViewer).",
+          "If this claims to be your bank, verify only through the official banking app or branch.",
+          "Report suspected cyber fraud immediately via India's National Helpline 1930 or cybercrime.gov.in (prompt reporting is recommended to request holds, though recovery cannot be guaranteed)."
+        ],
+        "limitations": [
+          "Rule-based deterministic analysis: Evaluation is based on heuristic lexical and behavioral patterns.",
+          "Absence of detected scam signatures does not guarantee the message is 100% genuine.",
+          "Always verify financial requests directly with your institution before transferring funds."
+        ],
+        "disclaimer": "A Low Risk result does not guarantee that a message is authentic or safe. Absence of known scam patterns is not proof of legitimacy. Always verify directly through official channels.",
+        "created_at": "2026-11-07T13:55:38.173103+00:00"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:18000/api/v1/scam/guidance",
+      "status": 200,
+      "data": {
+        "action_taken": "made_upi_payment",
+        "action_title": "I made a UPI payment / Transferred Money",
+        "severity_level": "critical",
+        "urgent_warning": "ACT IMMEDIATELY (GOLDEN HOUR): Dial 1930 as soon as possible. Rapid reporting gives authorities and banks the best window to attempt placing a hold or lien on suspect beneficiary accounts, though fund recovery cannot be guaranteed once money is withdrawn or moved across accounts.",
+        "immediate_steps": [
+          "Dial 1930 immediately to report the transaction ID, UPI reference number (UTR), and recipient UPI handle to the National Cyber Financial Fraud helpline (early reporting is critical, though full recovery depends on whether funds remain unwithdrawn).",
+          "Call your bank's fraud reporting helpline immediately (printed on the back of your debit card) and request a transaction dispute and lien on the beneficiary account.",
+          "Take screenshots of the payment confirmation screen, recipient UPI ID/account number, and the conversation thread as forensic evidence.",
+          "Register an official complaint on the National Cyber Crime Reporting Portal (https://cybercrime.gov.in) under 'Financial Fraud'.",
+          "Visit your local cyber police station to file an FIR with your complaint acknowledgement number if loss exceeds local thresholds."
+        ],
+        "reporting_channels": [
+          {
+            "name": "National Cyber Crime Reporting Portal (India)",
+            "contact": "Toll-Free Helpline: 1930",
+            "url": "https://cybercrime.gov.in",
+            "description": "Crucial for financial fraud. Immediate reporting via 1930 alerts authorities and partner banks to attempt freezing suspect beneficiary accounts; early reporting is vital, though fund recovery cannot be guaranteed."
+          },
+          {
+            "name": "Sanchar Saathi (Chakshu Portal - DoT)",
+            "contact": "Report Fraud Communication",
+            "url": "https://sancharsaathi.gov.in",
+            "description": "Report suspected fraudulent SMS, calls, or WhatsApp messages for telecom number deactivation."
+          },
+          {
+            "name": "Your Bank / Payment App Fraud Cell",
+            "contact": "In-App 24/7 Helpline",
+            "url": "",
+            "description": "Call the verified official number printed on the back of your debit/credit card or within the genuine banking app."
+          },
+          {
+            "name": "National Consumer Helpline",
+            "contact": "1915",
+            "url": "https://consumerhelpline.gov.in",
+            "description": "For e-commerce delivery and fake merchant refund disputes."
+          }
+        ],
+        "preventative_measures": [
+          "Remember: Entering your UPI PIN ALWAYS debits money from your account. You NEVER need to enter a UPI PIN to receive money.",
+          "Block the fraudster's number on WhatsApp and Truecaller.",
+          "Never send a test amount of ₹1 or ₹5 to unlock refunds."
+        ]
+      }
+    },
+    {
+      "url": "http://127.0.0.1:18000/api/v1/blockchain/register/2a620dce-57d1-448f-a8e1-3c171db2d66c",
+      "status": 201,
+      "data": {
+        "registration_id": "96f2aabc-ff77-42e6-90cb-317f27ff8f60",
+        "report_id": "2a620dce-57d1-448f-a8e1-3c171db2d66c",
+        "report_type": "scam_report",
+        "report_version": 1,
+        "canonical_version": "v1",
+        "hash_algorithm": "sha256",
+        "content_hash": "0x84dcb61276367c18e3ccbe58c928bf19b1e1106a45a83a969208d13e3516c353",
+        "report_id_hash": "0xc1632f1b4f2ef361a9969f99396431c294cb571d3ab620c6e2eb7e79eef1d24b",
+        "chain_id": 31337,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "transaction_hash": "0x91028b54b7dfb883f86fab794c15e0b9e958bec00787da65d49858b094f18558",
+        "block_number": 6,
+        "signer_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "registered_at": "2026-11-07T13:56:38.111072",
+        "registration_status": "confirmed",
+        "disclaimer": "Blockchain verification confirms that the current report matches the cryptographic fingerprint recorded on-chain at registration time. It does not independently prove that the original threat classification is correct."
+      }
+    },
+    {
+      "url": "http://127.0.0.1:18000/api/v1/blockchain/demo/tamper/2a620dce-57d1-448f-a8e1-3c171db2d66c",
+      "status": 200,
+      "data": {
+        "report_id": "2a620dce-57d1-448f-a8e1-3c171db2d66c",
+        "report_type": "scam_report",
+        "verification_status": "MISMATCH",
+        "status_label": "MISMATCH — REPORT MODIFIED",
+        "is_match": false,
+        "computed_content_hash": "0x062cbcc23f263ab22d7226de3adef86f04724a4b270c910b9c1253960fdb7723",
+        "recorded_content_hash": "0x84dcb61276367c18e3ccbe58c928bf19b1e1106a45a83a969208d13e3516c353",
+        "report_id_hash": "0xc1632f1b4f2ef361a9969f99396431c294cb571d3ab620c6e2eb7e79eef1d24b",
+        "transaction_hash": "0x91028b54b7dfb883f86fab794c15e0b9e958bec00787da65d49858b094f18558",
+        "block_number": 6,
+        "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        "chain_id": 31337,
+        "registered_at": "2026-11-07T13:56:38.111072",
+        "verified_at": "2026-11-07T13:56:44.011452+00:00",
+        "tamper_detected": true,
+        "explanation": "SECURITY ALERT: Current report content produces a different cryptographic digest than what was committed to the blockchain. Protected threat data has been altered after registration.",
+        "disclaimer": "Blockchain verification confirms that the current report matches the cryptographic fingerprint recorded on-chain at registration time. It does not independently prove that the original threat classification is correct."
+      }
+    }
+  ],
+  "errors": [],
+  "urlReport": {
+    "id": "2f53d895-2930-44aa-ba62-cb77f206e0e6",
+    "url": "https://example.com/",
+    "hostname": "example.com",
+    "registered_domain": "example.com",
+    "created_at": "2026-11-07T13:54:56.101409+00:00",
+    "risk_classification": "Low Risk",
+    "risk_score": 5,
+    "confidence": "High",
+    "summary": "No critical anomalies or threat flags observed on 'example.com'. Target presents standard technical indicators and valid certificates.",
+    "recommended_actions": [
+      "Standard browsing vigilance applies. Low risk does not guarantee complete safety.",
+      "Ensure your browser and operating system security definitions remain up to date."
+    ],
+    "disclaimer": "A Low Risk result does not guarantee that a website is safe. Absence of known threats is not proof of safety.",
+    "url_analysis": {
+      "original_url": "https://example.com",
+      "canonical_url": "https://example.com/",
+      "hostname": "example.com",
+      "registered_domain": "example.com",
+      "subdomain": "",
+      "tld": "com",
+      "scheme": "https",
+      "is_ip_address": false,
+      "is_url_shortener": false,
+      "suspicious_patterns": [],
+      "typosquatting_matches": []
+    },
+    "dns_analysis": {
+      "status": "resolved",
+      "a_records": [
+        "104.20.23.154",
+        "172.66.147.243"
+      ],
+      "aaaa_records": [
+        "2606:4700:9b05:72db:f2a8:0:ef6b:ff98"
+      ],
+      "mx_records": [
+        "0 ."
+      ],
+      "txt_records": [
+        "_k2n1y4vw3qtb4skdx9e7dxt97qrmmq9",
+        "v=spf1 -all"
+      ],
+      "ns_records": [
+        "hera.ns.cloudflare.com",
+        "elliott.ns.cloudflare.com"
+      ],
+      "error_message": null
+    },
+    "ssl_analysis": {
+      "https_available": true,
+      "valid": true,
+      "expired": false,
+      "days_remaining": 48,
+      "issuer": {
+        "country": "US",
+        "organization": "SSL Corporation",
+        "common_name": "Cloudflare TLS Issuing ECC CA 3"
+      },
+      "subject": {
+        "common_name": "example.com",
+        "alt_names": [
+          "example.com",
+          "*.example.com"
+        ]
+      },
+      "protocol": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384",
+      "hostname_mismatch": false,
+      "error_message": null
+    },
+    "headers_analysis": {
+      "status_code": 200,
+      "hsts_present": false,
+      "csp_present": false,
+      "x_frame_options": null,
+      "x_content_type_options": null,
+      "referrer_policy": null,
+      "permissions_policy": null,
+      "server": "cloudflare",
+      "redirect_count": 0,
+      "redirect_chain": [
+        "https://example.com/"
+      ],
+      "is_http_to_https_redirect": false,
+      "suspicious_redirect": false,
+      "missing_headers": [
+        "Strict-Transport-Security (HSTS)",
+        "Content-Security-Policy (CSP)",
+        "X-Frame-Options (Clickjacking defense)",
+        "X-Content-Type-Options (MIME sniffing defense)",
+        "Referrer-Policy",
+        "Permissions-Policy"
+      ],
+      "error_message": null
+    },
+    "threat_intel": [
+      {
+        "provider": "URLhaus (abuse.ch)",
+        "status": "unavailable",
+        "details": "Provider responded with HTTP 401.",
+        "reference_url": null
+      },
+      {
+        "provider": "Google Safe Browsing",
+        "status": "not_configured",
+        "details": "GOOGLE_SAFE_BROWSING_API_KEY not configured in backend environment.",
+        "reference_url": null
+      },
+      {
+        "provider": "PhishTank",
+        "status": "not_configured",
+        "details": "PHISHTANK_API_KEY not configured in backend environment.",
+        "reference_url": null
+      },
+      {
+        "provider": "VirusTotal",
+        "status": "not_configured",
+        "details": "VIRUSTOTAL_API_KEY not configured in backend environment.",
+        "reference_url": null
+      }
+    ],
+    "indicators": [
+      {
+        "name": "Missing Strict-Transport-Security (HSTS)",
+        "category": "headers",
+        "severity": "info",
+        "description": "The site does not enforce strict TLS connections against downgrade attacks.",
+        "technical_evidence": "HSTS header absent in response."
+      }
+    ],
+    "failed_checks": []
+  },
+  "scamReport": {
+    "id": "2a620dce-57d1-448f-a8e1-3c171db2d66c",
+    "message_preview": "SYNTHETIC DEMO: Dear SBI User, your account will be blocked within 24 hours. Update your KYC immediately at https://exam...",
+    "risk_score": 100,
+    "risk_classification": "High Risk",
+    "confidence": "High",
+    "summary": "High-confidence scam indicators identified. Message exhibits 3 core deceptive tactic(s) characteristic of 'Bank KYC / Account Suspension Deception'. High risk of financial loss or credential compromise.",
+    "analysis_source": "rule_based_fallback",
+    "model_used": "Deterministic Rule-Based Intelligence Engine (No LLM key configured)",
+    "detected_language": "English",
+    "scam_archetype": "Bank KYC / Account Suspension Deception",
+    "tactics": [
+      {
+        "id": "tactic_bank_kyc",
+        "category": "impersonation",
+        "name": "Fake Bank KYC / Account Block Coercion",
+        "severity": "critical",
+        "evidence": "account will be blocked",
+        "explanation": "Coercive alert claiming account deactivation or pending KYC, prompting user to click unverified links or call unauthorized numbers."
+      },
+      {
+        "id": "tactic_otp_harvest",
+        "category": "credential_harvesting",
+        "name": "Direct OTP Solicitation",
+        "severity": "critical",
+        "evidence": "share your otp with our officer",
+        "explanation": "Explicitly asks the recipient to share or enter a One Time Password (OTP). Legitimate financial institutions never solicit OTPs."
+      },
+      {
+        "id": "tactic_urgency_pressure",
+        "category": "urgency_threat",
+        "name": "Artificial Urgency & Coercive Pressure",
+        "severity": "medium",
+        "evidence": "within 24 hours",
+        "explanation": "Creates psychological panic using aggressive deadlines or threatened legal action to bypass critical thinking."
+      }
+    ],
+    "extracted_indicators": [
+      {
+        "type": "url",
+        "value": "https://example.com/kyc",
+        "context_snippet": "...KYC immediately at https://example.com/kyc. Share your OTP wit..."
+      },
+      {
+        "type": "brand",
+        "value": "SBI",
+        "context_snippet": "Referenced Brand / Service: SBI"
+      }
+    ],
+    "recommended_actions": [
+      "Do NOT click any links, open attachments, or call numbers listed in the message.",
+      "NEVER share OTPs, PINs, passwords, or install screen-sharing software (AnyDesk, TeamViewer).",
+      "If this claims to be your bank, verify only through the official banking app or branch.",
+      "Report suspected cyber fraud immediately via India's National Helpline 1930 or cybercrime.gov.in (prompt reporting is recommended to request holds, though recovery cannot be guaranteed)."
+    ],
+    "limitations": [
+      "Rule-based deterministic analysis: Evaluation is based on heuristic lexical and behavioral patterns.",
+      "Absence of detected scam signatures does not guarantee the message is 100% genuine.",
+      "Always verify financial requests directly with your institution before transferring funds."
+    ],
+    "disclaimer": "A Low Risk result does not guarantee that a message is authentic or safe. Absence of known scam patterns is not proof of legitimacy. Always verify directly through official channels.",
+    "created_at": "2026-11-07T13:55:38.173103+00:00"
+  },
+  "secondSyntheticReport": {
+    "id": "d4f3eede-a433-4ae9-a37a-495d530cf52c",
+    "message_preview": "SYNTHETIC DEMO: Dear SBI customer, your account is suspended. Complete KYC at https://example.com/kyc immediately.",
+    "risk_score": 45,
+    "risk_classification": "High Risk",
+    "confidence": "Medium",
+    "summary": "High-confidence scam indicators identified. Message exhibits 1 core deceptive tactic(s) characteristic of 'Bank KYC / Account Suspension Deception'. High risk of financial loss or credential compromise.",
+    "analysis_source": "rule_based_fallback",
+    "model_used": "Deterministic Rule-Based Intelligence Engine (No LLM key configured)",
+    "detected_language": "English",
+    "scam_archetype": "Bank KYC / Account Suspension Deception",
+    "tactics": [
+      {
+        "id": "tactic_bank_kyc",
+        "category": "impersonation",
+        "name": "Fake Bank KYC / Account Block Coercion",
+        "severity": "critical",
+        "evidence": "account is suspended",
+        "explanation": "Coercive alert claiming account deactivation or pending KYC, prompting user to click unverified links or call unauthorized numbers."
+      }
+    ],
+    "extracted_indicators": [
+      {
+        "type": "url",
+        "value": "https://example.com/kyc",
+        "context_snippet": "...ed. Complete KYC at https://example.com/kyc immediately...."
+      },
+      {
+        "type": "brand",
+        "value": "SBI",
+        "context_snippet": "Referenced Brand / Service: SBI"
+      }
+    ],
+    "recommended_actions": [
+      "Do NOT click any links, open attachments, or call numbers listed in the message.",
+      "NEVER share OTPs, PINs, passwords, or install screen-sharing software (AnyDesk, TeamViewer).",
+      "If this claims to be your bank, verify only through the official banking app or branch.",
+      "Report suspected cyber fraud immediately via India's National Helpline 1930 or cybercrime.gov.in (prompt reporting is recommended to request holds, though recovery cannot be guaranteed)."
+    ],
+    "limitations": [
+      "Rule-based deterministic analysis: Evaluation is based on heuristic lexical and behavioral patterns.",
+      "Absence of detected scam signatures does not guarantee the message is 100% genuine.",
+      "Always verify financial requests directly with your institution before transferring funds."
+    ],
+    "disclaimer": "A Low Risk result does not guarantee that a message is authentic or safe. Absence of known scam patterns is not proof of legitimacy. Always verify directly through official channels.",
+    "created_at": "2026-11-07T13:56:14.458917+00:00"
+  },
+  "registration": {
+    "registration_id": "96f2aabc-ff77-42e6-90cb-317f27ff8f60",
+    "report_id": "2a620dce-57d1-448f-a8e1-3c171db2d66c",
+    "report_type": "scam_report",
+    "report_version": 1,
+    "canonical_version": "v1",
+    "hash_algorithm": "sha256",
+    "content_hash": "0x84dcb61276367c18e3ccbe58c928bf19b1e1106a45a83a969208d13e3516c353",
+    "report_id_hash": "0xc1632f1b4f2ef361a9969f99396431c294cb571d3ab620c6e2eb7e79eef1d24b",
+    "chain_id": 31337,
+    "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "transaction_hash": "0x91028b54b7dfb883f86fab794c15e0b9e958bec00787da65d49858b094f18558",
+    "block_number": 6,
+    "signer_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "registered_at": "2026-11-07T13:56:38.111072",
+    "registration_status": "confirmed",
+    "disclaimer": "Blockchain verification confirms that the current report matches the cryptographic fingerprint recorded on-chain at registration time. It does not independently prove that the original threat classification is correct."
+  },
+  "receipt": {
+    "hash": "0x91028b54b7dfb883f86fab794c15e0b9e958bec00787da65d49858b094f18558",
+    "status": 1,
+    "blockNumber": 6,
+    "gasUsed": "190010",
+    "to": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "chainId": 31337
+  }
+}

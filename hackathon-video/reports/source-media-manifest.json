@@ -1,0 +1,128 @@
+{
+  "capture_evidence": "reports/capture-evidence.json",
+  "source": "Fresh captures of the unchanged application. Synthetic scam inputs. No mocked API or blockchain responses.",
+  "files": {
+    "assets/19-dashboard-final.png": {
+      "bytes": 261530,
+      "sha256": "0cc32aafddec71c8e4b980c595a06fa6f27c22d752e0589d764666dff71bb707"
+    },
+    "assets/08-scam-input.png": {
+      "bytes": 204642,
+      "sha256": "7fa92b5e911edf2cd5f93413aacb994471ecb4e13e91b37d39044cdd0addf7c1"
+    },
+    "assets/09-scam-result.png": {
+      "bytes": 234034,
+      "sha256": "7b7233666c9988ef0dee127c98adfd562f3eab11fd08d0b9bc6e7cd271499ba7"
+    },
+    "assets/13-graph-node.png": {
+      "bytes": 187778,
+      "sha256": "eccc769bef40a9650bd8d685e30d6db35ec2f874c21b11d9d66a5045021caa6d"
+    },
+    "assets/07-url-dns.png": {
+      "bytes": 243707,
+      "sha256": "0f6ed9ec24286c17fab50db25399f25d08d3bf0974a196f4697560209e0a574d"
+    },
+    "assets/02-dashboard.png": {
+      "bytes": 250688,
+      "sha256": "2d661116a1492c196b5461789edfedb49defff00c4c56f5dd30334cfc9b48e58"
+    },
+    "assets/12-threat-graph.png": {
+      "bytes": 163726,
+      "sha256": "22dee60c30b8e3d213ab0a15f8d3c40e81ced3f08cde52b1b4d62301f8fe5973"
+    },
+    "assets/20-graph-close.png": {
+      "bytes": 514007,
+      "sha256": "0a021e05d0d57bd472feb3ecf6d5ebee82cf64a4a1e21bf048a32151ec5d8359"
+    },
+    "assets/01-hero.png": {
+      "bytes": 396117,
+      "sha256": "c27725067d5b12418cf430479771057894f05ac7a89a6ec99db5bf8e017962b9"
+    },
+    "assets/05-url-result.png": {
+      "bytes": 244797,
+      "sha256": "403a4f9afb64c15f14b978f06e33d65f2f60d32441c7badee3b306ba5eb6f4cb"
+    },
+    "assets/16-blockchain-registered.png": {
+      "bytes": 170042,
+      "sha256": "96c96d78364f78bb6d220f40cb4f95670d5978098c9280bbda8b596830ed5ec0"
+    },
+    "assets/18-blockchain-tampered.png": {
+      "bytes": 172889,
+      "sha256": "09068bc2d13353a42c1bf29d923c8a16009d2ce39b3dbbef40156862f0624154"
+    },
+    "assets/21-edge-evidence.png": {
+      "bytes": 584387,
+      "sha256": "91ffaa29478c05cd3b7bb980f1ad96e06272ea3e777f962a17d4c059482a1974"
+    },
+    "assets/network-original.png": {
+      "bytes": 37581,
+      "sha256": "754d4c03e2da41015ba49f7bd40f0129c2a3b444ae53f9b10ca8363fdea7650a"
+    },
+    "assets/22-verified-detail.png": {
+      "bytes": 122887,
+      "sha256": "2c2e09a92b8c322f4a5391bbed97d9c3b0a1757fb044e0153d4153f06e9d6289"
+    },
+    "assets/packet.png": {
+      "bytes": 143,
+      "sha256": "8ad9492558e5b35fb0d1cd6403782cce47160155c5d33641892ba683067f60a2"
+    },
+    "assets/10-scam-tactics.png": {
+      "bytes": 209709,
+      "sha256": "7a370f462f84b3ffd905f8c739eba14898be3c4b85c1e372b6ede97f6e06d838"
+    },
+    "assets/03-url-input.png": {
+      "bytes": 270475,
+      "sha256": "0b21d80c1fb198f0e125549ae4f164bc5e4f3170cf21c111ac267a6101c79e6a"
+    },
+    "assets/06-url-tls.png": {
+      "bytes": 263174,
+      "sha256": "b5b148cbc222d42f0034ed9f883d00001f6ce3950a9b603a5a5ecb710b87c9bc"
+    },
+    "assets/04-url-progress.png": {
+      "bytes": 293101,
+      "sha256": "43e818bf0de0d2360c31fc22e0439c3dc9f927041f2ea0c57238e402a4fca619"
+    },
+    "assets/14-relationship-evidence.png": {
+      "bytes": 257825,
+      "sha256": "923933fea4b57fde8896414027733d7a42f7e5b55c5365a6ec5ddd1b88dce214"
+    },
+    "assets/11-incident-guidance.png": {
+      "bytes": 146696,
+      "sha256": "cd786ddebe2dfa09f55a10c2ab3cc8a7e46a553c7877fc75cd21a900ed952228"
+    },
+    "assets/15-blockchain-input.png": {
+      "bytes": 157495,
+      "sha256": "8c9a057648c0e48009eef17d66364d0f3bc1d380eec2c27c18ff0b9d1bcfbd51"
+    },
+    "assets/23-tamper-detail.png": {
+      "bytes": 108058,
+      "sha256": "b91238e27a454f47f5504e8045490452ce2ced6439157eb1c1266e010c72b303"
+    },
+    "assets/17-blockchain-verified.png": {
+      "bytes": 170040,
+      "sha256": "b8493fbc506c6118f09eb422ce0a65fe803d48531881dc1d3783f58bdf8b8797"
+    },
+    "recordings/scam-analysis.webm": {
+      "bytes": 3197660,
+      "sha256": "4687037d8f9cf506156201417c8299a6b82c18e930b308280c114e31cd934d5b"
+    },
+    "recordings/blockchain-verification.webm": {
+      "bytes": 1649650,
+      "sha256": "2a1d4faad5da7b570eb8d8f27543cbbb569a949f96533b570030e4bd10ef8333"
+    },
+    "recordings/threat-graph.webm": {
+      "bytes": 1307181,
+      "sha256": "ae69d8c26380ea69b92bccde34f5bb301d5bba1056f96d72fedcb01c7e48d949"
+    },
+    "recordings/url-investigation.webm": {
+      "bytes": 2021242,
+      "sha256": "248848aa1e7284ca7a3d433f239409b8425d8496ce166006dc2a9a3054332c9c"
+    },
+    "recordings/threat-graph-clean.webm": {
+      "bytes": 1339264,
+      "sha256": "6ef9809415acc58e12e547a7bdbbcb78dbf223c76be23da7c0e02df3a1b4d692"
+    }
+  },
+  "excluded_capture": "assets/14-relationship-evidence.png was an incorrect navigation capture and is not used in the film. Replaced with 21-edge-evidence.png.",
+  "excluded_recording": "recordings/threat-graph.webm includes unintended cross-module navigation. Replaced by threat-graph-clean.webm in the final master."
+}

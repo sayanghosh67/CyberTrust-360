@@ -34,9 +34,9 @@ export const FoundationSpecCard: React.FC = () => {
       title: 'Security & Integrity',
       items: [
         'Strict environment variable isolation (.env)',
-        'Zero hardcoded API secrets or keys',
+        'Explicit API tokens and registrar configuration',
         'Input validation & safe mode gating',
-        'No mock or fabricated scan data',
+        'Synthetic graph data requires explicit demo mode',
       ],
     },
   ];

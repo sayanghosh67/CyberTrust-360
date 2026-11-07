@@ -6,3 +6,4 @@ export interface DashboardMetrics {
   blockchain_registered_reports: number;
   timestamp: string;
 }
+

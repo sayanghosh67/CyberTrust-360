@@ -171,7 +171,7 @@ def create_deck():
         ("Step 3: AI Sequencing", "LLM or rule engine isolates indicators and manipulation patterns."),
         ("Step 4: Persistence", "Full technical findings stored in PostgreSQL with SQLite fallback."),
         ("Step 5: Threat Correlation", "Graph engine maps shared technical indicators into clusters."),
-        ("Step 6: Web3 Fingerprint", "Deterministic RFC 8785 hash committed to Solidity smart contract."),
+        ("Step 6: Web3 Fingerprint", "Deterministic CyberTrust v2 hash committed to Solidity smart contract."),
         ("Step 7: Verification", "On-demand tamper detection verifies immutable proof on EVM.")
     ]
 
@@ -269,7 +269,7 @@ def create_deck():
     ], CYAN)
 
     add_card(s8, Inches(6.8), Inches(2.0), Inches(5.6), Inches(4.8), "Canonical Fingerprinting & Tamper Detection", [
-        "RFC 8785 Canonical Hashing: Recursively sorted JSON serialization ensures deterministic SHA-256 calculation.",
+        "CyberTrust v2 Canonical Hashing: Recursively sorted JSON serialization ensures deterministic SHA-256 calculation.",
         "Scenario A (Verified): Matches live report against on-chain hash, returning verified status and block confirmation.",
         "Scenario B (Tamper Detection): Simulates in-memory risk score alteration, immediately detecting mismatch and raising security alert.",
         "Attestation Scope Disclaimer: Confirms record matches on-chain hash at registration; does not prove external factual accuracy."
@@ -284,16 +284,16 @@ def create_deck():
 
     add_card(s9, Inches(0.8), Inches(2.0), Inches(5.6), Inches(4.8), "Security Hardening Achievements", [
         "SSRF & Rebinding Protection: Strict IP subnet validation across all initial targets and redirect hops.",
-        "Prompt Injection Isolation: Defensive delimiters and untrusted text sandboxing.",
+        "Prompt Injection Isolation: Untrusted-input instructions and output validation; no guaranteed sandbox.",
         "Zero Exposure: Threat intelligence API keys and signing keys stored safely in .env.",
         "Resilient Data Tier: PostgreSQL 16 with zero-downtime automatic SQLite fallback.",
         "Honest Attribution: Rule fallbacks and simulated demo modes are never disguised as live AI or real criminals."
     ], AMBER)
 
     add_card(s9, Inches(6.8), Inches(2.0), Inches(5.6), Inches(4.8), "Testing & Verification Metrics", [
-        "58 Automated Tests Passing: 13 smart contract unit tests + 45 backend pytest tests (100% pass rate).",
+        "Regression tests cover URL safety, access control, full-report mutations and local EVM receipts.",
         "Frontend Production Build: Clean TypeScript compilation (0 errors, 245ms build time).",
-        "One-Command Startup: ./start_demo.sh verifies backend, blockchain, and frontend in under 3 seconds.",
+        "One-Command Startup: ./start_demo.sh verifies backend, blockchain, and frontend with bounded readiness checks.",
         "Documented Codebase: Complete ARCHITECTURE.md, PROJECT_CONTEXT.md, and README.md."
     ], CYAN)
 
@@ -325,3 +325,4 @@ def create_deck():
 
 if __name__ == "__main__":
     create_deck()
+

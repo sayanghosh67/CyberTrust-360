@@ -1,0 +1,248 @@
+{
+  "ipv6_blocking": {
+    "127.0.0.1": true,
+    "::1": true,
+    "::ffff:127.0.0.1": false,
+    "::": false,
+    "ff02::1": false
+  },
+  "rebinding_received_path": "/audit-only",
+  "rebinding_http_result": {
+    "status_code": 200,
+    "hsts_present": false,
+    "csp_present": false,
+    "x_frame_options": null,
+    "x_content_type_options": null,
+    "referrer_policy": null,
+    "permissions_policy": null,
+    "server": "BaseHTTP/0.6 Python/3.11.14",
+    "redirect_count": 0,
+    "redirect_chain": [
+      "http://audit-rebind.example.com:57567/audit-only"
+    ],
+    "is_http_to_https_redirect": false,
+    "suspicious_redirect": false,
+    "missing_headers": [
+      "Strict-Transport-Security (HSTS)",
+      "Content-Security-Policy (CSP)",
+      "X-Frame-Options (Clickjacking defense)",
+      "X-Content-Type-Options (MIME sniffing defense)",
+      "Referrer-Policy",
+      "Permissions-Policy"
+    ],
+    "error_message": null
+  },
+  "rebinding_dns_calls": 2,
+  "normalization": {
+    "original_input": "https://example.com:8443/path?token=demo",
+    "canonical_url": "https://example.com/path",
+    "scheme": "https",
+    "hostname": "example.com",
+    "port": 8443,
+    "path": "/path",
+    "subdomain": "",
+    "domain": "example",
+    "suffix": "com",
+    "registered_domain": "example.com"
+  },
+  "canonicalization": {
+    "negative_zero": "{\"n\":-0.0}",
+    "integer_float": "{\"n\":1.0}",
+    "nonfinite": "{\"n\":NaN}",
+    "unicode_key_order": "{\"\ue000\":2,\"\ud83d\ude00\":1}"
+  },
+  "empty_dashboard": {
+    "total_url_investigations": 0,
+    "total_scam_analyses": 0,
+    "high_risk_reports": 0,
+    "related_threat_indicators": 3,
+    "blockchain_registered_reports": 0,
+    "timestamp": "2026-11-07T13:48:06.695775Z"
+  },
+  "empty_indicators": {
+    "indicators": [
+      {
+        "type": "domain",
+        "value": "sbi-kyc-update-portal.xyz",
+        "report_count": 3,
+        "report_ids": [
+          "demo-sbi-1",
+          "demo-sbi-2",
+          "demo-scan-sbi"
+        ],
+        "risk_classifications": [
+          "Suspicious"
+        ],
+        "first_seen": "2026-11-07T13:48:06.699727+00:00",
+        "last_seen": "2026-11-07T13:48:06.699729+00:00"
+      },
+      {
+        "type": "brand",
+        "value": "SBI (State Bank of India)",
+        "report_count": 3,
+        "report_ids": [
+          "demo-sbi-1",
+          "demo-sbi-2"
+        ],
+        "risk_classifications": [
+          "Suspicious"
+        ],
+        "first_seen": "2026-11-07T13:48:06.699736+00:00",
+        "last_seen": "2026-11-07T13:48:06.699737+00:00"
+      },
+      {
+        "type": "phone",
+        "value": "+91-9876543210",
+        "report_count": 3,
+        "report_ids": [
+          "demo-sbi-1",
+          "demo-bijli-1",
+          "demo-bijli-2"
+        ],
+        "risk_classifications": [
+          "Suspicious"
+        ],
+        "first_seen": "2026-11-07T13:48:06.699743+00:00",
+        "last_seen": "2026-11-07T13:48:06.699744+00:00"
+      }
+    ],
+    "total_count": 3
+  },
+  "invalid_port_http_status": 500,
+  "scam_report": {
+    "id": "d500f7c1-e5eb-4221-bfda-351716846108",
+    "message_preview": "SYNTHETIC DEMO. Dear SBI User, your account will be blocked within 24 hours. Update KYC immediately at https://example.c...",
+    "risk_score": 100,
+    "risk_classification": "High Risk",
+    "confidence": "High",
+    "summary": "High-confidence scam indicators identified. Message exhibits 3 core deceptive tactic(s) characteristic of 'Bank KYC / Account Suspension Deception'. High risk of financial loss or credential compromise.",
+    "analysis_source": "rule_based_fallback",
+    "model_used": "Deterministic Rule-Based Intelligence Engine (No LLM key configured)",
+    "detected_language": "English",
+    "scam_archetype": "Bank KYC / Account Suspension Deception",
+    "tactics": [
+      {
+        "id": "tactic_bank_kyc",
+        "category": "impersonation",
+        "name": "Fake Bank KYC / Account Block Coercion",
+        "severity": "critical",
+        "evidence": "account will be blocked",
+        "explanation": "Coercive alert claiming account deactivation or pending KYC, prompting user to click unverified links or call unauthorized numbers."
+      },
+      {
+        "id": "tactic_otp_harvest",
+        "category": "credential_harvesting",
+        "name": "Direct OTP Solicitation",
+        "severity": "critical",
+        "evidence": "share your otp with officer",
+        "explanation": "Explicitly asks the recipient to share or enter a One Time Password (OTP). Legitimate financial institutions never solicit OTPs."
+      },
+      {
+        "id": "tactic_urgency_pressure",
+        "category": "urgency_threat",
+        "name": "Artificial Urgency & Coercive Pressure",
+        "severity": "medium",
+        "evidence": "within 24 hours",
+        "explanation": "Creates psychological panic using aggressive deadlines or threatened legal action to bypass critical thinking."
+      }
+    ],
+    "extracted_indicators": [
+      {
+        "type": "url",
+        "value": "https://example.com/kyc",
+        "context_snippet": "...KYC immediately at https://example.com/kyc and share your OTP..."
+      },
+      {
+        "type": "brand",
+        "value": "SBI",
+        "context_snippet": "Referenced Brand / Service: SBI"
+      }
+    ],
+    "recommended_actions": [
+      "Do NOT click any links, open attachments, or call numbers listed in the message.",
+      "NEVER share OTPs, PINs, passwords, or install screen-sharing software (AnyDesk, TeamViewer).",
+      "If this claims to be your bank, verify only through the official banking app or branch.",
+      "Report suspected cyber fraud immediately via India's National Helpline 1930 or cybercrime.gov.in (prompt reporting is recommended to request holds, though recovery cannot be guaranteed)."
+    ],
+    "limitations": [
+      "Rule-based deterministic analysis: Evaluation is based on heuristic lexical and behavioral patterns.",
+      "Absence of detected scam signatures does not guarantee the message is 100% genuine.",
+      "Always verify financial requests directly with your institution before transferring funds."
+    ],
+    "disclaimer": "A Low Risk result does not guarantee that a message is authentic or safe. Absence of known scam patterns is not proof of legitimacy. Always verify directly through official channels.",
+    "created_at": "2026-11-07T13:48:06.772693+00:00"
+  },
+  "scam_tactics_tamper_hash_unchanged": true,
+  "url_evidence_tamper_hash_unchanged": true,
+  "live_registration": {
+    "registration_id": "26da22be-9fb7-409f-9a0d-2395860de487",
+    "report_id": "d500f7c1-e5eb-4221-bfda-351716846108",
+    "report_type": "scam_report",
+    "report_version": 1,
+    "canonical_version": "v1",
+    "hash_algorithm": "sha256",
+    "content_hash": "0x84dcb61276367c18e3ccbe58c928bf19b1e1106a45a83a969208d13e3516c353",
+    "report_id_hash": "0xecedd698c2ad4feadd2fd278b00bff3973915c9ff5b3ed52e9d108ece1d550f9",
+    "chain_id": 31337,
+    "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "transaction_hash": "0xef3b9f14e651a6ce81c7de10c497666863eb7f3ad691925bfba25a15c963fae9",
+    "block_number": 5,
+    "signer_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "registered_at": "2026-11-07T13:48:06.813673",
+    "registration_status": "confirmed",
+    "disclaimer": "Blockchain verification confirms that the current report matches the cryptographic fingerprint recorded on-chain at registration time. It does not independently prove that the original threat classification is correct."
+  },
+  "live_verification": {
+    "report_id": "d500f7c1-e5eb-4221-bfda-351716846108",
+    "report_type": "scam_report",
+    "verification_status": "VERIFIED",
+    "status_label": "VERIFIED \u2014 REPORT UNCHANGED",
+    "is_match": true,
+    "computed_content_hash": "0x84dcb61276367c18e3ccbe58c928bf19b1e1106a45a83a969208d13e3516c353",
+    "recorded_content_hash": "0x84dcb61276367c18e3ccbe58c928bf19b1e1106a45a83a969208d13e3516c353",
+    "report_id_hash": "0xecedd698c2ad4feadd2fd278b00bff3973915c9ff5b3ed52e9d108ece1d550f9",
+    "transaction_hash": "0xef3b9f14e651a6ce81c7de10c497666863eb7f3ad691925bfba25a15c963fae9",
+    "block_number": 5,
+    "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "chain_id": 31337,
+    "registered_at": "2026-11-07T13:48:06.813673",
+    "verified_at": "2026-11-07T13:48:06.816046+00:00",
+    "tamper_detected": false,
+    "explanation": "Cryptographic fingerprint strictly matches the immutable blockchain registry. Zero modifications detected in protected threat indicators, risk scoring, or verdicts.",
+    "disclaimer": "Blockchain verification confirms that the current report matches the cryptographic fingerprint recorded on-chain at registration time. It does not independently prove that the original threat classification is correct."
+  },
+  "offline_verification": {
+    "report_id": "d500f7c1-e5eb-4221-bfda-351716846108",
+    "report_type": "scam_report",
+    "verification_status": "VERIFICATION_UNAVAILABLE",
+    "status_label": "VERIFICATION UNAVAILABLE \u2014 RPC OFFLINE",
+    "is_match": false,
+    "computed_content_hash": "0x84dcb61276367c18e3ccbe58c928bf19b1e1106a45a83a969208d13e3516c353",
+    "recorded_content_hash": "0x84dcb61276367c18e3ccbe58c928bf19b1e1106a45a83a969208d13e3516c353",
+    "report_id_hash": "0xecedd698c2ad4feadd2fd278b00bff3973915c9ff5b3ed52e9d108ece1d550f9",
+    "transaction_hash": "0xef3b9f14e651a6ce81c7de10c497666863eb7f3ad691925bfba25a15c963fae9",
+    "block_number": 5,
+    "contract_address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "chain_id": 31337,
+    "registered_at": "2026-11-07T13:48:06.813673",
+    "verified_at": "2026-11-07T13:48:06.824202+00:00",
+    "tamper_detected": false,
+    "explanation": "The blockchain network RPC is currently unreachable. Cannot verify on-chain state without live EVM connectivity.",
+    "disclaimer": "Blockchain verification confirms that the current report matches the cryptographic fingerprint recorded on-chain at registration time. It does not independently prove that the original threat classification is correct."
+  },
+  "unavailable_checks_risk": [
+    "Low Risk",
+    0,
+    "Medium",
+    "No critical anomalies or threat flags observed on 'example.com'. Target presents standard technical indicators and valid certificates."
+  ],
+  "original_database_counts": {
+    "scan_records": 81,
+    "scam_analysis_records": 209,
+    "blockchain_registration_records": 12
+  },
+  "original_database_test_patterns": {
+    "test_scan_domains": 17,
+    "fallback_analyses": 209
+  }
+}

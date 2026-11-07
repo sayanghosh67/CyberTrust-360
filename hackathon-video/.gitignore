@@ -1,0 +1,6 @@
+# Generated media and isolated runtime are never staged automatically.
+runtime/
+output/
+recordings/
+assets/
+scenes/rendered/

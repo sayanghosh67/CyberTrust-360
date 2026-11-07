@@ -1,0 +1,74 @@
+Graph text: nk
+Referenced Domain
+Impersonates
+Uses Playbook
+Uses Playbook
+Uses Playbook
+URL SCAN
+5/100
+example.com
+URL Scan · Score 5/100
+DOMAIN
+4 Reports
+example.com
+Registered Domain
+URL SCAN
+5/100
+example.com
+URL Scan · Score 5/100
+SCAM REPORT
+45/100
+Bank KYC / Account Suspension Deception
+Threat Score 45/100
+URL
+https://example.com/kyc
+Embedded Link
+BRAND
+2 Reports
+SBI
+Impersonated Entity
+TACTIC
+2 Reports
+Fake Bank KYC / Account Block Coercion
+Deceptive Tactic
+SCAM REPORT
+100/100
+Bank KYC / Account Suspension Deception
+Threat Score 100/100
+TACTIC
+Direct OTP Solicitation
+Deceptive Tactic
+TACTIC
+Artificial Urgency & Coercive Pressure
+Deceptive Tactic
+GRAPH LEGEND
+Registered Domain / URL
+Scam Report / High Risk Target
+Impersonated Brand
+Deceptive Scam Tactic
+Verified Shared Indicator
+Possible (Inferred) Link
+RELATIONSHIP FORENSIC EVIDENCE
+CONNECTION TOPOLOGY
+URL SCAN
+example.com
+Inspect
+TARGET DOMAIN
+DOMAIN
+example.com
+Inspect
+RELATIONSHIP CLASSIFICATION
+VERIFIED SHARED INDICATOR
+
+Direct technical match supported by exact stored indicators (shared domain, URL, or phone).
+
+SUPPORTING TECHNICAL EVIDENCE
+> Investigation target explicitly resolved to domain 'example.com'.
+Correlation Provenance:
+1 Corroborating Source Report(s)
+Type
+RESOLVES_TO_DOMAIN
+Confidence
+High
+
+A shared technical indicator or tactic indicates common infrastructure or shared link reuse, but does not prove common ownership, attacker identity, or coordinated criminal campaigns without authoritative external attribution.

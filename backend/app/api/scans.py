@@ -1,6 +1,6 @@
 import json
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import select, desc
 
@@ -43,10 +43,12 @@ async def create_scan(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(sec_err),
         )
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Investigation engine encountered an unhandled error: {str(exc)}",
+            detail="Investigation unavailable; retry later",
         )
 
 
@@ -57,7 +59,7 @@ async def create_scan(
     description="Returns the most recent investigation records for dashboard historical review.",
 )
 def list_scans(
-    limit: int = 20,
+    limit: int = Query(20, ge=1, le=50),
     db: Session = Depends(get_db),
 ) -> List[ScanSummaryItem]:
     try:
@@ -79,7 +81,7 @@ def list_scans(
             for r in results
         ]
     except Exception:
-        return []
+        raise HTTPException(status_code=503, detail="History is unavailable") from None
 
 
 @router.get(
@@ -106,5 +108,5 @@ def get_scan(
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to parse report telemetry: {str(exc)}",
+            detail="Stored report is unavailable",
         )

@@ -469,5 +469,6 @@
       "stateMutability": "view",
       "type": "function"
     }
-  ]
+  ],
+  "runtimeBytecodeHash": "0x322df80429f89ab32966b74945ffb3d94b3399fd624003cf55864c2d67ce6550"
 }

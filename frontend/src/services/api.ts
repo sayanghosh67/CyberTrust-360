@@ -1,6 +1,6 @@
 import type { BackendHealthResponse } from '../types/health';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '');
 
 export class ApiError extends Error {
   statusCode?: number;
@@ -49,3 +49,33 @@ export async function fetchBackendHealth(): Promise<{ data: BackendHealthRespons
 }
 
 export { API_BASE_URL };
+
+// Public visitors never receive an operator token or see an access-token form.
+let sessionRequest: Promise<string> | null = null;
+export function accessToken(): string { return sessionStorage.getItem('cybertrust-visitor') || ''; }
+async function visitorSession(): Promise<string> {
+  const existing = accessToken();
+  if (existing) return existing;
+  if (!sessionRequest) {
+    sessionRequest = (async () => {
+      const response = await fetch(`${API_BASE_URL}/api/v1/access/session`, { method: 'POST', signal: AbortSignal.timeout(8000) });
+      if (!response.ok) throw new ApiError('Unable to start a private session. Please try again shortly.', response.status);
+      const data = await response.json();
+      sessionStorage.setItem('cybertrust-visitor', data.access_token);
+      return data.access_token as string;
+    })().finally(() => { sessionRequest = null; });
+  }
+  return sessionRequest;
+}
+export async function apiFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+  const headers = new Headers(init.headers);
+  const sentToken = await visitorSession();
+  headers.set('Authorization', `Bearer ${sentToken}`);
+  let response = await fetch(input, { ...init, headers });
+  if (response.status === 401) {
+    if (accessToken() === sentToken) sessionStorage.removeItem('cybertrust-visitor');
+    headers.set('Authorization', `Bearer ${await visitorSession()}`);
+    response = await fetch(input, { ...init, headers });
+  }
+  return response;
+}

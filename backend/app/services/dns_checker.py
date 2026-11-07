@@ -1,4 +1,5 @@
 import asyncio
+import ipaddress
 import dns.resolver
 import dns.exception
 from backend.app.schemas.scan import DNSAnalysis
@@ -10,6 +11,11 @@ async def resolve_dns(hostname: str) -> DNSAnalysis:
 
 
 def _sync_resolve_dns(hostname: str) -> DNSAnalysis:
+    try:
+        ip = ipaddress.ip_address(hostname)
+        return DNSAnalysis(status="resolved", a_records=[str(ip)] if ip.version == 4 else [], aaaa_records=[str(ip)] if ip.version == 6 else [])
+    except ValueError:
+        pass
     resolver = dns.resolver.Resolver()
     resolver.timeout = 3.0
     resolver.lifetime = 4.0
@@ -86,5 +92,5 @@ def _sync_resolve_dns(hostname: str) -> DNSAnalysis:
     except Exception as exc:
         return DNSAnalysis(
             status="unavailable",
-            error_message=f"DNS resolution encountered an error: {str(exc)}",
+            error_message="DNS resolver unavailable",
         )

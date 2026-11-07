@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, desc
 from web3 import Web3
 from eth_account import Account
+from urllib.parse import urlsplit
 
 from backend.app.core.config import settings
 from backend.app.models.scan import ScanRecord
@@ -33,50 +34,50 @@ from backend.app.services.canonical_hasher import (
 
 logger = logging.getLogger("cybertrust.blockchain_service")
 
-# Cached Contract ABI
-_cached_abi: Optional[List[Dict[str, Any]]] = None
-_cached_contract_address: Optional[str] = None
+def _load_metadata():
+    with open(os.path.join(os.path.dirname(__file__), "../blockchain/contract_abi.json"), encoding="utf-8") as f:
+        return json.load(f)
 
 
-def _load_contract_metadata() -> Tuple[Optional[str], Optional[List[Dict[str, Any]]]]:
-    global _cached_abi, _cached_contract_address
-    if _cached_abi and _cached_contract_address:
-        return _cached_contract_address, _cached_abi
-
-    abi_path = os.path.join(os.path.dirname(__file__), "../blockchain/contract_abi.json")
-    if os.path.exists(abi_path):
-        try:
-            with open(abi_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                _cached_contract_address = data.get("contractAddress") or settings.BLOCKCHAIN_CONTRACT_ADDRESS
-                _cached_abi = data.get("abi")
-                return _cached_contract_address, _cached_abi
-        except Exception as e:
-            logger.warning(f"Failed to load contract ABI from {abi_path}: {e}")
-
-    return settings.BLOCKCHAIN_CONTRACT_ADDRESS, None
+def _load_contract_metadata():
+    data = _load_metadata()
+    return settings.BLOCKCHAIN_CONTRACT_ADDRESS or data.get("contractAddress"), data.get("abi")
 
 
-def get_web3_client() -> Tuple[Optional[Web3], Optional[Any]]:
-    """Returns initialized Web3 client and contract instance if connected, else (None, None)."""
-    if not settings.BLOCKCHAIN_ENABLED:
+def get_web3_client():
+    """Fail closed on wrong chain, missing/wrong runtime bytecode or invalid registry."""
+    rpc = urlsplit(settings.BLOCKCHAIN_RPC_URL)
+    if not settings.BLOCKCHAIN_ENABLED or rpc.scheme not in {"http", "https"} or rpc.hostname not in {"127.0.0.1", "::1", "localhost"} or rpc.username or rpc.password:
         return None, None
-
     try:
         w3 = Web3(Web3.HTTPProvider(settings.BLOCKCHAIN_RPC_URL, request_kwargs={"timeout": settings.BLOCKCHAIN_TIMEOUT}))
-        if not w3.is_connected():
+        if not w3.is_connected() or w3.eth.chain_id != 31337 or settings.BLOCKCHAIN_CHAIN_ID != 31337:
             return None, None
-
-        contract_address, abi = _load_contract_metadata()
-        if not contract_address or not abi:
-            return w3, None
-
-        checksum_address = w3.to_checksum_address(contract_address)
-        contract = w3.eth.contract(address=checksum_address, abi=abi)
+        address, abi = _load_contract_metadata()
+        expected = _load_metadata().get("runtimeBytecodeHash")
+        code = w3.eth.get_code(Web3.to_checksum_address(address))
+        if not expected or not code or Web3.to_hex(Web3.keccak(code)).lower() != expected.lower():
+            return None, None
+        contract = w3.eth.contract(address=Web3.to_checksum_address(address), abi=abi)
+        contract.functions.getTotalReportsCount().call()
         return w3, contract
-    except Exception as e:
-        logger.debug(f"Web3 initialization error: {e}")
+    except Exception:
+        logger.warning("Blockchain identity or connectivity validation failed")
         return None, None
+
+
+def _checked_receipt(w3, contract, tx_hash, report_id_hash, content_hash, version):
+    receipt = w3.eth.get_transaction_receipt(tx_hash)
+    if receipt.status != 1 or receipt.to.lower() != contract.address.lower():
+        raise ConnectionError("Registration receipt is invalid")
+    if w3.eth.get_block(receipt.blockNumber).hash != receipt.blockHash:
+        raise ConnectionError("Registration block is no longer canonical")
+    events = contract.events.ReportRegistered().process_receipt(receipt)
+    if not any(Web3.to_hex(e["args"]["reportIdHash"]) == report_id_hash and
+               Web3.to_hex(e["args"]["contentHash"]) == content_hash and
+               e["args"]["version"] == version for e in events):
+        raise ConnectionError("Registration event does not match the report")
+    return receipt
 
 
 # ==============================================================================
@@ -128,7 +129,7 @@ def get_blockchain_network_status() -> BlockchainStatusResponse:
             disclaimer=BLOCKCHAIN_DISCLAIMER,
         )
     except Exception as e:
-        logger.error(f"Error querying network status: {e}")
+        logger.error("Operation failed; sensitive details suppressed")
         return BlockchainStatusResponse(
             connected=False,
             network_name="Hardhat Local EVM (Error)",
@@ -161,136 +162,76 @@ def find_report_record(report_id: str, db: Session) -> Tuple[Optional[Any], Opti
     return None, None
 
 
+import threading
+import fcntl
+import tempfile
+from functools import wraps
+from contextlib import contextmanager
+
+_registration_lock = threading.Lock()
+
+@contextmanager
+def _signing_lock():
+    # One host's worker processes share the nonce lock. Distributed signers require a queue.
+    with _registration_lock:
+        path = os.path.join(tempfile.gettempdir(), "cybertrust-registration.lock")
+        fd = os.open(path, os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0), 0o600)
+        with os.fdopen(fd, "w") as handle:
+            fcntl.flock(handle, fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(handle, fcntl.LOCK_UN)
+
+
 def register_report_on_chain(report_id: str, db: Session) -> BlockchainRegistrationResponse:
-    report_record, report_type = find_report_record(report_id, db)
-    if not report_record or not report_type:
-        raise ValueError(f"Report '{report_id}' not found in investigation repository.")
+    with _signing_lock():
+        return _register_locked(report_id, db)
 
-    # Check if already registered in off-chain database
-    existing_reg = db.execute(
-        select(BlockchainRegistrationRecord)
-        .where(BlockchainRegistrationRecord.report_id == report_id)
-        .order_by(desc(BlockchainRegistrationRecord.report_version))
-    ).scalars().first()
 
-    canonical_json, report_id_hash, content_hash = generate_report_fingerprint(report_record, report_type)
-
-    if existing_reg and existing_reg.content_hash == content_hash and existing_reg.registration_status == "confirmed":
-        logger.info(f"Report {report_id} already registered on blockchain with matching hash.")
-        return BlockchainRegistrationResponse(
-            registration_id=existing_reg.id,
-            report_id=existing_reg.report_id,
-            report_type=existing_reg.report_type,
-            report_version=existing_reg.report_version,
-            canonical_version=existing_reg.canonical_version,
-            hash_algorithm=existing_reg.hash_algorithm,
-            content_hash=existing_reg.content_hash,
-            report_id_hash=existing_reg.report_id_hash,
-            chain_id=existing_reg.chain_id,
-            contract_address=existing_reg.contract_address,
-            transaction_hash=existing_reg.transaction_hash,
-            block_number=existing_reg.block_number,
-            signer_address=existing_reg.signer_address,
-            registered_at=existing_reg.registered_at.isoformat(),
-            registration_status=existing_reg.registration_status,
-            disclaimer=BLOCKCHAIN_DISCLAIMER,
-        )
-
-    # Prepare next version number
-    next_version = (existing_reg.report_version + 1) if existing_reg else 1
-
-    # Connect to EVM
+def _register_locked(report_id, db):
+    record, report_type = find_report_record(report_id, db)
+    if record is None:
+        raise ValueError("Report not found")
+    canonical, rid, digest = generate_report_fingerprint(record, report_type)
+    old = db.execute(select(BlockchainRegistrationRecord).where(BlockchainRegistrationRecord.report_id == report_id).order_by(desc(BlockchainRegistrationRecord.report_version))).scalars().first()
     w3, contract = get_web3_client()
-    if not w3 or not w3.is_connected() or not contract:
-        raise ConnectionError("Blockchain RPC network or smart contract is unavailable.")
-
-    if not settings.BLOCKCHAIN_SIGNER_PRIVATE_KEY:
-        raise ValueError("Backend signing private key is not configured.")
-
-    account = Account.from_key(settings.BLOCKCHAIN_SIGNER_PRIVATE_KEY)
-
-    # Convert 0x hex strings to bytes32 for Solidity
-    bytes32_report_id = bytes.fromhex(report_id_hash[2:])
-    bytes32_content_hash = bytes.fromhex(content_hash[2:])
-
-    # Build transaction
-    nonce = w3.eth.get_transaction_count(account.address, "pending")
-    gas_price = w3.eth.gas_price
-
-    tx_data = contract.functions.registerReport(
-        bytes32_report_id,
-        bytes32_content_hash,
-        report_type,
-        next_version,
-    ).build_transaction({
-        "from": account.address,
-        "nonce": nonce,
-        "gasPrice": gas_price,
-        "chainId": w3.eth.chain_id,
-    })
-
-    # Estimate gas with safe buffer
+    if w3 is None or contract is None:
+        raise ConnectionError("Blockchain identity validation or connectivity failed")
+    onchain = contract.functions.getReportRecord(bytes.fromhex(rid[2:])).call()
+    same = onchain[5] and Web3.to_hex(onchain[0]) == digest and onchain[1] == report_type
+    if same and old and old.content_hash == digest and old.report_version == onchain[2] and old.chain_id == w3.eth.chain_id and old.contract_address.lower() == contract.address.lower():
+        _checked_receipt(w3, contract, old.transaction_hash, rid, digest, old.report_version)
+        return get_registration_by_report_id(report_id, db)
+    # Reconcile a mined transaction whose database commit failed, without a duplicate write.
+    if same and (old is None or old.report_version < onchain[2]):
+        events = contract.events.ReportRegistered().get_logs(from_block=0, to_block="latest", argument_filters={"reportIdHash": bytes.fromhex(rid[2:])})
+        event = next((e for e in reversed(events) if e["args"]["version"] == onchain[2] and Web3.to_hex(e["args"]["contentHash"]) == digest), None)
+        if event is None:
+            raise ConnectionError("Registration reconciliation evidence unavailable")
+        version, tx_hash, signer = onchain[2], event["transactionHash"], onchain[4]
+    else:
+        if not settings.BLOCKCHAIN_SIGNER_PRIVATE_KEY:
+            raise ConnectionError("A local registrar signing key must be configured")
+        account = Account.from_key(settings.BLOCKCHAIN_SIGNER_PRIVATE_KEY)
+        if not (contract.functions.owner().call().lower() == account.address.lower() or contract.functions.authorizedRegistrars(account.address).call()):
+            raise ConnectionError("Configured signer is not an authorized registrar")
+        version = max(onchain[2], old.report_version if old else 0) + 1
+        tx = contract.functions.registerReport(bytes.fromhex(rid[2:]), bytes.fromhex(digest[2:]), report_type, version).build_transaction({"from": account.address, "nonce": w3.eth.get_transaction_count(account.address, "pending"), "chainId": 31337, "gasPrice": w3.eth.gas_price})
+        tx["gas"] = int(w3.eth.estimate_gas(tx) * 1.2)
+        signed = w3.eth.account.sign_transaction(tx, settings.BLOCKCHAIN_SIGNER_PRIVATE_KEY)
+        tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+        w3.eth.wait_for_transaction_receipt(tx_hash, timeout=12)
+        signer = account.address
+    receipt = _checked_receipt(w3, contract, tx_hash, rid, digest, version)
+    registration = BlockchainRegistrationRecord(report_id=report_id, owner_id=record.owner_id, report_type=report_type, report_version=version, canonical_version=CANONICAL_VERSION, hash_algorithm=HASH_ALGORITHM, content_hash=digest, report_id_hash=rid, chain_id=31337, contract_address=contract.address, transaction_hash=Web3.to_hex(tx_hash), block_number=receipt.blockNumber, signer_address=signer, registration_status="confirmed", snapshot_data=canonical, registered_at=datetime.now(timezone.utc))
     try:
-        estimated_gas = w3.eth.estimate_gas(tx_data)
-        tx_data["gas"] = int(estimated_gas * 1.2)
-    except Exception as e:
-        logger.warning(f"Gas estimation failed, using fallback: {e}")
-        tx_data["gas"] = 200000
-
-    # Sign & Send
-    signed_tx = w3.eth.account.sign_transaction(tx_data, private_key=settings.BLOCKCHAIN_SIGNER_PRIVATE_KEY)
-    tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-
-    # Wait for confirmation receipt
-    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=12)
-    if receipt.status != 1:
-        raise RuntimeError(f"Blockchain transaction failed with status {receipt.status}. TxHash: {tx_hash.hex()}")
-
-    contract_address, _ = _load_contract_metadata()
-
-    # Persist registration record
-    new_reg = BlockchainRegistrationRecord(
-        report_id=report_id,
-        report_type=report_type,
-        report_version=next_version,
-        canonical_version=CANONICAL_VERSION,
-        hash_algorithm=HASH_ALGORITHM,
-        content_hash=content_hash,
-        report_id_hash=report_id_hash,
-        chain_id=w3.eth.chain_id,
-        contract_address=contract_address or settings.BLOCKCHAIN_CONTRACT_ADDRESS,
-        transaction_hash=f"0x{tx_hash.hex()}" if not tx_hash.hex().startswith("0x") else tx_hash.hex(),
-        block_number=receipt.blockNumber,
-        signer_address=account.address,
-        registration_status="confirmed",
-        snapshot_data=canonical_json,
-        registered_at=datetime.now(timezone.utc),
-    )
-
-    db.add(new_reg)
-    db.commit()
-    db.refresh(new_reg)
-
-    logger.info(f"Report {report_id} registered successfully on blockchain! Block #{receipt.blockNumber}, Tx: {new_reg.transaction_hash}")
-
-    return BlockchainRegistrationResponse(
-        registration_id=new_reg.id,
-        report_id=new_reg.report_id,
-        report_type=new_reg.report_type,
-        report_version=new_reg.report_version,
-        canonical_version=new_reg.canonical_version,
-        hash_algorithm=new_reg.hash_algorithm,
-        content_hash=new_reg.content_hash,
-        report_id_hash=new_reg.report_id_hash,
-        chain_id=new_reg.chain_id,
-        contract_address=new_reg.contract_address,
-        transaction_hash=new_reg.transaction_hash,
-        block_number=new_reg.block_number,
-        signer_address=new_reg.signer_address,
-        registered_at=new_reg.registered_at.isoformat(),
-        registration_status=new_reg.registration_status,
-        disclaimer=BLOCKCHAIN_DISCLAIMER,
-    )
+        db.add(registration)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise ConnectionError("Transaction mined; registration storage failed. Retry to reconcile.") from None
+    return get_registration_by_report_id(report_id, db)
 
 
 # ==============================================================================
@@ -336,7 +277,7 @@ def verify_report_integrity(
         computed_content_hash = compute_sha256_hex(canonical_json)
         report_id_hash = compute_report_id_hash(report_id)
     else:
-        canonical_json, report_id_hash, computed_content_hash = generate_report_fingerprint(report_record, report_type)
+        canonical_json, report_id_hash, computed_content_hash = generate_report_fingerprint(report_record, report_type, reg_record.canonical_version if reg_record else CANONICAL_VERSION)
 
     if not reg_record:
         return BlockchainVerificationResponse(
@@ -378,6 +319,8 @@ def verify_report_integrity(
         )
 
     try:
+        if reg_record.chain_id != w3.eth.chain_id or reg_record.contract_address.lower() != contract.address.lower():
+            raise ConnectionError("Stored registration belongs to another chain or contract")
         bytes32_report_id = bytes.fromhex(report_id_hash[2:])
         bytes32_computed_hash = bytes.fromhex(computed_content_hash[2:])
 
@@ -387,13 +330,19 @@ def verify_report_integrity(
         )
 
         recorded_hash_hex = f"0x{recorded_hash_bytes.hex()}"
+        if registered_timestamp == 0:
+            return BlockchainVerificationResponse(report_id=report_id, report_type=report_type, verification_status="NOT_REGISTERED", status_label="NOT REGISTERED — CHAIN RECORD ABSENT", is_match=False, computed_content_hash=computed_content_hash, recorded_content_hash=None, report_id_hash=report_id_hash, verified_at=now_iso, tamper_detected=False, explanation="The local chain has no registration; it may have been reset.", disclaimer=BLOCKCHAIN_DISCLAIMER)
+        _checked_receipt(w3, contract, reg_record.transaction_hash, report_id_hash, reg_record.content_hash, reg_record.report_version)
+        if version != reg_record.report_version or recorded_hash_hex != reg_record.content_hash:
+            raise ConnectionError("Registry and database require reconciliation")
+
 
         if is_match:
             return BlockchainVerificationResponse(
                 report_id=report_id,
                 report_type=report_type,
                 verification_status="VERIFIED",
-                status_label="VERIFIED — REPORT UNCHANGED",
+                status_label="VERIFIED — REPORT UNCHANGED" if reg_record.canonical_version == CANONICAL_VERSION else "VERIFIED — LEGACY PARTIAL FINGERPRINT",
                 is_match=True,
                 computed_content_hash=computed_content_hash,
                 recorded_content_hash=recorded_hash_hex,
@@ -405,7 +354,7 @@ def verify_report_integrity(
                 registered_at=reg_record.registered_at.isoformat(),
                 verified_at=now_iso,
                 tamper_detected=False,
-                explanation="Cryptographic fingerprint strictly matches the immutable blockchain registry. Zero modifications detected in protected threat indicators, risk scoring, or verdicts.",
+                explanation="The complete saved report matches its local EVM fingerprint." if reg_record.canonical_version == CANONICAL_VERSION else "Legacy v1 protects only selected fields. Re-register to protect the complete analysis.",
                 disclaimer=BLOCKCHAIN_DISCLAIMER,
             )
         else:
@@ -429,7 +378,7 @@ def verify_report_integrity(
                 disclaimer=BLOCKCHAIN_DISCLAIMER,
             )
     except Exception as e:
-        logger.error(f"On-chain verification query failed: {e}")
+        logger.error("On-chain verification evidence unavailable")
         return BlockchainVerificationResponse(
             report_id=report_id,
             report_type=report_type,
@@ -446,7 +395,7 @@ def verify_report_integrity(
             registered_at=reg_record.registered_at.isoformat(),
             verified_at=now_iso,
             tamper_detected=False,
-            explanation=f"Smart contract interaction encountered an error: {str(e)}",
+            explanation="Verification evidence is unavailable or inconsistent; retry or reconcile the registration.",
             disclaimer=BLOCKCHAIN_DISCLAIMER,
         )
 
@@ -470,15 +419,15 @@ def demonstrate_tamper_detection(report_id: str, db: Session) -> BlockchainVerif
     if report_type == "url_scan":
         protected = extract_url_scan_protected_fields(report_record)
         # Tamper: Artificially suppress risk score and flip classification
-        protected["risk_score"] = 5
-        protected["risk_classification"] = "Safe"
-        protected["summary"] = "[TAMPERED SIMULATION] Threat suppressed by unauthorized modification."
+        protected["stored_fields"]["risk_score"] = 5
+        protected["stored_fields"]["risk_classification"] = "Safe"
+        protected["stored_fields"]["summary"] = "[TAMPERED SIMULATION] Threat suppressed by unauthorized modification."
     else:
         protected = extract_scam_report_protected_fields(report_record)
         # Tamper: Artificially suppress risk score
-        protected["risk_score"] = 0
-        protected["risk_classification"] = "Safe"
-        protected["summary"] = "[TAMPERED SIMULATION] Malicious scam indicators scrubbed."
+        protected["stored_fields"]["risk_score"] = 0
+        protected["stored_fields"]["risk_classification"] = "Safe"
+        protected["stored_fields"]["summary"] = "[TAMPERED SIMULATION] Malicious scam indicators scrubbed."
 
     return verify_report_integrity(report_id, db, tampered_override=protected)
 

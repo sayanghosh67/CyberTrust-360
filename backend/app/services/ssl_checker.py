@@ -4,11 +4,15 @@ import asyncio
 from datetime import datetime, timezone
 from typing import Dict, Any, List
 from backend.app.schemas.scan import SSLAnalysis
+from backend.app.utils.security import connect_public
 
 
 async def inspect_ssl(hostname: str, port: int = 443) -> SSLAnalysis:
     """Non-blocking inspection of SSL/TLS certificate configuration and cipher suite."""
-    return await asyncio.to_thread(_sync_inspect_ssl, hostname, port)
+    try:
+        return await asyncio.wait_for(asyncio.to_thread(_sync_inspect_ssl, hostname, port), timeout=6.0)
+    except TimeoutError:
+        return SSLAnalysis(error_message="TLS inspection deadline exceeded.")
 
 
 def _sync_inspect_ssl(hostname: str, port: int = 443) -> SSLAnalysis:
@@ -16,7 +20,7 @@ def _sync_inspect_ssl(hostname: str, port: int = 443) -> SSLAnalysis:
     context.timeout = 4.0
 
     try:
-        with socket.create_connection((hostname, port), timeout=4.0) as sock:
+        with connect_public(hostname, port, timeout=4.0) as sock:
             with context.wrap_socket(sock, server_hostname=hostname) as ssock:
                 cert = ssock.getpeercert()
                 protocol = ssock.version()
@@ -63,26 +67,8 @@ def _sync_inspect_ssl(hostname: str, port: int = 443) -> SSLAnalysis:
                 alt_names: List[str] = [val for typ, val in cert.get("subjectAltName", ()) if typ == "DNS"]
                 subject_dict["alt_names"] = alt_names
 
-                # Hostname matching check
+                # default_context already validates SAN/IP identity and certificate trust.
                 hostname_mismatch = False
-                cn = subject_dict.get("common_name", "")
-                all_names = [cn] + alt_names
-                clean_host = hostname.lower()
-                matched = False
-                for name in all_names:
-                    pattern = name.lower()
-                    if pattern.startswith("*."):
-                        # Wildcard match
-                        base = pattern[2:]
-                        if clean_host.endswith(base) and clean_host.count(".") == base.count(".") + 1:
-                            matched = True
-                            break
-                    elif pattern == clean_host:
-                        matched = True
-                        break
-
-                if not matched and all_names:
-                    hostname_mismatch = True
 
                 valid = not expired and not hostname_mismatch
 
@@ -110,7 +96,7 @@ def _sync_inspect_ssl(hostname: str, port: int = 443) -> SSLAnalysis:
         return SSLAnalysis(
             https_available=True,
             valid=False,
-            error_message=f"TLS Handshake Failure: {str(err)}",
+            error_message="TLS handshake failed",
         )
     except socket.gaierror as err:
         return SSLAnalysis(
@@ -122,17 +108,17 @@ def _sync_inspect_ssl(hostname: str, port: int = 443) -> SSLAnalysis:
         return SSLAnalysis(
             https_available=False,
             valid=False,
-            error_message="HTTPS connection timed out on port 443 (host unreachable or filtered).",
+            error_message="HTTPS connection timed out on the target port (host unreachable or filtered).",
         )
     except ConnectionRefusedError:
         return SSLAnalysis(
             https_available=False,
             valid=False,
-            error_message="Port 443 refused connection. Host does not accept HTTPS connections.",
+            error_message="Target port refused connection. Host does not accept HTTPS connections.",
         )
     except Exception as exc:
         return SSLAnalysis(
             https_available=False,
             valid=False,
-            error_message=f"TLS session could not be established: {str(exc)}",
+            error_message="TLS session unavailable or blocked by network policy",
         )

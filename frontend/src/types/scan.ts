@@ -68,6 +68,10 @@ export interface HeadersAnalysis {
   redirect_chain: string[];
   is_http_to_https_redirect: boolean;
   suspicious_redirect: boolean;
+  cross_domain_redirect?: boolean;
+  https_downgrade?: boolean;
+  blocked_redirect?: boolean;
+  redirect_notes?: string[];
   missing_headers: string[];
   error_message?: string | null;
 }

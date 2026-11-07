@@ -1,3 +1,4 @@
+import { SecuritySculpture } from './SecuritySculpture';
 import { useEffect, useRef, useState } from 'react';
 import { Pause, Play, ShieldCheck, MoveUpRight } from 'lucide-react';
 
@@ -55,14 +56,15 @@ export function ThreatGlobe() {
       frame = requestAnimationFrame(draw);
       if (!visible || document.hidden || time - last < 32) return;
       const delta = Math.min(time - last, 60); last = time;
-      if (!paused && !reduced) rotation += delta * 0.000055;
+      const motionPaused = paused || reduced || document.documentElement.dataset.motion === 'paused';
+      if (!motionPaused) rotation += delta * 0.000055;
       ctx.clearRect(0, 0, size, size);
       const r = size * 0.335, cx = size / 2, cy = size * 0.49;
       const project = (lat: number, lon: number, scale = 1) => {
-        const a = lon + rotation + pointer.current.x * 0.16;
+        const a = lon + rotation + (motionPaused ? 0 : pointer.current.x) * 0.16;
         const x = Math.cos(lat) * Math.sin(a);
         const y = -Math.sin(lat), z = Math.cos(lat) * Math.cos(a);
-        const tilt = -0.13 + pointer.current.y * 0.08;
+        const tilt = -0.13 + (motionPaused ? 0 : pointer.current.y) * 0.08;
         return { x: cx + x * r * scale, y: cy + (y * Math.cos(tilt) - z * Math.sin(tilt)) * r * scale, z: y * Math.sin(tilt) + z * Math.cos(tilt) };
       };
       const halo = ctx.createRadialGradient(cx, cy, r * .8, cx, cy, r * 1.45);
@@ -100,17 +102,22 @@ export function ThreatGlobe() {
         ctx.strokeStyle = i === 1 ? 'rgba(247,158,108,.5)' : 'rgba(200,248,140,.45)';
         ctx.fillStyle = i === 1 ? '#f3ad81' : '#d1fa9a';
         ctx.beginPath(); ctx.arc(q.x, q.y, 3, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(q.x, q.y, 8 + (reduced || paused ? 0 : (time / 130 + i * 4) % 10), 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(q.x, q.y, 8 + (motionPaused ? 0 : (time / 130 + i * 4) % 10), 0, Math.PI * 2); ctx.stroke();
       });
     };
     frame = requestAnimationFrame(draw);
     return () => { cancelAnimationFrame(frame); resize.disconnect(); observer.disconnect(); media.removeEventListener('change', onMotion); };
   }, [paused]);
 
-  return <div className="globe-scene" onPointerMove={e => {
+  return <div className="globe-scene" data-motion={paused ? 'paused' : 'playing'} onPointerMove={e => {
+    if (e.pointerType === 'touch' || paused || matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'paused') return;
     const b = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--scene-tilt-x', `${-8 + ((e.clientY - b.top) / b.height - .5) * -12}deg`);
+    e.currentTarget.style.setProperty('--scene-tilt-y', `${((e.clientX - b.left) / b.width - .5) * 18}deg`);
     pointer.current = { x: (e.clientX - b.left) / b.width - .5, y: (e.clientY - b.top) / b.height - .5 };
-  }} onPointerLeave={() => { pointer.current = { x: 0, y: 0 }; }}>
+  }} onPointerLeave={e => { pointer.current = { x: 0, y: 0 }; e.currentTarget.style.removeProperty('--scene-tilt-x'); e.currentTarget.style.removeProperty('--scene-tilt-y'); }}>
+    <SecuritySculpture className="hero-satellite" />
+    <SecuritySculpture variant="orbit" className="hero-gyroscope" />
     <div className="scene-coordinate coord-top">GLOBAL INTELLIGENCE NETWORK <span>01 / 03</span></div>
     <canvas ref={canvasRef} className="threat-globe" role="img" aria-label="Animated three-dimensional globe with orbiting security signals. Decorative network visualization." />
     <div className="globe-label label-one"><span className="signal-dot" /><span>THREAT INTELLIGENCE<br /><strong>Beyond the surface.</strong></span><MoveUpRight size={14} /></div>

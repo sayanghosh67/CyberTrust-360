@@ -1,4 +1,4 @@
-import { API_BASE_URL, ApiError } from './api';
+import { API_BASE_URL, ApiError, apiFetch } from './api';
 import type {
   BlockchainStatus,
   BlockchainRegistration,
@@ -8,7 +8,7 @@ import type {
 
 export async function fetchBlockchainStatus(): Promise<BlockchainStatus> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/blockchain/status`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/blockchain/status`, {
       headers: { Accept: 'application/json' },
     });
     if (!res.ok) {
@@ -24,7 +24,7 @@ export async function fetchBlockchainStatus(): Promise<BlockchainStatus> {
 
 export async function registerReportOnChain(reportId: string): Promise<BlockchainRegistration> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/blockchain/register/${encodeURIComponent(reportId)}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/blockchain/register/${encodeURIComponent(reportId)}`, {
       method: 'POST',
       headers: { Accept: 'application/json' },
     });
@@ -41,7 +41,7 @@ export async function registerReportOnChain(reportId: string): Promise<Blockchai
 
 export async function verifyReportOnChain(reportId: string): Promise<BlockchainVerification> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/blockchain/verify/${encodeURIComponent(reportId)}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/blockchain/verify/${encodeURIComponent(reportId)}`, {
       headers: { Accept: 'application/json' },
     });
     if (!res.ok) {
@@ -57,7 +57,7 @@ export async function verifyReportOnChain(reportId: string): Promise<BlockchainV
 
 export async function demoTamperOnChain(reportId: string): Promise<BlockchainVerification> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/blockchain/demo/tamper/${encodeURIComponent(reportId)}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/blockchain/demo/tamper/${encodeURIComponent(reportId)}`, {
       method: 'POST',
       headers: { Accept: 'application/json' },
     });
@@ -74,7 +74,7 @@ export async function demoTamperOnChain(reportId: string): Promise<BlockchainVer
 
 export async function fetchBlockchainRegistrations(limit: number = 50): Promise<BlockchainRegistrationSummary[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/blockchain/registrations?limit=${limit}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/blockchain/registrations?limit=${limit}`, {
       headers: { Accept: 'application/json' },
     });
     if (!res.ok) {
@@ -89,7 +89,7 @@ export async function fetchBlockchainRegistrations(limit: number = 50): Promise<
 
 export async function fetchReportRegistration(reportId: string): Promise<BlockchainRegistration | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/blockchain/registrations/${encodeURIComponent(reportId)}`, {
+    const res = await apiFetch(`${API_BASE_URL}/api/v1/blockchain/registrations/${encodeURIComponent(reportId)}`, {
       headers: { Accept: 'application/json' },
     });
     if (!res.ok) {
