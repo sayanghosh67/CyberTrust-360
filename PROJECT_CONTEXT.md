@@ -3,7 +3,7 @@
 > **Team / Developer Branding**: TECHNIX PRO  
 > **Project Title**: CyberTrust 360 — AI-Powered Web Threat Detection & Digital Trust Intelligence Platform  
 > **Hackathon Timeline**: 48-Hour Rapid MVP  
-> **Current Milestone**: Phase 4 — Threat Relationship Intelligence & Scam Relationship Map (Completed & Verified)  
+> **Current Milestone**: Phase 5 — Blockchain Threat Report Integrity & Decentralized Verification (Completed & Verified)  
 > **Source of Truth**: This document serves as the persistent architectural reference for all future AI and engineering sessions.
 
 ---
@@ -93,6 +93,12 @@ CyberTrust 360 is an enterprise-grade digital trust and threat intelligence plat
 | `GET` | `/api/v1/intelligence/graph` | Multi-entity interactive threat graph with verified vs inferred edges. |
 | `GET` | `/api/v1/intelligence/relationships/{report_id}` | 1-hop and 2-hop connected reports and shared indicators for a report. |
 | `GET` | `/api/v1/intelligence/indicators` | Aggregated recurring threat indicators (shared domains, phones, UPI). |
+| `GET` | `/api/v1/blockchain/status` | EVM connection status, block height, chain ID, registry address. |
+| `POST` | `/api/v1/blockchain/register/{report_id}` | Calculate SHA-256 canonical digest and commit attestation on-chain. |
+| `GET` | `/api/v1/blockchain/verify/{report_id}` | Compare live report digest against immutable on-chain record. |
+| `POST` | `/api/v1/blockchain/demo/tamper/{report_id}` | Controlled in-memory modification testing cryptographic tamper detection. |
+| `GET` | `/api/v1/blockchain/registrations` | Paginated history of confirmed on-chain threat attestations. |
+| `GET` | `/api/v1/blockchain/registrations/{report_id}` | Fetch specific on-chain attestation record and transaction hash. |
 | `GET` | `/api/health` | System health check (API status, DB connectivity, uptime, version). |
 | `GET` | `/health` | Direct container / orchestration health check probe. |
 | `GET` | `/` | Platform metadata and discovery root. |
@@ -238,31 +244,73 @@ HACKMATRIX/
 
 ---
 
-## 9. Development & Testing Commands
+## 9. Phase 5 Implementation Details (Blockchain Report Integrity & Decentralized Verification)
+
+1. **Smart Contract (`blockchain/contracts/CyberTrustReportRegistry.sol`)**:
+   - Solidity 0.8.24 registry compiled and tested with Hardhat.
+   - Core functions: `registerReport(...)`, `verifyReport(...)` (state-modifying audit trail), `verifyReportView(...)` (gas-free off-chain query), `getReportRecord(...)`, `getVersionHistory(...)`.
+   - Access Control: Multi-registrar role management (`authorizedRegistrars`) controlled by owner.
+   - Immutable Versioning: Strictly increasing version sequence for audit updates with archival history.
+   - Zero PII: Stores exclusively `bytes32 reportIdHash`, `bytes32 contentHash`, `string reportType`, `uint256 version`, `uint256 registeredAt`, `address registrar`.
+   - Local EVM Deployment: Contract deployed at `0x5FbDB2315678afecb367f032d93F642f64180aa3` (Chain ID 31337).
+
+2. **Deterministic Canonical Fingerprinting (`backend/app/services/canonical_hasher.py`)**:
+   - RFC 8785-compliant deterministic canonical JSON serializer with recursive key sorting and UTF-8 encoding.
+   - Protected fields include: target URL / message summary, domain, threat verdicts, risk score, classification, extracted indicators, and tactics. Volatile UI and timestamp fields are excluded to ensure deterministic hash reproducibility.
+   - Generates standard `0x`-prefixed 32-byte SHA-256 digests (`compute_sha256_hex`).
+
+3. **Backend Service & API Layer (`backend/app/services/blockchain_service.py`, `backend/app/api/blockchain.py`)**:
+   - Web3.py client communicating with local Hardhat EVM node (`http://127.0.0.1:8545`).
+   - Off-chain database audit sync in `blockchain_registration_records` table.
+   - Provides on-demand verification (`GET /api/v1/blockchain/verify/{report_id}`) returning matching verification status, block height, transaction hash, and timestamp.
+   - Demonstration Scenario B: Controlled in-memory modification (`POST /api/v1/blockchain/demo/tamper/{report_id}`) demonstrating cryptographic mismatch detection.
+
+4. **Frontend "Blockchain Trust" Center (`frontend/src/components/BlockchainTrustCenter.tsx`)**:
+   - Dynamic EVM Network State Ticker: Live connection status, block height, contract address with copy action, total attestations.
+   - Report Integrity Verification Workbench: Input UUID, quick select chips for recent reports, Verify Integrity and Register On-Chain buttons.
+   - Controlled Scenario B "Simulate Tamper" button for live hackathon demonstration.
+   - On-Chain Forensic Evidence Drawer: Visual comparison of computed hash vs on-chain hash, block number, tx hash, and timestamp.
+   - Recent Attestation Audit Table: Paginated list of recent on-chain registrations with 1-click verify actions.
+   - Cross-Module Integration: Deep links from URL scanner and Scam DNA analyzer reports directly into the Blockchain Trust Center.
+   - Attestation Scope Disclaimer: Prominently states that blockchain verification confirms cryptographic hash integrity relative to registration time, not external factual accuracy.
+
+---
+
+## 10. Development & Testing Commands
 
 ```bash
 # 1. Activate backend virtual environment
 source backend/.venv/bin/activate
 
-# 2. Run automated test suite (36 comprehensive tests across URL Engine, Scam DNA, and Threat Relationship Graph)
+# 2. Run local Hardhat node & run contract tests
+cd blockchain
+CI=true npx hardhat test                # 13/13 passing
+CI=true npx hardhat node                # Starts local EVM on port 8545
+
+# 3. Deploy smart contract to local node
+npx hardhat run scripts/deploy.ts --network localhost
+
+# 4. Run automated backend test suite (44 tests across all phases)
 PYTHONPATH=. backend/.venv/bin/pytest backend/tests -v
 
-# 3. Start backend server (port 8000)
+# 5. Total automated tests passing: 57 (44 backend + 13 smart contract)
+
+# 6. Start backend server (port 8000)
 uvicorn backend.app.main:app --reload --port 8000
 
-# 4. Start frontend server (port 5173)
+# 7. Start frontend server (port 5173)
 cd frontend && npm run dev
 
-# 5. Build frontend production bundle
+# 8. Build frontend production bundle
 cd frontend && npm run build
 ```
 
 ---
 
-## 10. Next Planned Milestones
+## 11. Project Milestones Summary
 
-- **Phase 1**: Project Foundation (Completed)
-- **Phase 2**: Core URL & Website Investigation Engine (Completed)
-- **Phase 3**: AI Scam DNA Intelligence & Incident Guidance Protocol (Completed)
+- **Phase 1**: Project Foundation (Completed & Verified)
+- **Phase 2**: Core URL & Website Investigation Engine (Completed & Verified)
+- **Phase 3**: AI Scam DNA Intelligence & Incident Guidance Protocol (Completed & Verified)
 - **Phase 4**: Threat Relationship Intelligence & Interactive Scam Relationship Map (Completed & Verified)
-- **Phase 5**: Immutable On-Chain Trust Attestation & Smart Contracts (EVM / Hardhat / Solidity — Not Started)
+- **Phase 5**: Blockchain Threat Report Integrity & Decentralized Verification (Completed & Verified)

@@ -23,9 +23,10 @@ interface InvestigationReportProps {
   report: ScanResponse;
   onNewScanClick?: () => void;
   onExploreGraph?: (query: string) => void;
+  onVerifyBlockchain?: (reportId: string) => void;
 }
 
-export const InvestigationReport: React.FC<InvestigationReportProps> = ({ report, onExploreGraph }) => {
+export const InvestigationReport: React.FC<InvestigationReportProps> = ({ report, onExploreGraph, onVerifyBlockchain }) => {
   const [activeTab, setActiveTab] = useState<'indicators' | 'ssl' | 'headers' | 'dns' | 'intel'>('indicators');
 
   const getRiskTheme = (risk: RiskClassification) => {
@@ -125,16 +126,28 @@ export const InvestigationReport: React.FC<InvestigationReportProps> = ({ report
               <p className="text-xs text-slate-400 font-mono mt-0.5 break-all">
                 Target URL: <span className="text-cyan-300">{report.url}</span>
               </p>
-              {onExploreGraph && (
-                <a
-                  href="#relationship-graph"
-                  onClick={() => onExploreGraph(report.registered_domain || report.hostname)}
-                  className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/70 text-cyan-300 border border-cyan-800/60 text-xs font-mono transition-colors"
-                >
-                  <Network className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Explore in Threat Graph</span>
-                </a>
-              )}
+              <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                {onExploreGraph && (
+                  <a
+                    href="#relationship-graph"
+                    onClick={() => onExploreGraph(report.registered_domain || report.hostname)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/70 text-cyan-300 border border-cyan-800/60 text-xs font-mono transition-colors"
+                  >
+                    <Network className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Explore in Threat Graph</span>
+                  </a>
+                )}
+                {onVerifyBlockchain && (
+                  <a
+                    href="#blockchain-trust"
+                    onClick={() => onVerifyBlockchain(report.id)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 hover:border-cyan-500/50 text-xs font-mono transition-colors"
+                  >
+                    <Lock className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Verify on Blockchain</span>
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 

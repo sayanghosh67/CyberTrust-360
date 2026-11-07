@@ -18,6 +18,7 @@ import {
   AlertOctagon,
   Languages,
   Network,
+  Lock,
 } from 'lucide-react';
 import type { ScamAnalysisResponse, RiskClassification, IndicatorType } from '../types/scam';
 
@@ -25,12 +26,14 @@ interface ScamDnaReportProps {
   report: ScamAnalysisResponse;
   onInvestigateUrl?: (url: string) => void;
   onExploreGraph?: (query: string) => void;
+  onVerifyBlockchain?: (reportId: string) => void;
 }
 
 export const ScamDnaReport: React.FC<ScamDnaReportProps> = ({
   report,
   onInvestigateUrl,
   onExploreGraph,
+  onVerifyBlockchain,
 }) => {
   const [copied, setCopied] = useState(false);
   const [filterType, setFilterType] = useState<string>('all');
@@ -222,6 +225,16 @@ Tactics: ${report.tactics.map((t) => t.name).join(', ') || 'None'}`;
               >
                 <Network className="w-3.5 h-3.5 text-cyan-400" />
                 <span>View Threat Graph</span>
+              </a>
+            )}
+            {onVerifyBlockchain && (
+              <a
+                href="#blockchain-trust"
+                onClick={() => onVerifyBlockchain(report.id)}
+                className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 hover:border-cyan-500/50 flex items-center gap-1.5 transition-colors text-xs font-mono"
+              >
+                <Lock className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Verify on Blockchain</span>
               </a>
             )}
             <button

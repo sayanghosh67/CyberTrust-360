@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowUpRight, Menu, X, Shield, Sparkles, AlertTriangle, Network } from 'lucide-react';
+import { ArrowUpRight, Menu, X, Shield, Sparkles, AlertTriangle, Network, Lock } from 'lucide-react';
 import type { ConnectionStatus } from '../types/health';
 
 interface HeaderProps {
@@ -35,6 +35,10 @@ export function Header({ status, latencyMs, onRefresh }: HeaderProps) {
           <a href="#relationship-graph" onClick={() => setOpen(false)} className="flex items-center gap-1">
             <Network size={13} className="text-cyan-400" />
             <span>Threat Graph</span>
+          </a>
+          <a href="#blockchain-trust" onClick={() => setOpen(false)} className="flex items-center gap-1">
+            <Lock size={13} className="text-cyan-400" />
+            <span>Blockchain Trust</span>
           </a>
           <a href="#incident-guidance" onClick={() => setOpen(false)} className="flex items-center gap-1">
             <AlertTriangle size={13} className="text-amber-400" />

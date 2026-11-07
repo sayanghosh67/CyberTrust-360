@@ -60,12 +60,34 @@ In Phase 4, CyberTrust 360 introduces interactive multi-hop graph intelligence:
 
 ---
 
+## Phase 5 Highlights: Blockchain Threat Report Integrity & Decentralized Verification
+
+In Phase 5, CyberTrust 360 integrates an immutable EVM-based decentralized trust layer:
+- **Solidity Smart Contract (`CyberTrustReportRegistry.sol`)**:
+  - Deployed on a local EVM network (Chain ID: 31337).
+  - Securely anchors report fingerprint digests (`bytes32`) and metadata on-chain.
+  - Role-based registrar authorization and strictly increasing version audit history.
+  - Zero PII: only cryptographic hashes, submission timestamp, and registrar address are committed to the public ledger.
+- **Cryptographic RFC 8785 Canonical Fingerprinting**:
+  - Deterministic serialization sorting keys alphabetically to guarantee identical SHA-256 hashes for unchanged reports.
+  - Extracts immutable security findings and verdicts while excluding ephemeral UI rendering state.
+- **Controlled Hackathon Demonstration Scenarios**:
+  - **Scenario A (Verified Unchanged)**: Verify a registered report against the blockchain, displaying on-chain transaction hash and confirmed block number.
+  - **Scenario B (Tamper Detection)**: 1-click simulation altering a risk score in memory, immediately triggering a `MISMATCH — REPORT MODIFIED` security alert and hash diff.
+  - **Scenario C (Unregistered Check)**: Clean handling of uncommitted reports with a 1-click "Register On-Chain" action.
+  - **Scenario D (Historical Ledger)**: Paginated audit trail of all previous on-chain attestations with instant verification jump buttons.
+- **Attestation Scope Guardrail**:
+  - Clear, permanent ethical disclaimer: *"Blockchain verification confirms that the current report matches the fingerprint recorded on-chain. It does not independently prove that the original threat classification is correct."*
+
+---
+
 ## Tech Stack
 
-- **Frontend**: React 19, TypeScript, Vite 8, Tailwind CSS v4, Lucide Icons
-- **Backend**: Python 3.11+, FastAPI, Pydantic v2, dnspython, tldextract, httpx, Uvicorn
+- **Frontend**: React 19, TypeScript, Vite 8, Tailwind CSS v4, Lucide Icons, React Flow
+- **Backend**: Python 3.11+, FastAPI, Pydantic v2, Web3.py, dnspython, tldextract, httpx, Uvicorn
+- **Blockchain**: Solidity 0.8.24, Hardhat, Ethers.js, Local EVM Node (Chain ID 31337)
 - **Database**: PostgreSQL 16 (Alpine), SQLAlchemy 2.1 ORM, Alembic migrations, SQLite fallback
-- **Security**: Comprehensive SSRF guardrails, environment isolation
+- **Security**: Strict SSRF guardrails, canonical hashing, role-based smart contract access
 
 ---
 
@@ -130,7 +152,25 @@ npm run dev
 
 ---
 
-### 5. PostgreSQL via Docker Compose (Optional)
+### 5. Blockchain Local EVM & Smart Contract (Phase 5)
+
+```bash
+# 1. Navigate to blockchain directory
+cd blockchain
+
+# 2. Run smart contract unit tests (13 tests)
+CI=true npx hardhat test
+
+# 3. Start local EVM node (port 8545, chainId 31337)
+CI=true npx hardhat node
+
+# 4. Deploy CyberTrustReportRegistry contract to local node
+npx hardhat run scripts/deploy.ts --network localhost
+```
+
+---
+
+### 6. PostgreSQL via Docker Compose (Optional)
 
 ```bash
 # Start PostgreSQL service in background
@@ -143,11 +183,14 @@ docker compose ps
 
 ---
 
-### 6. Running Automated Tests
+### 7. Running Automated Tests
 
 ```bash
-# Run backend test suite (36 comprehensive tests covering URL Engine, Scam DNA, and Threat Relationship Graph)
+# Run backend test suite (44 tests covering URL Engine, Scam DNA, Threat Relationship Graph, and Blockchain)
 PYTHONPATH=. backend/.venv/bin/pytest backend/tests -v
+
+# Run smart contract tests (13 tests)
+cd blockchain && CI=true npx hardhat test
 
 # Run frontend TypeScript typecheck and production build
 cd frontend && npm run build
@@ -166,6 +209,11 @@ cd frontend && npm run build
 | `GET` | `/api/v1/scam/analyses` | List recent Scam DNA analysis records and classifications. |
 | `GET` | `/api/v1/scam/analyses/{analysis_id}` | Retrieve specific Scam DNA forensic report by UUID. |
 | `POST` | `/api/v1/scam/guidance` | Action-specific incident response guidance (5 situational states). |
+| `GET` | `/api/v1/blockchain/status` | EVM connection status, block height, chain ID, registry address. |
+| `POST` | `/api/v1/blockchain/register/{report_id}` | Calculate SHA-256 canonical digest and commit attestation on-chain. |
+| `GET` | `/api/v1/blockchain/verify/{report_id}` | Compare live report digest against immutable on-chain record. |
+| `POST` | `/api/v1/blockchain/demo/tamper/{report_id}` | Controlled in-memory modification testing cryptographic tamper detection. |
+| `GET` | `/api/v1/blockchain/registrations` | Paginated history of confirmed on-chain threat attestations. |
 | `GET` | `/api/v1/intelligence/graph` | Interactive threat relationship graph with verified vs inferred edges. |
 | `GET` | `/api/v1/intelligence/relationships/{report_id}` | 1-hop and 2-hop connected reports and shared indicators for a report. |
 | `GET` | `/api/v1/intelligence/indicators` | Aggregated recurring threat indicators (shared domains, phones, UPI). |

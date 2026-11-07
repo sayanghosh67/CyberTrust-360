@@ -6,6 +6,7 @@ import { RecentScansList } from '../components/RecentScansList';
 import { ScamDnaAnalyzer } from '../components/ScamDnaAnalyzer';
 import { WhatShouldIDoNow } from '../components/WhatShouldIDoNow';
 import { ThreatRelationshipGraph } from '../components/ThreatRelationshipGraph';
+import { BlockchainTrustCenter } from '../components/BlockchainTrustCenter';
 import { IntelligenceOverview } from '../components/IntelligenceOverview';
 import { Footer } from '../components/Footer';
 import { useBackendHealth } from '../hooks/useBackendHealth';
@@ -20,6 +21,7 @@ export const LandingPage: React.FC = () => {
   const [scanError, setScanError] = useState<string | null>(null);
   const [requestedUrl, setRequestedUrl] = useState<string | null>(null);
   const [graphSearchQuery, setGraphSearchQuery] = useState<string | null>(null);
+  const [blockchainReportId, setBlockchainReportId] = useState<string | null>(null);
 
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -89,6 +91,15 @@ export const LandingPage: React.FC = () => {
     }
   };
 
+  // Cross-module handler: when user clicks "Verify on Blockchain" from URL scan or Scam report
+  const handleVerifyBlockchain = (reportId: string) => {
+    setBlockchainReportId(reportId);
+    const bcSection = document.getElementById('blockchain-trust');
+    if (bcSection) {
+      bcSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="site-app">
       <a className="skip-link" href="#main-content">
@@ -116,6 +127,7 @@ export const LandingPage: React.FC = () => {
               key={activeReport.id}
               report={activeReport}
               onExploreGraph={handleExploreGraph}
+              onVerifyBlockchain={handleVerifyBlockchain}
             />
           )}
         </div>
@@ -131,12 +143,19 @@ export const LandingPage: React.FC = () => {
         <ScamDnaAnalyzer
           onInvestigateUrl={handleCrossModuleUrlInvestigation}
           onExploreGraph={handleExploreGraph}
+          onVerifyBlockchain={handleVerifyBlockchain}
         />
 
         {/* Phase 4: Interactive Threat Relationship Intelligence Graph */}
         <ThreatRelationshipGraph
           onInvestigateUrl={handleCrossModuleUrlInvestigation}
           initialSearch={graphSearchQuery}
+        />
+
+        {/* Phase 5: Blockchain Threat Report Integrity & Trust Center */}
+        <BlockchainTrustCenter
+          initialReportId={blockchainReportId}
+          onNavigateToScan={handleInvestigate}
         />
 
         {/* Phase 3: What Should I Do Now? Incident Guidance Protocol */}

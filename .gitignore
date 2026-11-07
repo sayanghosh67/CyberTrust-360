@@ -58,6 +58,12 @@ postgres_data/
 *.sqlite3
 cybertrust.db
 
+# Blockchain & Hardhat
+blockchain/node_modules/
+blockchain/artifacts/
+blockchain/cache/
+blockchain/typechain-types/
+
 # IDE / Editor
 .vscode/
 .idea/

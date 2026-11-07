@@ -58,6 +58,15 @@ class Settings(BaseSettings):
     SCAM_MESSAGE_MAX_LENGTH: int = 5000
     SCAM_MESSAGE_MIN_LENGTH: int = 5
 
+    # Phase 5: Blockchain Threat Report Integrity (Hardhat Local EVM)
+    BLOCKCHAIN_ENABLED: bool = True
+    BLOCKCHAIN_RPC_URL: str = "http://127.0.0.1:8545"
+    BLOCKCHAIN_CHAIN_ID: int = 31337
+    BLOCKCHAIN_CONTRACT_ADDRESS: str = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    # Local Hardhat Account #0 default key (Development / Local Testnet only)
+    BLOCKCHAIN_SIGNER_PRIVATE_KEY: str = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    BLOCKCHAIN_TIMEOUT: float = 10.0
+
     @property
     def sync_database_url(self) -> str:
         if self.DATABASE_URL:

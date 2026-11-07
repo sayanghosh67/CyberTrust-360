@@ -14,6 +14,7 @@ import { ScamDnaReport } from './ScamDnaReport';
 interface ScamDnaAnalyzerProps {
   onInvestigateUrl?: (url: string) => void;
   onExploreGraph?: (query: string) => void;
+  onVerifyBlockchain?: (reportId: string) => void;
 }
 
 const PRESET_MESSAGES = [
@@ -61,7 +62,11 @@ const PRESET_MESSAGES = [
   },
 ];
 
-export const ScamDnaAnalyzer: React.FC<ScamDnaAnalyzerProps> = ({ onInvestigateUrl, onExploreGraph }) => {
+export const ScamDnaAnalyzer: React.FC<ScamDnaAnalyzerProps> = ({
+  onInvestigateUrl,
+  onExploreGraph,
+  onVerifyBlockchain,
+}) => {
   const [messageText, setMessageText] = useState('');
   const [medium, setMedium] = useState('SMS');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -266,6 +271,7 @@ export const ScamDnaAnalyzer: React.FC<ScamDnaAnalyzerProps> = ({ onInvestigateU
               report={report}
               onInvestigateUrl={onInvestigateUrl}
               onExploreGraph={onExploreGraph}
+              onVerifyBlockchain={onVerifyBlockchain}
             />
           </div>
         )}
