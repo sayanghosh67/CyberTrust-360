@@ -60,21 +60,33 @@ function randomHex(n: number): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DNS-over-HTTPS  (Google Public DNS — free, CORS-enabled, no API key)
+// DNS-over-HTTPS (Cloudflare & Google DoH with CORS support — free, no key)
 // ─────────────────────────────────────────────────────────────────────────────
 interface DohAnswer { name: string; type: number; TTL: number; data: string; }
 interface DohResponse { Status: number; Answer?: DohAnswer[]; Authority?: DohAnswer[]; }
 
-async function dohLookup(hostname: string, type = 'A'): Promise<DohAnswer[]> {
-  try {
-    const url = `https://dns.google/resolve?name=${encodeURIComponent(hostname)}&type=${type}`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
-    if (!res.ok) return [];
-    const data: DohResponse = await res.json();
-    return data.Answer ?? [];
-  } catch {
-    return [];
+async function dohLookup(hostname: string, type = 'A'): Promise<{ answers: DohAnswer[]; status: number }> {
+  // Use Cloudflare DoH first (supports Access-Control-Allow-Origin: * in browsers)
+  const providers = [
+    `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(hostname)}&type=${type}`,
+    `https://1.1.1.1/dns-query?name=${encodeURIComponent(hostname)}&type=${type}`,
+    `https://dns.google/resolve?name=${encodeURIComponent(hostname)}&type=${type}`,
+  ];
+
+  for (const url of providers) {
+    try {
+      const res = await fetch(url, {
+        headers: { Accept: 'application/dns-json' },
+        signal: AbortSignal.timeout(3500),
+      });
+      if (!res.ok) continue;
+      const data: DohResponse = await res.json();
+      return { answers: data.Answer ?? [], status: data.Status ?? 0 };
+    } catch {
+      continue;
+    }
   }
+  return { answers: [], status: -1 };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -90,23 +102,36 @@ interface BrandEntry {
 }
 
 const BRAND_REGISTRY: BrandEntry[] = [
-  { brand: 'State Bank of India (SBI)', keywords: /\b(sbi|onlinesbi|yono)\b/i,  officialDomains: ['sbi.co.in', 'onlinesbi.sbi', 'sbiyono.in', 'sbicard.com'] },
-  { brand: 'HDFC Bank',                keywords: /\bhdfc\b/i,                   officialDomains: ['hdfcbank.com', 'hdfc.com'] },
-  { brand: 'ICICI Bank',               keywords: /\bicici\b/i,                  officialDomains: ['icicibank.com', 'icicidirect.com'] },
-  { brand: 'Axis Bank',                keywords: /\baxis\b/i,                   officialDomains: ['axisbank.com'] },
-  { brand: 'Paytm',                    keywords: /\bpaytm\b/i,                  officialDomains: ['paytm.com'] },
-  { brand: 'PhonePe',                  keywords: /\bphonepe\b/i,                officialDomains: ['phonepe.com'] },
-  { brand: 'Google',                   keywords: /\bgoogle\b/i,                 officialDomains: ['google.com', 'google.co.in', 'google.in', 'googleapis.com', 'googleusercontent.com', 'goog.le'] },
-  { brand: 'PayPal',                   keywords: /\bpaypal\b/i,                 officialDomains: ['paypal.com', 'paypal.me'] },
-  { brand: 'Amazon',                   keywords: /\b(amazon|amzn)\b/i,          officialDomains: ['amazon.com', 'amazon.in', 'amzn.to', 'amazon.co.uk', 'aws.amazon.com'] },
+  // Major Indian Banks
+  { brand: 'State Bank of India (SBI)', keywords: /\b(sbi|onlinesbi|yono|sbicard)\b/i, officialDomains: ['sbi.co.in', 'onlinesbi.sbi', 'sbiyono.in', 'sbicard.com'] },
+  { brand: 'HDFC Bank',                keywords: /\bhdfc(bank)?\b/i,                   officialDomains: ['hdfcbank.com', 'hdfc.com'] },
+  { brand: 'ICICI Bank',               keywords: /\bicici(bank)?\b/i,                  officialDomains: ['icicibank.com', 'icicidirect.com'] },
+  { brand: 'Axis Bank',                keywords: /\baxis(bank)?\b/i,                   officialDomains: ['axisbank.com'] },
+  { brand: 'Kotak Mahindra Bank',      keywords: /\bkotak\b/i,                         officialDomains: ['kotak.com', 'kotakbank.com'] },
+  { brand: 'Punjab National Bank (PNB)',keywords: /\b(pnb|punjabnational)\b/i,         officialDomains: ['pnbindia.in', 'pnb.bank.in'] },
+  { brand: 'Bank of Baroda',           keywords: /\b(bob|bankofbaroda)\b/i,            officialDomains: ['bankofbaroda.in', 'bankofbaroda.com'] },
+  { brand: 'Canara Bank',              keywords: /\bcanara(bank)?\b/i,                 officialDomains: ['canarabank.com'] },
+
+  // Indian Payment & FinTech Apps
+  { brand: 'Paytm',                    keywords: /\bpaytm\b/i,                         officialDomains: ['paytm.com', 'paytmbank.com'] },
+  { brand: 'PhonePe',                  keywords: /\bphonepe\b/i,                       officialDomains: ['phonepe.com'] },
+  { brand: 'Google Pay',               keywords: /\b(gpay|googlepay)\b/i,              officialDomains: ['pay.google.com', 'google.com'] },
+  { brand: 'CRED',                     keywords: /\bcred\b/i,                          officialDomains: ['cred.club'] },
+
+  // Tech & Global Brands
+  { brand: 'Google',                   keywords: /\bgoogle\b/i,                        officialDomains: ['google.com', 'google.co.in', 'google.in', 'googleapis.com', 'googleusercontent.com', 'goog.le'] },
+  { brand: 'PayPal',                   keywords: /\bpaypal\b/i,                        officialDomains: ['paypal.com', 'paypal.me'] },
+  { brand: 'Amazon',                   keywords: /\b(amazon|amzn)\b/i,                 officialDomains: ['amazon.com', 'amazon.in', 'amzn.to', 'amazon.co.uk', 'aws.amazon.com'] },
   { brand: 'Microsoft',                keywords: /\b(microsoft|msft|office365|azure)\b/i, officialDomains: ['microsoft.com', 'live.com', 'outlook.com', 'azure.com', 'office365.com', 'hotmail.com'] },
-  { brand: 'Apple',                    keywords: /\b(apple|icloud|itunes)\b/i,  officialDomains: ['apple.com', 'icloud.com', 'itunes.com'] },
-  { brand: 'Netflix',                  keywords: /\bnetflix\b/i,                officialDomains: ['netflix.com'] },
-  { brand: 'Facebook / Meta',          keywords: /\b(facebook|fb|instagram|whatsapp|meta)\b/i, officialDomains: ['facebook.com', 'fb.com', 'instagram.com', 'whatsapp.com', 'meta.com'] },
-  { brand: 'Twitter / X',             keywords: /\b(twitter|twit)\b/i,          officialDomains: ['twitter.com', 'x.com', 't.co'] },
-  { brand: 'LinkedIn',                 keywords: /\blinkedin\b/i,               officialDomains: ['linkedin.com'] },
-  { brand: 'IRCTC / Indian Railways',  keywords: /\b(irctc|indianrailways)\b/i, officialDomains: ['irctc.co.in', 'indianrail.gov.in'] },
-  { brand: 'Government of India',      keywords: /\b(aadhar|aadhaar|uidai|epfo|incometax|gst)\b/i, officialDomains: ['uidai.gov.in', 'epfindia.gov.in', 'incometaxindiaefiling.gov.in', 'gst.gov.in'] },
+  { brand: 'Apple',                    keywords: /\b(apple|icloud|itunes)\b/i,         officialDomains: ['apple.com', 'icloud.com', 'itunes.com'] },
+  { brand: 'Netflix',                  keywords: /\bnetflix\b/i,                       officialDomains: ['netflix.com'] },
+  { brand: 'Meta / WhatsApp',          keywords: /\b(facebook|instagram|whatsapp|meta)\b/i, officialDomains: ['facebook.com', 'fb.com', 'instagram.com', 'whatsapp.com', 'meta.com'] },
+  { brand: 'Twitter / X',              keywords: /\b(twitter|twit)\b/i,                 officialDomains: ['twitter.com', 'x.com', 't.co'] },
+  { brand: 'Telegram',                 keywords: /\b(telegram|t\.me)\b/i,              officialDomains: ['telegram.org', 't.me'] },
+  { brand: 'LinkedIn',                 keywords: /\blinkedin\b/i,                      officialDomains: ['linkedin.com'] },
+  { brand: 'IRCTC / Indian Railways',  keywords: /\b(irctc|indianrailways)\b/i,        officialDomains: ['irctc.co.in', 'indianrail.gov.in'] },
+  { brand: 'Government of India',      keywords: /\b(aadhar|aadhaar|uidai|epfo|incometax|gst|echallan|parivahan|pmkisan)\b/i, officialDomains: ['uidai.gov.in', 'epfindia.gov.in', 'incometax.gov.in', 'gst.gov.in', 'echallan.parivahan.gov.in', 'pmkisan.gov.in', 'gov.in', 'nic.in'] },
+  { brand: 'Web3 & Crypto',            keywords: /\b(metamask|binance|coinbase|trustwallet)\b/i, officialDomains: ['metamask.io', 'binance.com', 'coinbase.com', 'trustwallet.com'] },
 ];
 
 // Canonical set of well-known legitimate domains (resolved exact match)
@@ -125,12 +150,15 @@ const OFFICIAL_SAFE_DOMAINS = new Set([
   'linkedin.com',
   'paypal.com',
   'netflix.com',
-  'paytm.com', 'phonepe.com',
-  'sbi.co.in', 'onlinesbi.sbi', 'sbicard.com',
-  'hdfcbank.com', 'icicibank.com', 'axisbank.com',
-  'irctc.co.in', 'uidai.gov.in',
+  'paytm.com', 'phonepe.com', 'cred.club',
+  'sbi.co.in', 'onlinesbi.sbi', 'sbicard.com', 'sbiyono.in',
+  'hdfcbank.com', 'icicibank.com', 'axisbank.com', 'kotak.com',
+  'pnbindia.in', 'bankofbaroda.in', 'canarabank.com',
+  'irctc.co.in', 'uidai.gov.in', 'incometax.gov.in',
   'openai.com', 'anthropic.com',
   'stackoverflow.com', 'npmjs.com', 'pypi.org',
+  'telegram.org', 't.me',
+  'metamask.io', 'binance.com',
 ]);
 
 function getRegisteredDomain(hostname: string): string {
@@ -162,11 +190,13 @@ function isOfficialSafeDomain(hostname: string): boolean {
 const HIGH_ABUSE_TLDS = new Set([
   'xyz', 'top', 'work', 'club', 'buzz', 'click', 'site', 'icu',
   'loan', 'cam', 'tk', 'ml', 'ga', 'cf', 'gq', 'cyou', 'cfd',
-  'sbs', 'quest', 'monster', 'hair', 'beauty', 'skin',
+  'sbs', 'quest', 'monster', 'hair', 'beauty', 'skin', 'vip',
+  'fit', 'link', 'online', 'fun', 'website', 'space', 'rest',
+  'live', 'bar', 'pw', 'shop',
 ]);
 
 const MODERATE_RISK_TLDS = new Set([
-  'info', 'biz', 'ws', 'cc', 'su', 'ru', 'cn', 'pw', 'in',
+  'info', 'biz', 'ws', 'cc', 'su', 'ru', 'cn', 'in',
 ]);
 
 const CREDENTIAL_KEYWORDS = [
@@ -175,7 +205,12 @@ const CREDENTIAL_KEYWORDS = [
   'kyc', 'otp', 'account', 'wallet', 'refund', 'helpdesk',
   'support', 'auth', 'authentication', 'claim', 'gift', 'bonus',
   'free', 'reward', 'suspended', 'blocked', 'urgent', 'pan',
-  'password', 'credential', 'confirm', 'validate',
+  'pan-card', 'aadhaar', 'adhaar', 'password', 'credential',
+  'confirm', 'validate', 'electricity', 'bijli', 'bill',
+  'overdue', 'pending', 'disconnection', 'challan', 'echallan',
+  'traffic', 'lottery', 'winner', 'prize', 'job', 'parttime',
+  'wfh', 'telegram', 'apk', 'cashback', 'subsidy', 'pmkisan',
+  'yojana', 'pin', 'cvv',
 ];
 
 const SHORT_URL_HOSTS = new Set([
@@ -203,19 +238,20 @@ export async function performEdgeUrlScan(urlInput: string): Promise<ScanResponse
   const isShortener = SHORT_URL_HOSTS.has(hostname);
   const pathLower = parsed.pathname.toLowerCase() + parsed.search.toLowerCase();
 
-  // ── DNS lookups (real) ──
-  const [aAnswers, mxAnswers, nsAnswers, txtAnswers] = await Promise.all([
+  // ── DNS lookups (real via Cloudflare/Google DoH with CORS) ──
+  const [aRes, mxRes, nsRes, txtRes] = await Promise.all([
     dohLookup(hostname, 'A'),
     dohLookup(hostname, 'MX'),
     dohLookup(hostname, 'NS'),
     dohLookup(hostname, 'TXT'),
   ]);
 
-  const aRecords  = aAnswers.map((a) => a.data).filter(Boolean);
-  const mxRecords = mxAnswers.map((a) => a.data).filter(Boolean);
-  const nsRecords = nsAnswers.map((a) => a.data).filter(Boolean);
-  const txtRecords = txtAnswers.map((a) => a.data).filter(Boolean);
+  const aRecords  = aRes.answers.map((a) => a.data).filter(Boolean);
+  const mxRecords = mxRes.answers.map((a) => a.data).filter(Boolean);
+  const nsRecords = nsRes.answers.map((a) => a.data).filter(Boolean);
+  const txtRecords = txtRes.answers.map((a) => a.data).filter(Boolean);
   const dnsResolved = aRecords.length > 0;
+  const isNxdomain  = aRes.status === 3;
 
   // ── Official domain check ──
   const isOfficialDomain = isOfficialSafeDomain(hostname);
@@ -232,8 +268,8 @@ export async function performEdgeUrlScan(urlInput: string): Promise<ScanResponse
         if (!isOfficial) {
           typosquatMatches.push({
             brand: entry.brand,
-            similarity: 0.91,
-            reason: `Hostname contains "${entry.brand}" brand keyword but is not an authorised domain`,
+            similarity: 0.94,
+            reason: `Hostname contains "${entry.brand}" brand keyword but is not an authorised official domain`,
           });
         }
       }
@@ -254,7 +290,7 @@ export async function performEdgeUrlScan(urlInput: string): Promise<ScanResponse
     foundPatterns.push(`Moderate-risk TLD extension (.${tld})`);
 
   for (const kw of CREDENTIAL_KEYWORDS) {
-    if (!isOfficialDomain && (hostname.includes(kw) || pathLower.includes('/' + kw))) {
+    if (!isOfficialDomain && (hostname.includes(kw) || pathLower.includes(kw))) {
       foundPatterns.push(`Suspicious credential/action keyword detected: "${kw}"`);
     }
   }
@@ -280,15 +316,18 @@ export async function performEdgeUrlScan(urlInput: string): Promise<ScanResponse
   if (!isOfficialDomain && mxRecords.length === 0 && HIGH_ABUSE_TLDS.has(tld))
     foundPatterns.push('No mail exchange (MX) records — domain likely not belonging to a legitimate organization');
 
-  // DNS not resolved at all
-  if (!isIp && !dnsResolved)
-    foundPatterns.push('Domain does not resolve in DNS — either non-existent or recently taken down');
+  // DNS not resolved at all or NXDOMAIN
+  if (!isIp && isNxdomain) {
+    foundPatterns.push('Domain returned NXDOMAIN — non-existent domain, expired host, or active takedown');
+  } else if (!isIp && !dnsResolved && aRes.status === 0) {
+    foundPatterns.push('Domain does not resolve in DNS — no active host records found');
+  }
 
   // ── Scoring ──
   let riskScore = 0;
 
   if (isOfficialDomain) {
-    riskScore = scheme === 'https' ? 5 : 20; // HTTP even on official is slightly worse
+    riskScore = scheme === 'https' ? 5 : 20; // HTTPS is Low Risk (5), HTTP is 20
   } else {
     riskScore = 20; // base for unknown domains
 
@@ -298,10 +337,10 @@ export async function performEdgeUrlScan(urlInput: string): Promise<ScanResponse
     if (HIGH_ABUSE_TLDS.has(tld))    riskScore += 25;
     if (MODERATE_RISK_TLDS.has(tld)) riskScore += 10;
 
-    // Each brand impersonation match is very serious
+    // Each brand impersonation match is heavily weighted
     riskScore += typosquatMatches.length * 45;
 
-    // Credential keywords — check hostname and full path separately
+    // Credential keywords — check hostname and full path
     for (const kw of CREDENTIAL_KEYWORDS) {
       if (hostname.includes(kw)) riskScore += 12;
       else if (pathLower.includes(kw)) riskScore += 8;
@@ -311,26 +350,37 @@ export async function performEdgeUrlScan(urlInput: string): Promise<ScanResponse
     if (hyphenCount >= 3)  riskScore += 10 * (hyphenCount - 2);
     if (labelCount > 4)    riskScore += 15;
 
-    if (!dnsResolved) {
-      // Domain doesn't resolve — either dead or recently blocked
-      // Use Math.max so accumulated brand/keyword score is NOT lowered
-      riskScore = Math.max(riskScore, 35);
+    if (isNxdomain) {
+      riskScore = Math.max(riskScore, 40);
     }
 
-    // NS records pointing to known bulletproof/offshore hosting
+    // NS records pointing to known offshore/bulletproof hosting
     const suspiciousNsHints = ['offshore', 'ru.', '.ru', 'bulletproof', 'ddos'];
     for (const ns of nsRecords) {
       if (suspiciousNsHints.some((h) => ns.toLowerCase().includes(h))) riskScore += 20;
     }
 
-    // ── Failsafe: brand impersonation on a high-abuse TLD is always Confirmed Malicious ──
-    // A legitimate brand would never use .xyz, .top, .work, .loan etc.
+    // ── Failsafes: ensure dangerous threats are never misclassified as safe ──
+    // 1. Brand impersonation on high-abuse TLD (.xyz, .top, etc.) = always Confirmed Malicious
     if (typosquatMatches.length > 0 && HIGH_ABUSE_TLDS.has(tld)) {
+      riskScore = Math.max(riskScore, 90);
+    }
+    // 2. Brand impersonation + credential/action keyword = always Confirmed Malicious
+    if (typosquatMatches.length > 0 && foundPatterns.some((p) => p.includes('credential'))) {
       riskScore = Math.max(riskScore, 85);
     }
-    // Brand impersonation on ANY non-official domain with credential keywords = very high risk
-    if (typosquatMatches.length > 0 && foundPatterns.some((p) => p.includes('credential'))) {
+    // 3. Brand impersonation on any unknown domain = minimum 80
+    if (typosquatMatches.length > 0) {
       riskScore = Math.max(riskScore, 80);
+    }
+    // 4. High-abuse TLD with multiple credential keywords
+    const credCount = foundPatterns.filter((p) => p.includes('credential')).length;
+    if (HIGH_ABUSE_TLDS.has(tld) && credCount >= 2) {
+      riskScore = Math.max(riskScore, 82);
+    }
+    // 5. Raw IP address with HTTP login/credential attempt
+    if (isIp && (credCount > 0 || scheme === 'http')) {
+      riskScore = Math.max(riskScore, 75);
     }
   }
 
@@ -759,13 +809,13 @@ export function getEdgeSafetyGuidance(actionTaken: ActionTakenType): SafetyGuida
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// THREAT RELATIONSHIP GRAPH  — built from real session data
+// THREAT RELATIONSHIP GRAPH — built from real session data + synthetic demo
 // ─────────────────────────────────────────────────────────────────────────────
 export function getEdgeThreatGraph(
   filterType?: string,
   search?: string,
   limit = 100,
-  _includeDemo = false
+  includeDemo = false
 ): GraphResponse {
   const scans = SESSION_SCANS;
   const scams = SESSION_SCAMS;
@@ -776,24 +826,278 @@ export function getEdgeThreatGraph(
 
   const addNode = (n: GraphNodeData) => { if (!seen.has(n.id)) { seen.add(n.id); nodes.push(n); } };
 
-  // ── High-risk URL scan nodes ──
-  const highRiskScans = scans.filter((s) => s.risk_score >= 70);
-  highRiskScans.forEach((scan) => {
+  // ── 1. Inject Synthetic Demo Clusters when enabled ──
+  if (includeDemo) {
+    const prefix = '[DEMO] ';
+    // Cluster Alpha: SBI KYC Phishing Ring
+    const r1 = 'scam_report:demo-sbi-1';
     addNode({
-      id: scan.id,
+      id: r1,
+      type: 'scam_report',
+      label: prefix + 'SBI Account Block SMS',
+      sublabel: 'Threat Score 90/100 · High Risk',
+      risk_classification: 'High Risk',
+      risk_score: 90,
+      severity: 'critical',
+      report_count: 1,
+      properties: { archetype: 'Bank KYC Phishing', is_demo: true },
+    });
+
+    const r2 = 'scam_report:demo-sbi-2';
+    addNode({
+      id: r2,
+      type: 'scam_report',
+      label: prefix + 'YONO App Mandate Threat',
+      sublabel: 'Threat Score 85/100 · High Risk',
+      risk_classification: 'High Risk',
+      risk_score: 85,
+      severity: 'critical',
+      report_count: 1,
+      properties: { archetype: 'Bank KYC Phishing', is_demo: true },
+    });
+
+    const scanDemo = 'url_scan:demo-scan-sbi';
+    addNode({
+      id: scanDemo,
+      type: 'url_scan',
+      label: prefix + 'sbi-kyc-update-portal.xyz',
+      sublabel: 'URL Scan · Score 92/100 · High Risk',
+      risk_classification: 'High Risk',
+      risk_score: 92,
+      severity: 'critical',
+      report_count: 1,
+      properties: { target: 'http://sbi-kyc-update-portal.xyz/verify', is_demo: true },
+    });
+
+    const domainDemo = 'domain:sbi-kyc-update-portal.xyz';
+    addNode({
+      id: domainDemo,
+      type: 'domain',
+      label: 'sbi-kyc-update-portal.xyz',
+      sublabel: 'Verified Shared Domain (3 Reports)',
+      risk_classification: 'High Risk',
+      risk_score: 92,
+      severity: 'critical',
+      report_count: 3,
+      properties: { domain: 'sbi-kyc-update-portal.xyz', is_demo: true },
+    });
+
+    const brandDemo = 'brand:SBI';
+    addNode({
+      id: brandDemo,
+      type: 'brand',
+      label: 'State Bank of India (SBI)',
+      sublabel: 'Targeted Financial Brand',
+      severity: 'critical',
+      report_count: 3,
+      properties: { brand: 'SBI', is_demo: true },
+    });
+
+    // Cross-Cluster Pivot: Burner Phone Number
+    const phoneShared = 'indicator:phone:+91-9876543210';
+    addNode({
+      id: phoneShared,
+      type: 'indicator',
+      label: '+91-9876543210',
+      sublabel: 'Cross-Cluster Burner Phone (3 Reports)',
+      indicator_type: 'phone',
+      severity: 'critical',
+      report_count: 3,
+      properties: { phone: '+91-9876543210', is_demo: true },
+    });
+
+    // Cluster Beta: Utility Bijli Extortion
+    const r3 = 'scam_report:demo-bijli-1';
+    addNode({
+      id: r3,
+      type: 'scam_report',
+      label: prefix + 'Bijli Cutoff Tonight (Urgent)',
+      sublabel: 'Threat Score 78/100 · High Risk',
+      risk_classification: 'High Risk',
+      risk_score: 78,
+      severity: 'high',
+      report_count: 1,
+      properties: { archetype: 'Utility Disconnection Extortion', is_demo: true },
+    });
+
+    const r4 = 'scam_report:demo-bijli-2';
+    addNode({
+      id: r4,
+      type: 'scam_report',
+      label: prefix + 'Power Cutoff Final Notice',
+      sublabel: 'Threat Score 75/100 · High Risk',
+      risk_classification: 'High Risk',
+      risk_score: 75,
+      severity: 'high',
+      report_count: 1,
+      properties: { archetype: 'Utility Disconnection Extortion', is_demo: true },
+    });
+
+    const tacticUrgency = 'tactic:Artificial Urgency';
+    addNode({
+      id: tacticUrgency,
+      type: 'tactic',
+      label: 'Artificial Urgency & Disconnection',
+      sublabel: 'Psychological Coercion Tactic',
+      severity: 'high',
+      report_count: 4,
+      properties: { is_demo: true },
+    });
+
+    // Demo Edges
+    edges.push(
+      {
+        id: 'edge_demo_r1_d',
+        source: r1,
+        target: domainDemo,
+        label: 'Shared Phishing Domain',
+        relationship_type: 'EXTRACTED_DOMAIN',
+        category: 'VERIFIED_SHARED_INDICATOR',
+        evidence: '[DEMO] Scam SMS contains link pointing to domain sbi-kyc-update-portal.xyz',
+        source_report_ids: ['demo-sbi-1'],
+        confidence: 'High',
+        weight: 1.0,
+        limitations: 'Direct domain extraction from verified SMS text.',
+      },
+      {
+        id: 'edge_demo_r2_d',
+        source: r2,
+        target: domainDemo,
+        label: 'Shared Phishing Domain',
+        relationship_type: 'EXTRACTED_DOMAIN',
+        category: 'VERIFIED_SHARED_INDICATOR',
+        evidence: '[DEMO] YONO threat report redirects to sbi-kyc-update-portal.xyz',
+        source_report_ids: ['demo-sbi-2'],
+        confidence: 'High',
+        weight: 1.0,
+        limitations: 'Direct domain extraction from verified SMS text.',
+      },
+      {
+        id: 'edge_demo_scan_d',
+        source: scanDemo,
+        target: domainDemo,
+        label: 'Target Infrastructure',
+        relationship_type: 'RESOLVES_TO_DOMAIN',
+        category: 'VERIFIED_SHARED_INDICATOR',
+        evidence: '[DEMO] URL Scanner deep analysis targeted sbi-kyc-update-portal.xyz',
+        source_report_ids: ['demo-scan-sbi'],
+        confidence: 'High',
+        weight: 1.0,
+        limitations: 'Technical DNS hostname resolution.',
+      },
+      {
+        id: 'edge_demo_r1_b',
+        source: r1,
+        target: brandDemo,
+        label: 'Impersonates Brand',
+        relationship_type: 'IMPERSONATES_BRAND',
+        category: 'POSSIBLE_RELATIONSHIP',
+        evidence: '[DEMO] Message impersonates State Bank of India',
+        source_report_ids: ['demo-sbi-1'],
+        confidence: 'Medium',
+        weight: 0.8,
+        limitations: 'Heuristic keyword attribution.',
+      },
+      {
+        id: 'edge_demo_r1_phone',
+        source: r1,
+        target: phoneShared,
+        label: 'Shared Burner Phone',
+        relationship_type: 'EXTRACTED_PHONE',
+        category: 'VERIFIED_SHARED_INDICATOR',
+        evidence: '[DEMO] Helpline callback number matches +91-9876543210',
+        source_report_ids: ['demo-sbi-1'],
+        confidence: 'High',
+        weight: 1.0,
+        limitations: 'Normalized phone number exact match.',
+      },
+      {
+        id: 'edge_demo_r3_phone',
+        source: r3,
+        target: phoneShared,
+        label: 'Shared Burner Phone (Cross-Cluster Pivot)',
+        relationship_type: 'EXTRACTED_PHONE',
+        category: 'VERIFIED_SHARED_INDICATOR',
+        evidence: '[DEMO] Electricity officer number matches the same burner phone +91-9876543210',
+        source_report_ids: ['demo-bijli-1'],
+        confidence: 'High',
+        weight: 1.0,
+        limitations: 'Normalized phone number cross-cluster match.',
+      },
+      {
+        id: 'edge_demo_r4_phone',
+        source: r4,
+        target: phoneShared,
+        label: 'Shared Burner Phone',
+        relationship_type: 'EXTRACTED_PHONE',
+        category: 'VERIFIED_SHARED_INDICATOR',
+        evidence: '[DEMO] Second disconnection threat lists identical number +91-9876543210',
+        source_report_ids: ['demo-bijli-2'],
+        confidence: 'High',
+        weight: 1.0,
+        limitations: 'Normalized phone number exact match.',
+      },
+      {
+        id: 'edge_demo_r3_t',
+        source: r3,
+        target: tacticUrgency,
+        label: 'Coercive Tactic',
+        relationship_type: 'EXPLOITS_TACTIC',
+        category: 'POSSIBLE_RELATIONSHIP',
+        evidence: '[DEMO] Immediate cutoff deadline psychological pressure',
+        source_report_ids: ['demo-bijli-1'],
+        confidence: 'Medium',
+        weight: 0.7,
+        limitations: 'Behavioral scam tactic similarity.',
+      }
+    );
+  }
+
+  // ── 2. Process ALL Real URL Scans in Session ──
+  scans.forEach((scan) => {
+    const scanNodeId = scan.id;
+    addNode({
+      id: scanNodeId,
       type: 'url_scan',
       label: scan.hostname,
       sublabel: `URL Scan · ${scan.risk_score}/100`,
       risk_classification: scan.risk_classification,
       risk_score: scan.risk_score,
-      severity: scan.risk_score >= 80 ? 'critical' : 'high',
+      severity: scan.risk_score >= 80 ? 'critical' : scan.risk_score >= 60 ? 'high' : scan.risk_score >= 35 ? 'medium' : 'low',
       report_count: 1,
       properties: { url: scan.url, tld: scan.url_analysis.tld },
     });
 
+    // Add resolved domain node
+    const domainId = `domain:${scan.registered_domain || scan.hostname}`;
+    addNode({
+      id: domainId,
+      type: 'domain',
+      label: scan.registered_domain || scan.hostname,
+      sublabel: `Registered Domain · .${scan.url_analysis.tld}`,
+      risk_classification: scan.risk_classification,
+      risk_score: scan.risk_score,
+      severity: scan.risk_score >= 80 ? 'critical' : scan.risk_score >= 60 ? 'high' : scan.risk_score >= 35 ? 'medium' : 'low',
+      report_count: 1,
+      properties: { tld: scan.url_analysis.tld },
+    });
+    edges.push({
+      id: `edge-${scan.id}-domain`,
+      source: scanNodeId,
+      target: domainId,
+      label: 'Target Domain',
+      relationship_type: 'RESOLVES_TO_DOMAIN',
+      category: 'VERIFIED_SHARED_INDICATOR',
+      evidence: `URL scan explicitly resolved to domain ${scan.registered_domain || scan.hostname}`,
+      source_report_ids: [scan.id],
+      confidence: 'High',
+      weight: 1.0,
+      limitations: 'Technical DNS hostname resolution.',
+    });
+
     // Add extracted typosquat brand nodes
     scan.url_analysis.typosquatting_matches.forEach((tm, idx) => {
-      const brandId = `brand-${tm.brand.replace(/\s+/g, '-').toLowerCase()}`;
+      const brandId = `brand:${tm.brand.replace(/\s+/g, '-').toLowerCase()}`;
       addNode({
         id: brandId,
         type: 'brand',
@@ -805,7 +1109,7 @@ export function getEdgeThreatGraph(
       });
       edges.push({
         id: `edge-${scan.id}-brand-${idx}`,
-        source: scan.id,
+        source: scanNodeId,
         target: brandId,
         label: 'Brand Impersonation',
         relationship_type: 'BRAND_IMPERSONATION',
@@ -814,139 +1118,200 @@ export function getEdgeThreatGraph(
         source_report_ids: [scan.id],
         confidence: 'High',
         weight: 1.0,
-        limitations: 'Verified via heuristic pattern matching',
+        limitations: 'Heuristic keyword pattern match.',
       });
-    });
-
-    // Add domain node
-    const domainId = `domain-${scan.registered_domain}`;
-    addNode({
-      id: domainId,
-      type: 'domain',
-      label: scan.registered_domain,
-      sublabel: `Registered Domain · .${scan.url_analysis.tld}`,
-      risk_classification: scan.risk_classification,
-      risk_score: scan.risk_score,
-      severity: scan.risk_score >= 80 ? 'critical' : 'high',
-      report_count: 1,
-      properties: { tld: scan.url_analysis.tld },
-    });
-    edges.push({
-      id: `edge-${scan.id}-domain`,
-      source: scan.id,
-      target: domainId,
-      label: 'Resolved Domain',
-      relationship_type: 'DOMAIN_RESOLUTION',
-      category: 'VERIFIED_SHARED_INDICATOR',
-      evidence: `URL scan resolved to domain ${scan.registered_domain}`,
-      source_report_ids: [scan.id],
-      confidence: 'High',
-      weight: 1.0,
-      limitations: 'Direct extraction',
     });
   });
 
-  // ── All scam nodes + indicator links ──
+  // ── 3. Process ALL Real Scam DNA Reports in Session ──
   scams.forEach((scam) => {
+    const scamNodeId = scam.id;
     addNode({
-      id: scam.id,
+      id: scamNodeId,
       type: 'scam_report',
       label: scam.scam_archetype,
       sublabel: `Scam DNA · ${scam.risk_score}/100`,
       risk_classification: scam.risk_classification,
       risk_score: scam.risk_score,
-      severity: scam.risk_score >= 80 ? 'critical' : 'high',
+      severity: scam.risk_score >= 80 ? 'critical' : scam.risk_score >= 55 ? 'high' : scam.risk_score >= 30 ? 'medium' : 'low',
       report_count: 1,
       properties: { preview: scam.message_preview },
     });
 
+    // Extracted indicators (URLs, phone numbers, UPI IDs)
     scam.extracted_indicators.forEach((ind, idx) => {
-      const indId = `ind-${ind.type}-${encodeURIComponent(ind.value).slice(0, 40)}`;
+      const indId = `ind:${ind.type}:${encodeURIComponent(ind.value).slice(0, 40)}`;
       addNode({
         id: indId,
         type: 'indicator',
-        label: ind.value.length > 40 ? ind.value.slice(0, 37) + '...' : ind.value,
+        label: ind.value.length > 36 ? ind.value.slice(0, 33) + '...' : ind.value,
         sublabel: ind.type.replace(/_/g, ' ').toUpperCase(),
-        severity: 'high',
+        severity: scam.risk_score >= 70 ? 'high' : 'medium',
         indicator_type: ind.type,
         report_count: 1,
         properties: { snippet: ind.context_snippet, full_value: ind.value },
       });
       edges.push({
         id: `edge-${scam.id}-ind-${idx}`,
-        source: scam.id,
+        source: scamNodeId,
         target: indId,
         label: 'Extracted Indicator',
         relationship_type: 'INDICATOR_EXTRACTION',
         category: 'VERIFIED_SHARED_INDICATOR',
-        evidence: `Indicator extracted from scam message: ${ind.context_snippet}`,
+        evidence: `Extracted from scam message: ${ind.context_snippet}`,
         source_report_ids: [scam.id],
         confidence: 'High',
         weight: 1.0,
-        limitations: 'Pattern-extracted from scam text',
+        limitations: 'Direct extraction from message text.',
+      });
+    });
+
+    // Add tactic nodes
+    scam.tactics.slice(0, 3).forEach((tactic, idx) => {
+      const tacticId = `tactic:${encodeURIComponent(tactic.name).slice(0, 30)}`;
+      addNode({
+        id: tacticId,
+        type: 'tactic',
+        label: tactic.name,
+        sublabel: 'Scam DNA Tactic',
+        severity: tactic.severity === 'critical' ? 'critical' : tactic.severity === 'high' ? 'high' : 'medium',
+        report_count: 1,
+        properties: { description: tactic.explanation },
+      });
+      edges.push({
+        id: `edge-${scam.id}-tactic-${idx}`,
+        source: scamNodeId,
+        target: tacticId,
+        label: 'Deceptive Tactic',
+        relationship_type: 'EXPLOITS_TACTIC',
+        category: 'POSSIBLE_RELATIONSHIP',
+        evidence: tactic.explanation,
+        source_report_ids: [scam.id],
+        confidence: 'Medium',
+        weight: 0.7,
+        limitations: 'AI/Rule-based psychological tactic identification.',
       });
     });
   });
 
-  // ── Cross-link: scam URLs that also appear in URL scans ──
+  // ── 4. Cross-linking between real Scams and real Scans ──
   scams.forEach((scam) => {
     const scamUrls = scam.extracted_indicators.filter((i) => i.type === 'url').map((i) => i.value);
     scamUrls.forEach((u) => {
-      const matchScan = highRiskScans.find((s) => s.url === u || s.hostname === new URL(u).hostname);
+      let uHost = '';
+      try { uHost = new URL(u).hostname.toLowerCase().replace(/^www\./, ''); } catch { uHost = u; }
+      const matchScan = scans.find((s) => s.url === u || s.hostname === uHost);
       if (matchScan) {
         edges.push({
           id: `cross-${scam.id}-${matchScan.id}`,
           source: scam.id,
           target: matchScan.id,
-          label: 'Shared Phishing URL',
+          label: 'Shared Phishing Target',
           relationship_type: 'SHARED_INDICATOR',
           category: 'VERIFIED_SHARED_INDICATOR',
-          evidence: `URL "${u}" appears in both scam message and URL scan investigation`,
+          evidence: `URL "${u}" appears in scam message and was investigated in URL scanner`,
           source_report_ids: [scam.id, matchScan.id],
           confidence: 'High',
           weight: 1.0,
-          limitations: 'Exact URL match — high confidence',
+          limitations: 'Exact URL matching across investigations.',
         });
       }
     });
   });
 
-  // ── Empty state handling ──
+  // ── 5. Empty State (no session scans, no scams, demo not requested) ──
   if (nodes.length === 0) {
-    // Provide minimal helpful placeholder
-    addNode({
-      id: 'placeholder-info',
-      type: 'tactic',
-      label: 'No reports yet',
-      sublabel: 'Scan a URL or analyze a scam message to populate the graph',
-      severity: 'info',
-      report_count: 0,
-      properties: {},
-    });
+    return {
+      nodes: [],
+      edges: [],
+      total_reports_analyzed: 0,
+      verified_relationships_count: 0,
+      possible_relationships_count: 0,
+      is_demo_data: false,
+      generated_at: new Date().toISOString(),
+    };
   }
 
-  // ── Filtering ──
-  let filteredNodes = filterType && filterType !== 'all'
-    ? nodes.filter((n) => n.type === filterType)
-    : nodes;
+  // ── 6. Filter Handling ──
+  let filteredNodes = nodes;
+  let filteredEdges = edges;
 
+  if (filterType === 'verified_only') {
+    // Keep verified indicator edges and the nodes connected to them
+    const verifiedEdges = edges.filter((e) => e.category === 'VERIFIED_SHARED_INDICATOR');
+    const connectedIds = new Set<string>();
+    verifiedEdges.forEach((e) => {
+      connectedIds.add(e.source);
+      connectedIds.add(e.target);
+    });
+    filteredNodes = nodes.filter((n) => connectedIds.has(n.id));
+    filteredEdges = verifiedEdges;
+  } else if (filterType === 'high_risk') {
+    // Keep nodes with risk_score >= 70 OR severity high/critical
+    const highRiskNodes = nodes.filter(
+      (n) => (n.risk_score || 0) >= 70 || n.severity === 'high' || n.severity === 'critical'
+    );
+    const highRiskIds = new Set(highRiskNodes.map((n) => n.id));
+    filteredNodes = highRiskNodes;
+    filteredEdges = edges.filter((e) => highRiskIds.has(e.source) && highRiskIds.has(e.target));
+  } else if (filterType === 'scam_only') {
+    // Keep scam reports and nodes connected to them
+    const scamNodeIds = new Set(nodes.filter((n) => n.type === 'scam_report').map((n) => n.id));
+    const connectedToScams = new Set<string>(scamNodeIds);
+    const scamIncidentEdges = edges.filter((e) => {
+      if (scamNodeIds.has(e.source) || scamNodeIds.has(e.target)) {
+        connectedToScams.add(e.source);
+        connectedToScams.add(e.target);
+        return true;
+      }
+      return false;
+    });
+    filteredNodes = nodes.filter((n) => connectedToScams.has(n.id));
+    filteredEdges = scamIncidentEdges;
+  } else if (filterType === 'url_only') {
+    // Keep URL scans and nodes connected to them
+    const urlNodeIds = new Set(nodes.filter((n) => n.type === 'url_scan').map((n) => n.id));
+    const connectedToUrls = new Set<string>(urlNodeIds);
+    const urlIncidentEdges = edges.filter((e) => {
+      if (urlNodeIds.has(e.source) || urlNodeIds.has(e.target)) {
+        connectedToUrls.add(e.source);
+        connectedToUrls.add(e.target);
+        return true;
+      }
+      return false;
+    });
+    filteredNodes = nodes.filter((n) => connectedToUrls.has(n.id));
+    filteredEdges = urlIncidentEdges;
+  }
+
+  // ── 7. Search Handling with 1-Hop Neighborhood ──
   if (search?.trim()) {
     const q = search.toLowerCase().trim();
-    filteredNodes = filteredNodes.filter(
-      (n) => n.label.toLowerCase().includes(q) || n.sublabel?.toLowerCase().includes(q)
+    const matchingNodeIds = new Set(
+      filteredNodes
+        .filter((n) => n.label.toLowerCase().includes(q) || n.sublabel?.toLowerCase().includes(q) || n.id.toLowerCase().includes(q))
+        .map((n) => n.id)
     );
+    const hopEdges = filteredEdges.filter((e) => matchingNodeIds.has(e.source) || matchingNodeIds.has(e.target));
+    const allSearchIds = new Set<string>(matchingNodeIds);
+    hopEdges.forEach((e) => {
+      allSearchIds.add(e.source);
+      allSearchIds.add(e.target);
+    });
+    filteredNodes = filteredNodes.filter((n) => allSearchIds.has(n.id));
+    filteredEdges = hopEdges;
   }
 
   const validIds = new Set(filteredNodes.map((n) => n.id));
-  const filteredEdges = edges.filter((e) => validIds.has(e.source) && validIds.has(e.target));
+  const finalEdges = filteredEdges.filter((e) => validIds.has(e.source) && validIds.has(e.target));
 
   return {
     nodes: filteredNodes.slice(0, limit),
-    edges: filteredEdges.slice(0, limit * 2),
-    total_reports_analyzed: scans.length + scams.length,
-    verified_relationships_count: filteredEdges.filter((e) => e.category === 'VERIFIED_SHARED_INDICATOR').length,
-    possible_relationships_count: filteredEdges.filter((e) => e.category === 'POSSIBLE_RELATIONSHIP').length,
-    is_demo_data: false,
+    edges: finalEdges.slice(0, limit * 2),
+    total_reports_analyzed: scans.length + scams.length + (includeDemo ? 5 : 0),
+    verified_relationships_count: finalEdges.filter((e) => e.category === 'VERIFIED_SHARED_INDICATOR').length,
+    possible_relationships_count: finalEdges.filter((e) => e.category === 'POSSIBLE_RELATIONSHIP').length,
+    is_demo_data: includeDemo && scans.length === 0 && scams.length === 0,
     generated_at: new Date().toISOString(),
   };
 }
