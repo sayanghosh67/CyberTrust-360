@@ -301,9 +301,10 @@ export async function performEdgeUrlScan(urlInput: string): Promise<ScanResponse
     // Each brand impersonation match is very serious
     riskScore += typosquatMatches.length * 45;
 
-    // Credential keywords
+    // Credential keywords — check hostname and full path separately
     for (const kw of CREDENTIAL_KEYWORDS) {
-      if (hostname.includes(kw) || pathLower.includes('/' + kw)) riskScore += 12;
+      if (hostname.includes(kw)) riskScore += 12;
+      else if (pathLower.includes(kw)) riskScore += 8;
     }
 
     if (scheme === 'http') riskScore += 15;
@@ -312,6 +313,7 @@ export async function performEdgeUrlScan(urlInput: string): Promise<ScanResponse
 
     if (!dnsResolved) {
       // Domain doesn't resolve — either dead or recently blocked
+      // Use Math.max so accumulated brand/keyword score is NOT lowered
       riskScore = Math.max(riskScore, 35);
     }
 
@@ -319,6 +321,16 @@ export async function performEdgeUrlScan(urlInput: string): Promise<ScanResponse
     const suspiciousNsHints = ['offshore', 'ru.', '.ru', 'bulletproof', 'ddos'];
     for (const ns of nsRecords) {
       if (suspiciousNsHints.some((h) => ns.toLowerCase().includes(h))) riskScore += 20;
+    }
+
+    // ── Failsafe: brand impersonation on a high-abuse TLD is always Confirmed Malicious ──
+    // A legitimate brand would never use .xyz, .top, .work, .loan etc.
+    if (typosquatMatches.length > 0 && HIGH_ABUSE_TLDS.has(tld)) {
+      riskScore = Math.max(riskScore, 85);
+    }
+    // Brand impersonation on ANY non-official domain with credential keywords = very high risk
+    if (typosquatMatches.length > 0 && foundPatterns.some((p) => p.includes('credential'))) {
+      riskScore = Math.max(riskScore, 80);
     }
   }
 
