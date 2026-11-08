@@ -22,11 +22,12 @@ export function CinematicExperience() {
 
   useEffect(() => {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
-    const fine = matchMedia('(pointer: fine)');
     const reduced = () => media.matches || document.documentElement.dataset.motion === 'paused';
     let frame = 0;
     let scrollFrame = 0;
     let lightPanel: HTMLElement | null = null;
+    let clientX = -100;
+    let clientY = -100;
     let lastScrollY = window.scrollY;
     let scrollDirection: 'up' | 'down' = 'down';
     const sections = new Map<HTMLElement, { visible: boolean; entered: boolean; animation: Animation | null }>();
@@ -95,32 +96,42 @@ export function CinematicExperience() {
     if (main) mutation.observe(main, { childList: true, subtree: true });
 
     const move = (event: PointerEvent) => {
-      if (event.pointerType === 'touch' || !fine.matches || reduced()) return;
+      if (event.pointerType === 'touch' || reduced()) return;
+      clientX = event.clientX;
+      clientY = event.clientY;
+      if (cursor.current) {
+        cursor.current.style.left = `${clientX}px`;
+        cursor.current.style.top = `${clientY}px`;
+        cursor.current.classList.add('is-visible');
+      }
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const target = event.target instanceof Element ? event.target : null;
+        const target = (event.target instanceof Element ? event.target : null) || document.elementFromPoint(clientX, clientY);
         if (cursor.current) {
-          cursor.current.style.left = `${event.clientX}px`;
-          cursor.current.style.top = `${event.clientY}px`;
-          cursor.current.classList.add('is-visible');
-          cursor.current.classList.toggle('is-hovering', !!target?.closest('a,button,[role="button"],.react-flow__node'));
-          cursor.current.classList.toggle('is-writing', !!target?.closest('input,textarea,select'));
+          cursor.current.classList.toggle('is-hovering', !!target?.closest('a,button,[role="button"],.react-flow__node,label,summary,.cursor-pointer'));
+          cursor.current.classList.toggle('is-writing', !!target?.closest('input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),textarea'));
         }
         const panel = target?.closest<HTMLElement>('.cinema-glass, .main-nav a, .header-cta');
         if (lightPanel && lightPanel !== panel) lightPanel.classList.remove('has-light');
         lightPanel = panel || null;
         if (panel) {
           const bounds = panel.getBoundingClientRect();
-          panel.style.setProperty('--light-x', `${event.clientX - bounds.left}px`);
-          panel.style.setProperty('--light-y', `${event.clientY - bounds.top}px`);
+          panel.style.setProperty('--light-x', `${clientX - bounds.left}px`);
+          panel.style.setProperty('--light-y', `${clientY - bounds.top}px`);
           panel.classList.add('has-light');
         }
       });
     };
+    const enter = () => {
+      if (!reduced() && clientX >= 0 && clientY >= 0) {
+        cursor.current?.classList.add('is-visible');
+      }
+    };
     const leave = () => cursor.current?.classList.remove('is-visible');
     const press = (event: PointerEvent) => {
+      if (event.pointerType === 'touch' || reduced()) return;
       cursor.current?.classList.add('is-pressed');
-      if (reduced() || !ripple.current) return;
+      if (!ripple.current) return;
       ripple.current.style.left = `${event.clientX}px`;
       ripple.current.style.top = `${event.clientY}px`;
       ripple.current.getAnimations().forEach(animation => animation.cancel());
@@ -165,10 +176,12 @@ export function CinematicExperience() {
     motionObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-motion'] });
     discover();
     document.addEventListener('pointermove', move, { passive: true });
+    document.documentElement.addEventListener('pointerenter', enter);
     document.documentElement.addEventListener('pointerleave', leave);
     document.addEventListener('pointerdown', press, { passive: true });
     document.addEventListener('pointerup', release, { passive: true });
     document.addEventListener('focusin', onFocus);
+    window.addEventListener('focus', enter);
     window.addEventListener('blur', leave);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
@@ -184,9 +197,12 @@ export function CinematicExperience() {
         element.style.removeProperty('--scroll-parallax'); element.style.removeProperty('--scroll-roll');
       }
       cancelAnimationFrame(frame); cancelAnimationFrame(scrollFrame);
-      document.removeEventListener('pointermove', move); document.documentElement.removeEventListener('pointerleave', leave);
+      document.removeEventListener('pointermove', move);
+      document.documentElement.removeEventListener('pointerenter', enter);
+      document.documentElement.removeEventListener('pointerleave', leave);
       document.removeEventListener('pointerdown', press); document.removeEventListener('pointerup', release);
       document.removeEventListener('focusin', onFocus);
+      window.removeEventListener('focus', enter);
       window.removeEventListener('blur', leave); window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll);
       media.removeEventListener('change', onMotion);
     };
