@@ -1,3 +1,4 @@
+import { SecuritySculpture } from './SecuritySculpture';
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Globe2,
@@ -148,6 +149,7 @@ export const PlatformDashboardOverview: React.FC = () => {
           href="#investigate"
           className="group p-5 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-900 transition-all flex flex-col justify-between"
         >
+          <SecuritySculpture variant="cube" className="module-navigation-art" />
           <div>
             <div className="w-10 h-10 rounded-xl bg-cyan-950/80 border border-cyan-800/40 flex items-center justify-center mb-4 text-cyan-400 group-hover:scale-105 transition-transform">
               <Globe2 className="w-5 h-5" />
@@ -172,6 +174,7 @@ export const PlatformDashboardOverview: React.FC = () => {
           href="#scam-dna"
           className="group p-5 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-purple-500/50 hover:bg-slate-900 transition-all flex flex-col justify-between"
         >
+          <SecuritySculpture variant="orbit" className="module-navigation-art" />
           <div>
             <div className="w-10 h-10 rounded-xl bg-purple-950/80 border border-purple-800/40 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-105 transition-transform">
               <Sparkles className="w-5 h-5" />
@@ -196,6 +199,7 @@ export const PlatformDashboardOverview: React.FC = () => {
           href="#relationship-graph"
           className="group p-5 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-amber-500/50 hover:bg-slate-900 transition-all flex flex-col justify-between"
         >
+          <SecuritySculpture variant="orbit" className="module-navigation-art" />
           <div>
             <div className="w-10 h-10 rounded-xl bg-amber-950/80 border border-amber-800/40 flex items-center justify-center mb-4 text-amber-400 group-hover:scale-105 transition-transform">
               <Network className="w-5 h-5" />
@@ -220,6 +224,7 @@ export const PlatformDashboardOverview: React.FC = () => {
           href="#blockchain-trust"
           className="group p-5 rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 transition-all flex flex-col justify-between"
         >
+          <SecuritySculpture variant="cube" className="module-navigation-art" />
           <div>
             <div className="w-10 h-10 rounded-xl bg-emerald-950/80 border border-emerald-800/40 flex items-center justify-center mb-4 text-emerald-400 group-hover:scale-105 transition-transform">
               <Lock className="w-5 h-5" />

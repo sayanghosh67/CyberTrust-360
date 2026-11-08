@@ -51,8 +51,12 @@
 .scan-input-wrap { border-radius:12px; box-shadow:inset 0 2px 12px #0003; transition:border-color .3s,box-shadow .3s; }
 .scan-input-wrap:focus-within { border-color:#c1ed9060; box-shadow:0 0 0 4px #c1ed9009,inset 0 2px 12px #0002; }
 .globe-label { backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-radius:12px; }
-.cinema-reveal { opacity:0; transform:translate3d(0,36px,0); transition:opacity 900ms var(--cinema-ease),transform 1100ms var(--cinema-ease); }
-.cinema-reveal.is-revealed { opacity:1; transform:none; }
+/* Web Animations replay entrances in either direction; content stays visible by default. */
+.cinema-reveal { opacity:1; }
+.orbital-canvas, .hero-earth-stage > .globe-scene {
+  translate:0 var(--scroll-parallax, 0px);
+  rotate:var(--scroll-roll, 0deg);
+}
 .site-footer { position:relative; padding-top:65px; }
 .site-footer::before { content:''; position:absolute; left:40px; right:40px; top:0; height:1px; background:linear-gradient(90deg,transparent,#c1ed9038,transparent); }
 .footer-bottom { gap:20px; line-height:1.8; }
@@ -106,7 +110,6 @@
   .hero-section { min-height:0; padding-top:55px; }
   .hero-copy h1 { font-size:clamp(38px,10.5vw,64px); line-height:1.09; }
   .scanner-panel { border-radius:17px; }
-  .cinema-reveal { transform:translateY(22px); }
   .footer-bottom { align-items:flex-start; flex-direction:column; }
   .intro-caption { font-size:7px; line-height:1.8; letter-spacing:1.8px; }
   .site-footer::before { left:22px; right:22px; }
@@ -117,6 +120,7 @@
   *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }
   .cinema-intro,.cinema-cursor,.cinema-ripple { display:none!important; }
   .cinema-reveal { opacity:1!important; transform:none!important; }
+  .orbital-canvas, .hero-earth-stage > .globe-scene { translate:none; rotate:none; }
 }
 /* Preserve the globe's anchored floating labels when the glass treatment is applied. */
 .globe-label.cinema-glass { position:absolute; }

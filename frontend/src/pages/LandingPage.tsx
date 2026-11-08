@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { MeshAtmosphere } from '../components/MeshAtmosphere';
 import { Header } from '../components/Header';
 import { ThreatSearchHero } from '../components/ThreatSearchHero';
 import { InvestigationReport } from '../components/InvestigationReport';
@@ -112,6 +113,7 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="site-app">
+      <MeshAtmosphere />
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>

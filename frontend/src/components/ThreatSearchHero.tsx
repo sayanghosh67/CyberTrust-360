@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, ArrowUpRight, Globe2, Loader2, ScanLine, ShieldCheck, AlertCircle, Fingerprint, LockKeyhole } from 'lucide-react';
-import { ThreatGlobe } from './ThreatGlobe';
+import { HeroSculpture } from './HeroSculpture';
 import horizontalLogo from '../assets/cybertrust-logo-horizontal.png';
 
 interface Props {
@@ -75,7 +75,7 @@ export function ThreatSearchHero({ onInvestigate, isScanning, error, requestedUr
             <span><Fingerprint size={15} /> AI Scam DNA sequencing</span>
           </div>
         </div>
-        <ThreatGlobe />
+        <HeroSculpture />
         <div className="hero-index">
           <span>01 — INTELLIGENCE WITHOUT BLIND SPOTS</span>
           <span>SCROLL TO EXPLORE <span>↓</span></span>

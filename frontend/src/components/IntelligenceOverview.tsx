@@ -1,3 +1,4 @@
+import { OrbitalScene } from './OrbitalScene';
 import { SecuritySculpture } from './SecuritySculpture';
 import { ArrowUpRight, Fingerprint, Globe2, LockKeyhole, Radar, ScanLine, ShieldCheck, Network, ArrowRight } from 'lucide-react';
 const capabilities = [
@@ -10,5 +11,10 @@ export function IntelligenceOverview() {
     <section className="integration-strip shell"><span>BUILT TO CONNECT THE DOTS</span><div><Globe2 size={18} /> Google Safe Browsing</div><div className="provider-vt">◈ <span>VirusTotal</span></div><div><ShieldCheck size={18} /> PhishTank</div><div><Network size={18} /> URLhaus</div><span className="integration-note">Provider availability varies</span></section>
     <section className="capabilities-section shell" id="capabilities"><div className="section-intro"><div><span className="section-kicker">A DEEPER LEVEL OF INTELLIGENCE</span><h2>See more. <span>Second-guess less.</span></h2></div><p>Every threat leaves a trace.<br />We help you connect the evidence.</p></div><div className="capability-grid">{capabilities.map(c => <article className={`capability-card ${c.className}`} key={c.number}><div className="capability-top"><c.icon size={20} /><span>/{c.number}</span></div>{c.visual}<h3>{c.title}</h3><p>{c.text}</p><div className="capability-tags">{c.tags.map(t => <span key={t}>{t}</span>)}</div></article>)}</div></section>
     <section className="workflow-section shell" id="how-it-works"><div className="workflow-heading"><span className="section-kicker">FROM QUESTION TO CLARITY</span><h2>Your investigation.<br /><span>Three simple steps.</span></h2><a className="text-link" href="#investigate">Start your first scan <ArrowUpRight size={16} /></a></div><div className="workflow-steps">{[{ icon: Globe2, title: 'Give us a starting point.', text: 'Paste a public URL or domain. We normalize the target and validate it before inspection.' }, { icon: ScanLine, title: 'We follow the signals.', text: 'Multiple analysis layers inspect the domain, its infrastructure, and available intelligence feeds.' }, { icon: ShieldCheck, title: 'Make an informed move.', text: 'Get an explainable risk score, technical evidence, and practical security recommendations.' }].map((step, i) => <div className="workflow-step" key={step.title}><span className="step-number">0{i + 1}</span><step.icon size={20} /><div><h3>{step.title}</h3><p>{step.text}</p></div>{i < 2 && <ArrowRight className="step-arrow" size={15} />}</div>)}</div></section>
+    <section className="finale-section shell" aria-labelledby="finale-heading">
+      <OrbitalScene variant="signal" className="finale-sculpture" />
+      <div className="finale-copy"><span className="section-kicker">YOUR NEXT MOVE STARTS WITH CLARITY</span><h2 id="finale-heading">A complex web.<br /><span>A clearer perspective.</span></h2><p>Follow the signals. Understand the evidence. See your digital world from every angle.</p><a className="button-primary" href="#investigate">Start an investigation <ArrowUpRight size={17} /></a></div>
+      <span className="finale-watermark" aria-hidden="true">360°</span>
+    </section>
   </>;
 }

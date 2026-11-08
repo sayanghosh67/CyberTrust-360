@@ -1,3 +1,4 @@
+import { OrbitalScene } from './OrbitalScene';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   ShieldCheck,
@@ -146,7 +147,8 @@ export const BlockchainTrustCenter: React.FC<BlockchainTrustCenterProps> = ({
   return (
     <section id="blockchain-trust" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+      <div className="artwork-heading">
+        <OrbitalScene variant="vault" className="module-sculpture" />
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800/40 text-xs font-mono uppercase tracking-wider mb-2">
             <Lock className="w-3.5 h-3.5 text-cyan-400" />
