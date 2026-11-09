@@ -72,6 +72,8 @@ blockchain/typechain-types/
 
 # Local demo credentials, audit backups and generated media (never stage by default)
 .runtime/
+videoscreenrecord/
+*.mov
 hackathon-video/runtime/
 hackathon-video/remediation/
 hackathon-video/output/

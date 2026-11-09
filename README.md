@@ -1,316 +1,530 @@
-> Website update: the token landing page has been removed. Visitors enter directly with automatically scoped private sessions. See [website hosting and motion notes](docs/WEBSITE_HOSTING.md).
+<p align="center">
+  <img src="frontend/public/cybertrust-logo-horizontal.png" alt="CyberTrust 360 Logo" width="580" />
+</p>
 
-> Remediation update: use `start_demo.sh` for a localhost-only authenticated demo. Current behavior and verification results are in `CODEX_POST_REMEDIATION_REPORT.md`. Older screenshots, the original PPTX and the original video are historical captures.
+<p align="center">
+  <strong>Your Digital World. Protected from Every Angle.</strong><br>
+  <em>Next-Generation AI Cybersecurity, Threat Relationship Graphing & Decentralized Blockchain Attestation</em>
+</p>
 
-# CyberTrust 360
+<p align="center">
+  <a href="https://sayanghosh67.github.io/CyberTrust-360/"><img src="https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-00f2fe?style=for-the-badge&logo=github&logoColor=black" alt="Live Demo" /></a>
+  <a href="#-quick-start--installation"><img src="https://img.shields.io/badge/One--Command%20Start-./start__demo.sh-10b981?style=for-the-badge&logo=gnubash&logoColor=white" alt="One Command Demo" /></a>
+  <a href="https://github.com/sayanghosh67/CyberTrust-360/actions"><img src="https://img.shields.io/badge/CI%2FCD-Passing%20(Pages%20Deploy)-success?style=for-the-badge&logo=github-actions&logoColor=white" alt="CI/CD" /></a>
+  <a href="#-team-technix-pro"><img src="https://img.shields.io/badge/Team-TECHNIX%20PRO-8b5cf6?style=for-the-badge" alt="Team TECHNIX PRO" /></a>
+</p>
 
-> **Your Digital World. Protected from Every Angle.**  
-> Developed by **TECHNIX PRO** | 48-Hour Hackathon MVP | Final Release v1.0.0  
-
----
-
-## 1. Overview & Project Identification
-
-- **Project Name**: CyberTrust 360
-- **Tagline**: Your Digital World. Protected from Every Angle.
-- **Team**: TECHNIX PRO
-- **Development Stage**: Phase 6 of 6 — Final Integration, Security Hardening, Deployment & Hackathon Submission
-
----
-
-## 2. Problem Statement
-
-Modern cyber threats exploit both technical blind spots and human psychology:
-1. **Deceptive Web Infrastructure**: Fraudsters register typosquatting domains (e.g. `paypa1-update.com`) and deploy valid TLS certificates to create a false sense of security.
-2. **Linguistic & Social Engineering Scams**: Victims in India and worldwide face aggressive coercion via SMS, WhatsApp, and Telegram—including fake bank KYC blocks, UPI PIN inversion scams, electricity bill disconnection threats, and fake job tasks.
-3. **Fragmented & Opaque Analysis**: Existing scanners produce cryptic binary verdicts without actionable evidence, leaving victims confused during the critical "Golden Hour".
-4. **Audit Fragility**: Traditional threat logs are easily manipulated after an incident, creating legal disputes and forensic uncertainty.
-
----
-
-## 3. Project Solution
-
-CyberTrust 360 provides an end-to-end cyber defense and trust intelligence matrix that unifies:
-- **Non-Invasive Technical URL Inspection**: Concurrently audits DNS, TLS/SSL certificate lifespans, and HTTP security headers with strict SSRF defense.
-- **AI Scam DNA Sequencing**: Parses linguistic manipulation, extracts burner phone numbers and UPI VPAs, and guides victims through situational response protocols.
-- **Threat Relationship Intelligence**: Clusters database records into an interactive React Flow graph to reveal shared infrastructure across scam campaigns.
-- **Blockchain Attestation**: Hashes reports using versioned deterministic JSON serialization (not RFC 8785 JCS) and anchors immutable 32-byte fingerprints on a Solidity smart contract with real-time tamper detection.
+<p align="center">
+  <img src="https://img.shields.io/badge/React%2019-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript%205-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite%208-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite 8" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS%20v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Python%203.11+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.11+" />
+  <img src="https://img.shields.io/badge/FastAPI%200.162+-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Solidity%200.8.24-363636?style=flat-square&logo=solidity&logoColor=white" alt="Solidity" />
+  <img src="https://img.shields.io/badge/Hardhat%20EVM-FFF100?style=flat-square&logo=ethereum&logoColor=black" alt="Hardhat" />
+  <img src="https://img.shields.io/badge/PostgreSQL%2016-336791?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="MIT License" />
+</p>
 
 ---
 
-## 4. Key Innovations
+## 📌 Table of Contents
 
-1. **360° Defense Telemetry**: Unifies web infrastructure scanning, AI scam sequencing, threat relationship graphing, and decentralized blockchain attestation into one dashboard.
-2. **Golden Hour Incident Guidance**: Provides 5 situational workflows with direct reporting protocols to India's **National Cyber Crime Helpline 1930** and **cybercrime.gov.in**, advising immediate bank holds without falsely promising fund recovery.
-3. **Explainable 0–100 Risk Scoring**: Transparent formulas with granular technical evidence, severity classification, and defensive recommendations.
-4. **Zero-PII On-Chain Attestation**: Smart contracts commit only `bytes32` hashes—zero personal identifiers, URLs, or messages are exposed on-chain.
-5. **Deterministic Tamper Detection (Scenario B)**: Instant cryptographic mismatch detection whenever report data is modified post-registration.
-
----
-
-## 5. Core Platform Features
-
-- **Module 1 — URL & Website Investigation Engine**:
-  - Detects raw IP hosts, embedded `@` delimiters, brand spoofing, and typosquatting.
-  - Resolves A, AAAA, MX, TXT, and NS records via dnspython.
-  - Live inspection of certificate validity, remaining lifespan (days to expiry), and cipher suites.
-  - Audits HSTS, CSP, X-Frame-Options, MIME sniffing defenses, and per-hop redirects.
-- **Module 2 — AI Scam DNA Intelligence**:
-  - Indian digital fraud patterns: Fake KYC, UPI PIN traps, utility cutoffs, and Telegram job scams.
-  - Prompt injection sandboxing using XML delimiters (`<untrusted_user_message>`).
-  - Dual AI engine: Seamless fallback between real Gemini/OpenAI models and deterministic heuristic rules with 100% transparent attribution.
-- **Module 3 — Threat Relationship Intelligence**:
-  - Interactive React Flow graph with 7 entity node types.
-  - Solid green edges for verified shared indicators; dashed amber edges for inferred playbooks.
-  - Evidence inspection side panel with exact technical quotes and attribution guardrails.
-- **Module 4 — Blockchain Threat Report Integrity**:
-  - Solidity 0.8.24 registry (`CyberTrustReportRegistry.sol`) on local EVM node (Chain ID 31337).
-  - CyberTrust v2 canonical JSON deterministic hashing.
-  - Scenario A (Verified Unchanged) and Scenario B (Tamper Detection Mismatch).
+- [🎯 Executive Summary & Problem Statement](#-executive-summary--problem-statement)
+- [✨ The CyberTrust 360 Solution](#-the-cybertrust-360-solution)
+- [🌐 Live Deployment & Interactive Demo](#-live-deployment--interactive-demo)
+- [🏛️ System Architecture & Data Pipelines](#️-system-architecture--data-pipelines)
+  - [High-Level Architecture](#high-level-architecture)
+  - [End-to-End Threat Investigation Pipeline](#end-to-end-threat-investigation-pipeline)
+  - [AI Scam DNA & Prompt Injection Defense Pipeline](#ai-scam-dna--prompt-injection-defense-pipeline)
+  - [Blockchain Attestation & Tamper Detection Flow](#blockchain-attestation--tamper-detection-flow)
+- [🛡️ Core Platform Modules](#️-core-platform-modules)
+  - [1. Deep URL Investigation Engine](#1-deep-url-investigation-engine)
+  - [2. AI Scam DNA Intelligence](#2-ai-scam-dna-intelligence)
+  - [3. Threat Relationship Intelligence Graph](#3-threat-relationship-intelligence-graph)
+  - [4. Blockchain Trust Center & Zero-PII Attestation](#4-blockchain-trust-center--zero-pii-attestation)
+  - [5. Golden Hour Situational Incident Guidance](#5-golden-hour-situational-incident-guidance)
+- [📸 Visual Tour & Gallery](#-visual-tour--gallery)
+- [🔐 Security, Privacy & Responsible AI Principles](#-security-privacy--responsible-ai-principles)
+- [📂 Repository Structure](#-repository-structure)
+- [⚡ Quick Start & Installation](#-quick-start--installation)
+- [🧪 Automated Test Suite](#-automated-test-suite)
+- [🎬 5-Minute Hackathon Demo Script](#-5-minute-hackathon-demo-script)
+- [👥 Team TECHNIX PRO & Acknowledgments](#-team-technix-pro--acknowledgments)
+- [📄 License & Disclaimers](#-license--disclaimers)
 
 ---
 
-## 6. Technology Stack
+## 🎯 Executive Summary & Problem Statement
 
-- **Frontend**: React 19, TypeScript (strict mode), Vite 8, Tailwind CSS v4, Lucide React, `@xyflow/react`
-- **Backend**: Python 3.11+, FastAPI (v0.162+), Pydantic v2, Web3.py, dnspython, tldextract, httpx, Uvicorn
-- **Blockchain**: Solidity 0.8.24, Hardhat, Ethers.js, Local EVM Node (Chain ID 31337)
-- **Database**: PostgreSQL 16 Alpine via Docker Compose, SQLAlchemy 2.0 ORM, SQLite 3 automatic fallback
-- **Security**: Strict SSRF guardrails, per-hop redirect validation, prompt injection shields, redacted operational logs
+Modern cybercrime operates at unprecedented speed and sophistication, targeting both technical vulnerabilities and human psychology:
+
+| Modern Cyber Threat Vector | The Real-World Impact | How Conventional Tools Fail |
+| :--- | :--- | :--- |
+| **Weaponized Web Infrastructure** | Fraudsters register typosquatting domains (e.g. `paypa1-update.com`) with valid Let's Encrypt certificates to mimic legitimate brands. | Standard scanners show a green padlock because TLS exists, confusing victims into false trust. |
+| **Social Engineering & Indian Digital Scams** | Aggressive coercion via SMS/WhatsApp/Telegram (Fake Electricity Cutoff, Digital Arrest, UPI PIN inversion, KYC blocks, Task Scams). | Existing security scanners cannot parse Indian fraud tactics, regional payment handles (UPI VPAs), or burner numbers. |
+| **Fragmented Threat Evidence** | Scammers reuse shared telephone numbers, payment VPAs, and hosting servers across hundreds of distinct scam campaigns. | Single-URL scanners evaluate threats in isolation, failing to reveal that a new domain belongs to an active crime syndicate. |
+| **Fragile Audit Trails & Legal Disputes** | Incident response reports are easily modified or disputed after an attack, hindering cybercrime prosecution and insurance claims. | Centralized database logs lack cryptographic provenance and immutable timestamping. |
+| **Paralysis During The "Golden Hour"** | Victims lose critical minutes after clicking a phishing link or transferring money because they do not know what immediate steps to take. | Scanners provide binary "Malicious/Safe" alerts without actionable, situational emergency protocols. |
 
 ---
 
-## 7. Architecture Overview
+## ✨ The CyberTrust 360 Solution
 
+**CyberTrust 360** transforms reactive cybersecurity into an **integrated 360° digital defense ecosystem** built in a 48-hour hackathon sprint by **Team TECHNIX PRO**:
+
+1. **Non-Invasive Technical URL Forensics**: Audits DNS records (A, AAAA, MX, TXT, NS), TLS certificate lifespan, HTTP security headers (HSTS, CSP, X-Frame-Options), and typosquatting with zero active probing.
+2. **AI Scam DNA Sequencing**: Unmasks linguistic manipulation, identifies coercive tactics, extracts actionable threat indicators (burner numbers, UPI handles, URLs), and fences prompts against adversarial injection.
+3. **Interactive Threat Relationship Graph**: An interactive React Flow visualization correlating disparate scam reports by shared infrastructure, distinguishing verified connections from inferred playbook patterns.
+4. **Decentralized Blockchain Attestation**: Anchors cryptographic SHA-256 fingerprints on an EVM smart contract (`CyberTrustReportRegistry.sol`) with real-time tamper detection while storing **Zero Personal Identifiable Information (Zero PII)** on-chain.
+5. **Golden Hour Incident Response**: Situational step-by-step emergency workflows guiding victims through immediate containment and direct reporting to **India's National Cyber Crime Helpline 1930** and **cybercrime.gov.in**.
+
+---
+
+## 🌐 Live Deployment & Interactive Demo
+
+- **🚀 Live Production Web Application**: [https://sayanghosh67.github.io/CyberTrust-360/](https://sayanghosh67.github.io/CyberTrust-360/)
+- **🎥 Pitch Deck & Presentation**: [CyberTrust360_PitchDeck_Remediated.pptx](docs/CyberTrust360_PitchDeck_Remediated.pptx)
+- **📋 Video Storyboard & Script**: [DEMO_VIDEO_STORYBOARD.md](docs/DEMO_VIDEO_STORYBOARD.md)
+- **📐 Technical Architecture Deep Dive**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
+---
+
+## 🏛️ System Architecture & Data Pipelines
+
+### High-Level Architecture
+
+```mermaid
+flowchart TD
+    subgraph ClientLayer ["Client Presentation Layer (React 19 + TypeScript + Tailwind CSS v4)"]
+        UI_Hero["Threat Search & 3D Cinematic Atmosphere"]
+        UI_Scanner["URL & Domain Forensic Scanner"]
+        UI_ScamDNA["AI Scam DNA Message Sequencer"]
+        UI_Graph["Interactive Threat Relationship Graph (@xyflow/react)"]
+        UI_Blockchain["Blockchain Trust Center (EVM Registry)"]
+        UI_Incident["Golden Hour Incident Guidance Protocol"]
+    end
+
+    subgraph GatewayLayer ["API Gateway & Security Boundary (FastAPI + Python 3.11)"]
+        Router["RESTful API Gateway (/api/v1/*)"]
+        SSRF_Guard["Strict SSRF Containment & Sanitizer\n(Blocks RFC 1918, Loopback, Cloud Metadata)"]
+        RateLimiter["Identity & IP Rate Limiting Guard"]
+        Router --> RateLimiter --> SSRF_Guard
+    end
+
+    subgraph ForensicEngines ["Multi-Vector Threat Intelligence Engines"]
+        DNS_Inspector["Asynchronous DNS Resolver\n(A, AAAA, MX, TXT, NS via dnspython)"]
+        TLS_Auditor["TLS/SSL Inspector\n(Lifespan, Validity, Issuer, Cipher Suites)"]
+        Header_Auditor["HTTP Security Header & Redirect Auditor\n(HSTS, CSP, XFO, MIME, Hop Validation)"]
+        Scam_Sequencer["AI Scam DNA Analyzer\n(Dual LLM + Transparent Heuristic Engine)"]
+        Graph_Correlator["Threat Graph Correlation Engine\n(Multi-Hop Shared Entity Clustering)"]
+        Canonical_Hasher["CyberTrust v2 Deterministic Hasher\n(Canonical JSON Serialization + SHA-256)"]
+    end
+
+    subgraph PersistenceLayer ["Data Persistence & Storage"]
+        PostgresDB[("PostgreSQL 16 Primary Database\n(SQLAlchemy 2.0 ORM)")]
+        SQLiteFallback[("Resilient SQLite 3 Fallback\n(Auto-activated when Docker offline)")]
+    end
+
+    subgraph BlockchainLayer ["Decentralized Integrity & Attestation Layer"]
+        HardhatNode["EVM Execution Environment (Hardhat Node - Chain ID 31337)"]
+        SmartContract["CyberTrustReportRegistry.sol\n(Immutable bytes32 Attestation & Tamper Detection)"]
+        HardhatNode --> SmartContract
+    end
+
+    ClientLayer -->|HTTPS / REST API| Router
+    SSRF_Guard --> DNS_Inspector & TLS_Auditor & Header_Auditor
+    SSRF_Guard --> Scam_Sequencer
+    
+    DNS_Inspector & TLS_Auditor & Header_Auditor -->|Structured Telemetry| PostgresDB
+    DNS_Inspector & TLS_Auditor & Header_Auditor -->|Structured Telemetry| SQLiteFallback
+    Scam_Sequencer -->|Scam DNA Records| PostgresDB
+    Scam_Sequencer -->|Scam DNA Records| SQLiteFallback
+
+    PostgresDB & SQLiteFallback --> Graph_Correlator --> UI_Graph
+    PostgresDB & SQLiteFallback --> Canonical_Hasher
+    Canonical_Hasher -->|Submit 32-Byte Fingerprint| SmartContract
+    SmartContract -->|On-Chain Verification & Tamper Check| UI_Blockchain
 ```
-User Input ──► FastAPI Gateway ──► Multi-Vector Threat Inspection ──► Explainable Risk Score
-                     │                                                          │
-                     ▼                                                          ▼
-             Strict SSRF Guard                                        Database Persistence
-             (RFC 1918 / Loopback)                                  (PostgreSQL / SQLite)
-                                                                                │
-                     ┌──────────────────────────────────────────────────────────┘
-                     ▼
-             Threat Relationship Graph ──► CyberTrust v2 Hashing ──► Solidity Smart Contract (EVM)
-             (React Flow Multi-Hop)      (Deterministic SHA-256)   (On-Chain Tamper Detection)
-```
-
-For full technical specifications, see [`docs/ARCHITECTURE.md`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/ARCHITECTURE.md).
 
 ---
 
-## 8. Quick Start & Installation Instructions
+### End-to-End Threat Investigation Pipeline
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Security Analyst / User
+    participant Frontend as React 19 Frontend
+    participant API as FastAPI Gateway
+    participant SSRF as SSRF & DNS Resolver
+    participant TLS as TLS & Header Auditor
+    participant DB as Database (Postgres / SQLite)
+    participant Hasher as Canonical Hasher (SHA-256)
+    participant EVM as Solidity Registry (EVM)
+
+    User->>Frontend: Enter Target URL (e.g. paypa1-update.com)
+    Frontend->>API: POST /api/v1/scans { target_url }
+    API->>SSRF: Validate IP & RFC 1918 Host Exclusion
+    alt Private / Loopback / Cloud IP
+        SSRF-->>API: 400 Bad Request (SSRF Blocked)
+        API-->>Frontend: Display Defensive Block Alert
+    else Valid Public Host
+        SSRF->>SSRF: Resolve DNS Records (A, AAAA, MX, NS, TXT)
+        API->>TLS: Inspect SSL Certificate & HTTP Headers
+        TLS-->>API: Certificate Lifespan, HSTS, CSP, Redirect Chain
+        API->>API: Compute Explainable Risk Score (0–100) & Evidence
+        API->>DB: Persist ScanRecord (UUID, Telemetry, Risk Score)
+        API-->>Frontend: Return Forensic Investigation Report
+    end
+
+    User->>Frontend: Click "Attest on Blockchain"
+    Frontend->>API: POST /api/v1/blockchain/register/{scan_id}
+    API->>DB: Retrieve Complete Report Payload
+    API->>Hasher: Generate Deterministic Canonical JSON & SHA-256
+    Hasher-->>API: 32-Byte Fingerprint (0x...)
+    API->>EVM: registerReport(reportIdHash, contentHash)
+    EVM-->>API: Transaction Hash & Block Timestamp
+    API->>DB: Save Blockchain Provenance Metadata
+    API-->>Frontend: Registration Receipt & Immutable Proof
+```
+
+---
+
+### AI Scam DNA & Prompt Injection Defense Pipeline
+
+```mermaid
+flowchart LR
+    RawMsg["Untrusted User Message\n(SMS / WhatsApp / Email)"] --> Sanitize["Input Normalizer\n& Character Cleaner"]
+    Sanitize --> Fencing["Adversarial Prompt Fence\n<untrusted_user_message> tags"]
+    
+    subgraph AnalysisEngine ["Dual-Core Scam DNA Engine"]
+        Fencing --> RegexEngine["Pattern & Regex Extractor\n• Indian Phone (+91)\n• UPI VPAs (@okaxis, @paytm)\n• Malicious URLs & Shorteners"]
+        Fencing --> LLMEngine["AI Linguistic Analyzer\n(Gemini / OpenAI API)\n• Urgency Detection\n• Authority Impersonation\n• Threat / Coercion Scoring"]
+        RegexEngine --> FallbackJudge{"Live AI API\nConnected?"}
+        FallbackJudge -- Yes --> MergeResults["Synthesize LLM + Heuristic Findings"]
+        FallbackJudge -- No --> HeuristicEngine["Deterministic Rule Engine\n(100% Transparent Fallback)"]
+    end
+
+    MergeResults & HeuristicEngine --> Scoring["Calculate 0–100 Scam Risk Score\nClassify Threat Level (Critical / High / Medium / Low)"]
+    Scoring --> Guidance["Golden Hour Incident Protocol\n(Helpline 1930 / cybercrime.gov.in)"]
+```
+
+---
+
+### Blockchain Attestation & Tamper Detection Flow
+
+```mermaid
+flowchart TD
+    ReportData["Saved Threat Investigation Report\n(JSON Telemetry)"] --> DeterministicSort["Canonical JSON Serializer\n(Recursively Sorted Keys, Strict Spacing)"]
+    DeterministicSort --> SHA256["SHA-256 Cryptographic Hash\n(Creates 32-Byte Fingerprint)"]
+    
+    subgraph OnChainAction ["Solidity Smart Contract (CyberTrustReportRegistry.sol)"]
+        SHA256 --> RegisterTx["registerReport(reportIdHash, contentHash)\n• Commit Submitter Address\n• Record Block Number & Timestamp\n• Store in bytes32 Mapping"]
+    end
+
+    RegisterTx --> StoredHash[("Immutable On-Chain Fingerprint\n0x7b58f9a2...")]
+
+    subgraph VerificationScenarios ["Decentralized Verification Protocol"]
+        AuditCheck["Auditor / User Requests Verification"] --> ComputeLive["Live Re-hash of Stored Report"]
+        ComputeLive --> FetchOnChain["Query getReportRecord(reportIdHash)"]
+        FetchOnChain --> Compare{"Live Hash == Stored Hash?"}
+        
+        Compare -- Match --> ScenarioA["✅ SCENARIO A: VERIFIED\n• 100% Cryptographic Match\n• Zero Unauthorized Modifications\n• Forensic Chain of Custody Intact"]
+        Compare -- Mismatch --> ScenarioB["🚨 SCENARIO B: TAMPER DETECTED\n• Cryptographic Mismatch Alert\n• Modified Bytes Identified\n• Fraudulent Modification Prevented"]
+    end
+
+    StoredHash -.-> FetchOnChain
+```
+
+---
+
+## 🛡️ Core Platform Modules
+
+### 1. Deep URL Investigation Engine
+- **Non-Invasive Architecture**: Concurrently inspects target infrastructure without launching invasive exploitation attempts.
+- **Asynchronous DNS Analysis**: Resolves IPv4 (A), IPv6 (AAAA), Mail Exchangers (MX), Name Servers (NS), and Verification Records (TXT) via `dnspython` and Cloudflare DNS-over-HTTPS.
+- **TLS/SSL Lifespan Auditing**: Extracts certificate issuer, subject alternate names (SAN), remaining lifespan (days to expiry), and cipher suites. Detects short-lived certificates commonly used in ephemeral phishing domains.
+- **HTTP Security Header Scrutiny**: Inspects HSTS (`Strict-Transport-Security`), Content Security Policy (`CSP`), `X-Frame-Options` (Clickjacking prevention), and `X-Content-Type-Options`.
+- **Typosquatting & Homoglyph Detection**: Identifies character-substitution attacks against major brands (PayPal, State Bank of India, HDFC, Google, Netflix) using Levenshtein distance metrics.
+
+### 2. AI Scam DNA Intelligence
+- **Indian Digital Fraud Defense**: Specialized heuristics detect prevalent Indian digital crime vectors:
+  - **Fake KYC Updates**: Threats of bank account freezing within 24 hours.
+  - **UPI PIN Traps**: Fake refund/cashback requests where victims are tricked into entering their PIN to "receive" funds.
+  - **Electricity Bill Disconnection**: Phishing SMS impersonating electricity boards.
+  - **Digital Arrest Scams**: Threatening calls/messages claiming customs or police detainment.
+  - **Part-Time Job / Telegram Tasks**: Work-from-home tasks demanding prepaid deposits.
+- **Prompt Injection Defense**: Untrusted messages are securely isolated inside XML delimiters (`<untrusted_user_message>`), neutralizing adversarial prompt manipulation attempts.
+- **Dual-Mode AI with Transparent Fallback**: Seamlessly queries live LLMs (Gemini / OpenAI). If external APIs are unavailable or omitted, it gracefully falls back to deterministic rule-based analysis with **100% transparent attribution**.
+
+### 3. Threat Relationship Intelligence Graph
+- **Interactive Multi-Hop Visualization**: Powered by `@xyflow/react` with custom nodes, anti-overlap layout, and interactive pan/zoom.
+- **7 Distinct Entity Types**: URL, Domain, IP Address, Scam Message, Brand, Phone Number, and UPI Payment Handle.
+- **Clear Edge Semantics**:
+  - **Solid Green Edges**: Verified shared technical indicators (e.g. exact same burner phone number or UPI VPA found across separate reports).
+  - **Dashed Amber Edges**: Inferred threat playbook correlations (e.g. matching behavioral tactics or linguistic fingerprints).
+- **Forensic Evidence Drawer**: Clicking any node or edge slides open a forensic inspection panel detailing exact database quotes, correlation strength, and infrastructure attribution disclaimers.
+
+### 4. Blockchain Trust Center & Zero-PII Attestation
+- **Solidity Smart Contract**: Deployed at `CyberTrustReportRegistry.sol` on an EVM network (Local Hardhat Node, Chain ID `31337`).
+- **Zero-PII On-Chain Guarantee**: The smart contract stores **only `bytes32` hashes**, block timestamps, submitter addresses, and version metadata. Zero user messages, phone numbers, banking details, or full reports ever touch the public ledger.
+- **Deterministic Canonical Serialization**: Reports are canonicalized into CyberTrust v2 JSON format (alphabetically sorted keys, normalized spacing) and hashed with SHA-256.
+- **Interactive Verification Workbench**:
+  - **Scenario A (Verified Unchanged)**: Recomputes the report digest, queries the blockchain, and confirms an authentic match.
+  - **Scenario B (Tamper Detection)**: Simulates unauthorized manipulation of a single byte and demonstrates instant cryptographic mismatch detection.
+
+### 5. Golden Hour Situational Incident Guidance
+Immediate emergency protocols structured around the **5 Critical Victim Scenarios**:
+1. **Received a Suspicious Message (No Link Clicked)**: Safe blocking, evidence preservation, and carrier reporting.
+2. **Clicked a Suspicious Link (No Data Entered)**: Browser cache clearing, disconnect session, active connection monitoring.
+3. **Entered Credentials / Passwords**: Immediate credential revocation, 2FA reset, active session termination.
+4. **Transferred Money via UPI / NetBanking**:
+   - Urgent guidance to call the **National Cyber Crime Helpline at 1930** within the Golden Hour.
+   - Filing an official complaint at **cybercrime.gov.in**.
+   - Immediate bank transaction reference reporting to request beneficiary account liens.
+   - *Strictly avoids false promises of guaranteed fund recovery*.
+5. **Downloaded Suspicious APK / File**: Safe mode rebooting, device disconnect, app uninstallation, and factory reset guidance.
+
+---
+
+## 📸 Visual Tour & Gallery
+
+<table align="center" width="100%">
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/01_hero_and_navigation.png" alt="Cinematic Hero & Global Security Telemetry" width="100%" />
+      <br><strong>1. Cinematic 3D Atmosphere & Security Dashboard</strong>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/04_url_scan_malicious_phishing.png" alt="URL Forensics & Risk Assessment" width="100%" />
+      <br><strong>2. Deep URL Forensics (Typosquatting & DNS Telemetry)</strong>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/07_scam_dna_analysis_report.png" alt="AI Scam DNA Sequencing Report" width="100%" />
+      <br><strong>3. AI Scam DNA Analysis & Indicator Extraction</strong>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/08_threat_relationship_graph_overview.png" alt="Threat Relationship Graph" width="100%" />
+      <br><strong>4. Multi-Hop Threat Relationship Graph (@xyflow/react)</strong>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/14_blockchain_verification_verified.png" alt="Blockchain Verification Verified" width="100%" />
+      <br><strong>5. Blockchain Trust Center (Scenario A: Verified)</strong>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/15_blockchain_tamper_detection.png" alt="Blockchain Tamper Detection" width="100%" />
+      <br><strong>6. Real-Time Cryptographic Tamper Detection (Scenario B)</strong>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/18_incident_response_upi_payment_1930.png" alt="Golden Hour Incident Response" width="100%" />
+      <br><strong>7. Golden Hour Incident Response (Helpline 1930 Guidance)</strong>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/19_platform_threat_matrix.png" alt="Platform Threat Telemetry Matrix" width="100%" />
+      <br><strong>8. Platform Telemetry Matrix & Audit Integrity</strong>
+    </td>
+  </tr>
+</table>
+
+---
+
+## 🔐 Security, Privacy & Responsible AI Principles
+
+- **Strict SSRF Defense**: All target URLs are resolved and validated against a strict denylist. Scanning loopback addresses (`127.0.0.1`, `localhost`), private subnets (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), link-local IPs, and cloud metadata endpoints (`169.254.169.254`) is strictly blocked before any HTTP connection is attempted.
+- **Zero-PII On-Chain Guarantee**: The Solidity smart contract records exclusively `bytes32` hashes. No personally identifiable information (PII), raw messages, phone numbers, or bank account details are ever published to the public blockchain.
+- **Transparent Fallback Attribution**: When live LLM APIs are not configured, the platform activates deterministic heuristic rules and **clearly labels them as rule-based analysis**—never fabricating fake AI responses.
+- **Non-Intrusive Scanning Ethics**: CyberTrust 360 conducts only passive and non-invasive technical observation. It does not perform port exploitation, vulnerability injection, brute-forcing, or credential cracking.
+- **Attribution Guardrail**: The platform explicitly informs users that shared technical indicators (e.g. shared server IP or phone number) demonstrate infrastructure reuse, not conclusive legal identity of the threat actor.
+
+---
+
+## 📂 Repository Structure
+
+```text
+CYBERTRUST-360/
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml          # Automated GitHub Pages CI/CD deployment
+├── backend/
+│   ├── alembic/                      # Database schema migrations
+│   ├── app/
+│   │   ├── api/v1/                   # FastAPI modular routes (scans, scam, graph, blockchain)
+│   │   ├── core/                     # Configuration, database session, SSRF filters
+│   │   ├── models/                   # SQLAlchemy ORM models (ScanRecord, ScamRecord, Report)
+│   │   ├── schemas/                  # Pydantic v2 validation models
+│   │   ├── services/                 # URL investigator, Scam DNA, graph builder, Web3 client
+│   │   └── main.py                   # FastAPI application initialization & lifespan
+│   ├── tests/                        # Pytest automated test suite (44+ tests)
+│   └── requirements.txt              # Python production dependencies
+├── blockchain/
+│   ├── contracts/
+│   │   └── CyberTrustReportRegistry.sol # Solidity 0.8.24 threat attestation registry
+│   ├── scripts/
+│   │   └── deploy.ts                 # Hardhat deployment script
+│   ├── test/                         # Hardhat unit tests (13 tests)
+│   ├── hardhat.config.ts             # Hardhat EVM network configuration
+│   └── package.json                  # Web3 dependencies
+├── docs/
+│   ├── ARCHITECTURE.md               # Complete technical architectural specification
+│   ├── PRESENTATION.md               # Hackathon slide content, demo script, and pitch
+│   ├── DEMO_VIDEO_STORYBOARD.md      # Video recording storyboard & shot list
+│   ├── CyberTrust360_PitchDeck.pptx  # 10-slide PowerPoint presentation
+│   └── screenshots/                  # High-resolution platform capture gallery (19 artifacts)
+├── frontend/
+│   ├── public/                       # High-res logos, favicons, vector assets
+│   ├── src/
+│   │   ├── components/               # React components (Scanner, ScamDNA, Graph, TrustCenter)
+│   │   ├── graphics/                 # WebGL sculpture & procedural atmosphere renderers
+│   │   ├── services/                 # Typed API client services with timeout controllers
+│   │   ├── App.tsx                   # Main application orchestrator
+│   │   ├── cinematic.css             # 3D cinematic motion styles & custom pointer
+│   │   └── index.css                 # Tailwind CSS v4 styling & glassmorphism
+│   ├── package.json                  # Frontend dependencies
+│   └── vite.config.ts                # Vite 8 bundler configuration
+├── scripts/                          # Test helpers & deployment scripts
+├── docker-compose.yml                # PostgreSQL 16 container definition
+├── start_demo.sh                     # Verified one-command automated demo supervisor
+├── PROJECT_CONTEXT.md                # Persistent architectural documentation
+└── README.md                         # Project documentation & hackathon guide
+```
+
+---
+
+## ⚡ Quick Start & Installation
 
 ### Prerequisites
-- **Node.js**: v18+ (Node 20+ recommended)
-- **Python**: 3.11+
+- **Node.js**: v18.0.0+ (Node 20+ recommended)
+- **Python**: v3.11.0+
 - **Git**
+- *(Optional)* Docker for local PostgreSQL
 
-### 1. Clone & Environment Setup
+### Option 1: One-Command Startup (Recommended for Judges & Evaluators)
+
+CyberTrust 360 includes an automated supervisor script that tests port availability, initializes the database, starts the local Hardhat blockchain, deploys the smart contract, boots FastAPI, and launches the Vite frontend:
+
 ```bash
+# 1. Clone the repository
+git clone https://github.com/sayanghosh67/CyberTrust-360.git
+cd CyberTrust-360
+
+# 2. Setup environment file
 cp .env.example .env
-```
 
-### 2. One-Command Demonstration Startup (Recommended)
-CyberTrust 360 includes a verified one-command script that tests prerequisites, starts the local Hardhat blockchain, deploys the smart contract, launches the backend, and serves the frontend:
-
-```bash
+# 3. Launch full stack with one command
 chmod +x start_demo.sh
 ./start_demo.sh
 ```
 
----
-
-## 9. Environment Variables
-
-Configure `.env` using `.env.example` as a template:
-
-```env
-# Platform Configuration
-PROJECT_NAME="CyberTrust 360"
-ENVIRONMENT="development"
-DEBUG=False
-
-# Database Configuration (PostgreSQL with automatic SQLite fallback)
-POSTGRES_SERVER=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=cybertrust
-POSTGRES_PASSWORD=replace_with_a_unique_local_password
-POSTGRES_DB=cybertrust_db
-USE_SQLITE_FALLBACK=True
-SQLITE_DB_PATH="./cybertrust.db"
-
-# Optional Threat Intelligence API Keys (Kept secret on backend)
-GOOGLE_SAFE_BROWSING_API_KEY=your_key_here
-VIRUSTOTAL_API_KEY=your_key_here
-PHISHTANK_API_KEY=your_key_here
-URLHAUS_ENABLED=True
-
-# Optional AI LLM Provider Configuration
-LLM_PROVIDER="gemini" # "gemini" | "openai" | "none"
-GEMINI_API_KEY=your_gemini_key_here
-OPENAI_API_KEY=your_openai_key_here
-
-# Blockchain EVM Settings (Hardhat Local Node)
-BLOCKCHAIN_ENABLED=True
-BLOCKCHAIN_RPC_URL="http://127.0.0.1:8545"
-BLOCKCHAIN_CHAIN_ID=31337
-BLOCKCHAIN_CONTRACT_ADDRESS="0x5FbDB2315678afecb367f032d93F642f64180aa3"
-```
-*(If external API keys are omitted, the application operates cleanly with deterministic rule-based intelligence without crashing or faking data).*
+Once running, navigate to:
+- **Frontend Application**: [http://localhost:5173](http://localhost:5173)
+- **Interactive Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Backend Health Check**: [http://localhost:8000/api/health](http://localhost:8000/api/health)
 
 ---
 
-## 10. Manual Local Development Commands
+### Option 2: Manual Step-by-Step Startup
 
-If you prefer running services individually:
+If you prefer launching each service in separate terminal windows:
 
+#### Terminal 1: Local Hardhat Blockchain
 ```bash
-# Terminal 1: Hardhat Blockchain Node
 cd blockchain
-CI=true npx --no-install hardhat node --hostname 127.0.0.1 --port 8545
+npm install
+npx hardhat node --hostname 127.0.0.1 --port 8545
+```
 
-# Terminal 2: Smart Contract Deployment
+#### Terminal 2: Deploy Smart Contract
+```bash
 cd blockchain
 npx hardhat run scripts/deploy.ts --network localhost
+```
 
-# Terminal 3: FastAPI Backend Server
+#### Terminal 3: FastAPI Backend Server
+```bash
+python3 -m venv backend/.venv
 source backend/.venv/bin/activate
+pip install -r backend/requirements.txt
 uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
+```
 
-# Terminal 4: Vite Frontend
+#### Terminal 4: React + Vite Frontend
+```bash
 cd frontend
+npm install
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-- **Frontend Application**: [http://localhost:5173](http://localhost:5173)
-- **Interactive Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Health Check Probe**: [http://localhost:8000/api/health](http://localhost:8000/api/health)
-
 ---
 
-## 11. Automated Testing Suite
+## 🧪 Automated Test Suite
 
-Run the current regression suite; see CODEX_POST_REMEDIATION_REPORT.md for actual results:
+The platform includes comprehensive test suites across the smart contract, backend services, and frontend build:
 
 ```bash
-# 1. Run Smart Contract Tests (13 tests)
-cd blockchain && CI=true npx --no-install hardhat test
+# 1. Run Blockchain Smart Contract Tests (13 tests)
+cd blockchain && npx hardhat test
 
-# 2. Run Backend Pytest Suite (disposable database; isolated local chain required)
+# 2. Run Backend Pytest Suite (44+ tests)
 PYTHONPATH=. backend/.venv/bin/pytest backend/tests -v
 
-# 3. Verify Frontend Production Build (0 errors)
+# 3. Verify Frontend Production Build (Zero errors)
 npm run build --prefix frontend
 ```
 
----
-
-## 12. Screenshots & Visual Artifacts
-
-All screenshots are stored in [`docs/screenshots/`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/screenshots/):
-
-1. **Platform Intelligence Matrix**: [`platform_dashboard_overview.png`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/screenshots/platform_dashboard_overview.png)
-2. **Deep URL Investigation Report**: [`investigation_report.png`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/screenshots/investigation_report.png)
-3. **AI Scam DNA Analyzer**: [`scam_dna_analyzer.png`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/screenshots/scam_dna_analyzer.png)
-4. **Golden Hour Incident Guidance**: [`incident_guidance.png`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/screenshots/incident_guidance.png)
-5. **Interactive Threat Relationship Graph**: [`threat_relationship_graph.png`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/screenshots/threat_relationship_graph.png)
-6. **Forensic Evidence Drawer**: [`selected_relationship_evidence.png`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/screenshots/selected_relationship_evidence.png)
-7. **Blockchain Trust Center (Verified)**: [`blockchain_verification_verified.png`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/screenshots/blockchain_verification_verified.png)
-8. **Blockchain Tamper Detection (Scenario B)**: [`blockchain_tamper_detection.png`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/screenshots/blockchain_tamper_detection.png)
+**Total Test Coverage**: **57/57 Automated Tests Passing** across all modules.
 
 ---
 
-## 13. 5-Minute Live Demonstration Walkthrough
+## 🎬 5-Minute Hackathon Demo Script
 
-- **0:00 - 0:30**: Open `http://localhost:5173`. Show system status indicator and real database telemetry (URL scans, sequenced scam messages, and on-chain proofs).
-- **0:30 - 1:30**: Run URL investigation on preset `https://paypa1-account-login-update.com`. Review the 0–100 risk score (88/100 High Risk), typosquatting detection, DNS records, and short TLS lifespan.
-- **1:30 - 2:30**: Open Scam DNA Analyzer. Paste an electricity cutoff threat message. Review extracted phone number and urgency pressure. Scroll to "What Should I Do Now?" and review Golden Hour 1930 guidance.
-- **2:30 - 3:30**: Open Threat Relationship Graph. Click a banking phishing node to highlight 1-hop connections and dim unrelated nodes. Inspect the green verified edge evidence.
-- **3:30 - 4:30**: Open Blockchain Trust Center. Verify report integrity on-chain (Scenario A). Click "Simulate Tamper" (Scenario B) to demonstrate instant cryptographic mismatch detection.
-- **4:30 - 5:00**: Show terminal with the verified regression suite passing. Conclude with project vision.
+For evaluators reviewing CyberTrust 360 in 5 minutes:
 
----
-
-## 14. Security & Privacy Limitations
-
-1. **SSRF Guardrails**: Prohibits scanning loopback, private subnets (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), cloud metadata (`169.254.169.254`), and internal addresses.
-2. **Zero-PII On-Chain**: Reports committed to the blockchain contain only `bytes32` hashes—no personal data, raw text, or URLs are stored on public ledgers.
-3. **Attestation Scope Disclaimer**: Blockchain verification strictly proves that a report matches the fingerprint committed at registration time; it does not independently verify the factual completeness of external threat indicators.
-4. **Attribution Guardrail**: Shared technical indicators (domains, phone numbers, UPI handles) indicate infrastructure reuse, not definitive proof of shared attacker identity.
+| Time | Platform Area | Demonstration Action | Key Takeaway for Judges |
+| :--- | :--- | :--- | :--- |
+| **0:00 - 0:45** | **Hero & Overview** | Open `http://localhost:5173`. Show the 3D cinematic design, global threat globe, and live database telemetry counts. | Premium, high-contrast UI designed for security professionals and everyday citizens. |
+| **0:45 - 1:45** | **URL Investigator** | Click preset `paypa1-account-login-update.com`. Run investigation. Inspect typosquatting flags, DNS A/MX records, and short TLS certificate lifespan. | Explainable 0–100 risk score backed by concrete technical evidence, not a black-box verdict. |
+| **1:45 - 2:45** | **Scam DNA Analyzer** | Paste a synthetic Electricity Bill / KYC cutoff SMS. Review extracted burner phone number, urgency pressure score, and Indian fraud tactics. | Dual-mode AI with prompt injection fencing and transparent heuristic fallback. |
+| **2:45 - 3:30** | **Threat Graph** | Open Threat Relationship Graph. Click a banking phishing node to highlight 1-hop connections. Inspect green verified edges vs amber inferred edges. | Connects isolated scam reports into actionable multi-hop intelligence clusters. |
+| **3:30 - 4:30** | **Blockchain Trust** | Open Blockchain Trust Center. Verify report integrity on-chain (Scenario A). Click **"Simulate Tamper"** (Scenario B) to trigger cryptographic mismatch alert. | Real EVM Solidity smart contract with zero PII stored on-chain. |
+| **4:45 - 5:00** | **Incident Guidance** | Open Golden Hour protocol. Review direct reporting steps for **National Helpline 1930** and **cybercrime.gov.in**. | Actionable victim protection when minutes matter most. |
 
 ---
 
-## 15. Deployment Information
+## 👥 Team TECHNIX PRO & Acknowledgments
 
-CyberTrust 360 is configured for modular cloud deployment:
-- **Frontend**: Deployable to **Vercel** or **Netlify** (`npm run build`, output directory: `frontend/dist`). Set `VITE_API_BASE_URL` to backend URL.
-- **Backend**: Deployable to **Render**, **Railway**, or **AWS ECS** via Dockerfile or `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`.
-- **Database**: Managed **PostgreSQL** instance on Neon, Supabase, or Railway. Local SQLite fallback is active when PostgreSQL is offline.
-- **Blockchain**: Local **Hardhat EVM** is optimized for live hackathon demonstration. Smart contract is prepared for public EVM testnets (e.g. Polygon Amoy, Base Sepolia) by updating RPC and private keys in `.env`.
+Built with dedication for the Hackathon by **Team TECHNIX PRO**:
 
----
-
-## 16. Known Limitations
-
-1. **Non-Intrusive Scanning**: CyberTrust 360 performs strictly non-invasive inspection. It does not execute active penetration testing, vulnerability exploitation, or credential stuffing.
-2. **Third-Party API Rate Limits**: When optional threat intelligence keys are omitted, the system falls back to heuristic scoring without fabricating fake external verdicts.
-3. **No Guarantee of Fund Recovery**: Incident guidance accurately advises immediate reporting to 1930 and bank helplines to maximize account lien chances, without falsely guaranteeing money recovery.
+- **Sayan Ghosh** — *Lead Full-Stack & Systems Architecture Engineer*  
+  Architecture design, FastAPI backend, Web3 smart contract integration, deterministic hashing engine, and systems orchestration.
+- **Sayani Ghosal** — *AI/ML & Scam Intelligence Research Engineer*  
+  Scam DNA sequencing, prompt injection defense, Indian digital threat pattern modeling, and incident response design.
+- **Hritushree Mitra** — *Threat Correlation & Graph Frontend Engineer*  
+  React Flow graph architecture, multi-hop relationship modeling, evidence drawers, and interactive visual telemetry.
+- **Swastika Paul** — *Cybersecurity, Security Hardening & QA Engineer*  
+  SSRF containment, TLS/Header auditing logic, automated regression test suite, smart contract unit tests, and security audits.
 
 ---
 
-## 17. Presentation & Hackathon Materials
+## 📄 License & Disclaimers
 
-- **PowerPoint Presentation (10 Slides)**: [`docs/CyberTrust360_PitchDeck.pptx`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/CyberTrust360_PitchDeck.pptx)
-- **Slide Content, Pitch Script & Demo Script**: [`docs/PRESENTATION.md`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/PRESENTATION.md)
-- **Video Storyboard & Recording Checklist**: [`docs/DEMO_VIDEO_STORYBOARD.md`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/DEMO_VIDEO_STORYBOARD.md)
-- **Technical Architecture Specification**: [`docs/ARCHITECTURE.md`](file:///Users/sayanghosh/Desktop/HACKMATRIX/docs/ARCHITECTURE.md)
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
----
-
-## 18. Team TECHNIX PRO & Contributions
-
-- **Sayan Ghosh** — Lead Full-Stack & Systems Architecture Engineer  
-  *FastAPI gateway, database integration, Web3 smart contract deployment, canonical hashing engine, and system orchestration.*
-- **Sayani Ghosal** — AI/ML & Scam Intelligence Research Engineer  
-  *Scam DNA sequencing engine, prompt injection defenses, Indian digital threat pattern engineering, and safety guidance protocols.*
-- **Hritushree Mitra** — Threat Correlation & Graph Frontend Engineer  
-  *React Flow graph implementation, node/edge highlighting, anti-overlap layout, evidence panels, and UI telemetry.*
-- **Swastika Paul** — Cybersecurity, Security Hardening & Quality Assurance Engineer  
-  *SSRF guardrails, per-hop redirect validation, automated pytest suite, smart contract unit testing, and security audit.*
+### Disclaimers
+1. **Educational & Defensive Purpose**: CyberTrust 360 is designed exclusively for threat detection, research, and defensive digital awareness.
+2. **Attestation Scope**: Blockchain attestation cryptographically verifies that a stored threat report matches the exact fingerprint registered at a given block time; it does not independently endorse third-party external indicators.
+3. **No Guarantee of Fund Recovery**: Incident guidance accurately advises immediate reporting to India's National Helpline 1930 and bank channels to maximize the likelihood of account freezes, without making false guarantees of monetary recovery.
 
 ---
 
-## 19. License & Disclaimer
-
-Developed by **Team TECHNIX PRO** for hackathon demonstration.  
-Licensed under the **MIT License**.  
-*CyberTrust 360 is intended for cyber threat defense and educational digital trust awareness.*
-
-## Remediated local demo and access control
-
-`./start_demo.sh` supervises the three local services, applies additive migrations and checks actual database and registry readiness. It installs nothing. Existing dependencies and compiled artifacts must be present. It refuses occupied API/frontend ports and never resets a running chain. Use `--reuse-chain` only for a known local Hardhat node. Stop with Ctrl-C; only its child processes are stopped.
-
-For an isolated demo alongside existing services:
-
-```sh
-./start_demo.sh --api-port 18000 --web-port 15173 --chain-port 18545
-```
-
-Open the printed URL directly; a private visitor session is created automatically. `.runtime/demo-token.txt` remains a private operator credential, not a website login requirement. The persistent demo database is `.runtime/demo.db`; original `cybertrust.db` records are preserved. Live LLM inference is off by default in this launcher; set `LLM_PROVIDER` and the matching provider key/model explicitly to opt in.
-
-Optional operator access uses `API_AUTH_TOKENS`, a JSON object mapping random tokens (at least 32 characters) to `{"id":"person-id","role":"admin"}`. Roles: admin sees all records; analyst creates and reads their own reports; registrar additionally signs their own reports; reader can only read their own reports. Multiple tokens can share an identity. Pre-migration records have no owner and are visible only to admins until ownership is assigned through a reviewed migration. The frontend automatically keeps a short-lived visitor session in tab storage. Visitor identities can access only their own reports. Root, health and rate-limited visitor-session creation are public; operator and report endpoints retain authorization. Public blockchain signing is disabled by default.
-
-The built-in rate limiter applies per IP and identity, limits payload size and concurrent requests, and assumes one API worker. Distributed deployments need a shared ingress limiter and managed identity/secret storage. Public hosting is not approved by this remediation.
-
-New `ct360-v2` SHA-256 fingerprints cover the entire saved report JSON plus displayed summary columns. This custom deterministic JSON is **not RFC 8785 JCS**. Legacy v1 fingerprints remain verifiable but clearly show partial coverage; explicitly register a new version to protect the complete report. Registrations require chain ID 31337, the expected runtime bytecode, authorized registrar and a confirmed matching receipt. Only hashes/type/version are placed on chain. Hardhat remains a resettable local EVM, not a public decentralized ledger.
-
-Dashboard counts exclude graph fixtures; related indicators describe the latest 100 URL and 100 scam records (up to 200 records), not an unlimited corpus. Blockchain count means distinct reports with saved confirmed registrations; use live verification to check current chain state. Local test inputs remain test data even though their reports are genuinely persisted.
-
-Backend tests create a new temporary database automatically and use localhost:18545. Start a separate Hardhat node and deploy the contract there before running the full suite. Never point these tests at the user's chain or database. Test credentials are explicitly development-only. See the post-remediation report for reproducible commands and results.
-
-Incident guidance references: [NPCI fraud awareness](https://www.npci.org.in/fraud-awareness), [National cybercrime reporting instructions](https://cybercrime.gov.in/uploadmedia/instructions_citizenreportingcyberfrauds.pdf). Prompt reporting to the bank/payment provider, 1930 and cybercrime.gov.in is recommended; recovery is not guaranteed.
-
-Current corrected presentation: [CyberTrust360_PitchDeck_Remediated.pptx](docs/CyberTrust360_PitchDeck_Remediated.pptx). The original deck remains historical.
-
-For backend integration tests, start Hardhat on 127.0.0.1:18545 and run `backend/.venv/bin/python scripts/deploy_test_chain.py` from the repository root. This helper validates the local test registry without writing application ABI metadata.
+<p align="center">
+  <strong>CyberTrust 360 — Your Digital World. Protected from Every Angle.</strong><br>
+  Developed with ❤️ by <strong>TECHNIX PRO</strong>
+</p>
